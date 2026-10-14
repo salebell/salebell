@@ -1,0 +1,59 @@
+# Only the settings Salebell depends on; `supabase init` defaults apply otherwise.
+# Managed-cloud Auth is configured by scripts/setup.sh, not `supabase config push`.
+# Local Supabase project name.
+project_id = "salebell"
+
+[auth]
+site_url = "http://localhost:3000"
+additional_redirect_urls = ["http://localhost:3000/**"]
+
+[auth.email]
+# The email provider covers both the one-time code and email + password sign-in; keep both
+# enabled (password sign-in is used for App Store review and test accounts).
+enable_signup = true
+# One-time 6-digit code (no magic-link click needed; works the same on web and iOS).
+otp_length = 6
+# Seconds: codes are valid for 15 minutes.
+otp_expiry = 900
+
+# signInWithOtp sends "confirmation" to new users and "magic_link" to returning ones;
+# both show the code.
+[auth.email.template.confirmation]
+subject = "Your Salebell sign-in code"
+content_path = "./supabase/templates/otp.html"
+
+[auth.email.template.magic_link]
+subject = "Your Salebell sign-in code"
+content_path = "./supabase/templates/otp.html"
+
+[functions.apple-webhook]
+# Apple authenticates with its own signed payload, not a Supabase JWT.
+verify_jwt = false
+
+[functions.stripe-webhook]
+# Stripe authenticates with the Stripe-Signature HMAC.
+verify_jwt = false
+
+[functions.fx-refresh]
+# Called by pg_cron without credentials; idempotent and a no-op within 6 hours.
+verify_jwt = false
+
+[functions.test-alert]
+verify_jwt = true
+
+[functions.apple-test]
+verify_jwt = true
+
+[functions.apple-connect]
+# The handler also verifies the caller and requires workspace owner/admin access.
+verify_jwt = true
+
+[functions.apple-credentials]
+# Saved-key management is restricted to workspace owners and admins in the handler and RPCs.
+verify_jwt = true
+
+[functions.billing]
+verify_jwt = true
+
+[functions.delete-account]
+verify_jwt = true

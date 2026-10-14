@@ -1,0 +1,5 @@
+#include "Base.xcconfig"
+
+// Debug builds are signed with the development APNs entitlement and register as "sandbox".
+APS_ENVIRONMENT = development
+SP_APNS_ENVIRONMENT = sandbox

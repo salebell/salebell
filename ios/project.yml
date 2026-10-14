@@ -1,0 +1,128 @@
+# Generate Salebell.xcodeproj with `xcodegen generate` (run from ios/).
+name: Salebell
+options:
+  bundleIdPrefix: com.salebell
+  deploymentTarget:
+    iOS: "17.0"
+  createIntermediateGroups: true
+  generateEmptyDirectories: false
+configFiles:
+  Debug: Config/Debug.xcconfig
+  Release: Config/Release.xcconfig
+settings:
+  base:
+    SWIFT_VERSION: "6.0"
+    SWIFT_STRICT_CONCURRENCY: complete
+    ENABLE_USER_SCRIPT_SANDBOXING: YES
+    TARGETED_DEVICE_FAMILY: "1"
+packages:
+  Supabase:
+    url: https://github.com/supabase/supabase-swift
+    from: 2.55.0
+targets:
+  Salebell:
+    type: application
+    platform: iOS
+    sources:
+      - path: Salebell
+    dependencies:
+      - package: Supabase
+        product: Supabase
+      - target: SalebellWidget
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID)
+        ASSETCATALOG_COMPILER_APPICON_NAME: AppIcon
+        ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME: AccentColor
+        CODE_SIGN_ENTITLEMENTS: Salebell/Salebell.entitlements
+    info:
+      path: Salebell/Info.plist
+      properties:
+        CFBundleDisplayName: Salebell
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        LSRequiresIPhoneOS: true
+        ITSAppUsesNonExemptEncryption: false
+        UILaunchScreen:
+          UIColorName: LaunchBackground
+        UIApplicationSceneManifest:
+          UIApplicationSupportsMultipleScenes: false
+        UISupportedInterfaceOrientations:
+          - UIInterfaceOrientationPortrait
+        UIBackgroundModes:
+          - remote-notification
+        SPSupabaseURL: $(SUPABASE_URL)
+        SPSupabaseKey: $(SUPABASE_PUBLISHABLE_KEY)
+        SPSiteURL: $(SITE_URL)
+        SPApnsEnvironment: $(SP_APNS_ENVIRONMENT)
+        SPAppGroup: $(APP_GROUP_ID)
+    entitlements:
+      path: Salebell/Salebell.entitlements
+      properties:
+        aps-environment: $(APS_ENVIRONMENT)
+        com.apple.security.application-groups:
+          - $(APP_GROUP_ID)
+  SalebellWidget:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SalebellWidget
+      - path: Salebell/Models/AppOverview.swift
+      - path: Salebell/Models/Decoding.swift
+      - path: Salebell/Models/Money.swift
+      - path: Salebell/Services/AppConfig.swift
+      - path: Salebell/Services/SharedClient.swift
+    dependencies:
+      - package: Supabase
+        product: Supabase
+      - sdk: WidgetKit.framework
+      - sdk: SwiftUI.framework
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID).widget
+        CODE_SIGN_ENTITLEMENTS: SalebellWidget/SalebellWidget.entitlements
+        SKIP_INSTALL: YES
+    info:
+      path: SalebellWidget/Info.plist
+      properties:
+        CFBundleDisplayName: Salebell
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.widgetkit-extension
+        SPSupabaseURL: $(SUPABASE_URL)
+        SPSupabaseKey: $(SUPABASE_PUBLISHABLE_KEY)
+        SPSiteURL: $(SITE_URL)
+        SPAppGroup: $(APP_GROUP_ID)
+    entitlements:
+      path: SalebellWidget/SalebellWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - $(APP_GROUP_ID)
+  SalebellTests:
+    type: bundle.unit-test
+    platform: iOS
+    sources:
+      - path: SalebellTests
+    dependencies:
+      - target: Salebell
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID).tests
+        GENERATE_INFOPLIST_FILE: YES
+        TEST_HOST: $(BUILT_PRODUCTS_DIR)/Salebell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salebell
+        BUNDLE_LOADER: $(TEST_HOST)
+schemes:
+  Salebell:
+    build:
+      targets:
+        Salebell: all
+        SalebellTests: [test]
+    run:
+      config: Debug
+    test:
+      config: Debug
+      targets:
+        - SalebellTests
+    archive:
+      config: Release

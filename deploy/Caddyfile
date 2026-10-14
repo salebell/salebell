@@ -1,0 +1,8 @@
+{$SITE_HOST} {
+    encode zstd gzip
+    reverse_proxy web:3000
+}
+
+{$API_HOST} {
+    reverse_proxy api-gw:8000
+}

@@ -1,0 +1,280 @@
+# Production images are pinned to the official Supabase self-hosted/v0.8.1 set.
+# See deploy/UPSTREAM.md before changing database major versions or service tags.
+name: ${COMPOSE_PROJECT_NAME:-salebell}
+
+services:
+  db:
+    image: supabase/postgres:17.6.1.136
+    restart: unless-stopped
+    environment:
+      POSTGRES_HOST: /var/run/postgresql
+      PGPORT: 5432
+      POSTGRES_PORT: 5432
+      POSTGRES_DB: postgres
+      PGDATABASE: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?Initialize self-hosting first}
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      JWT_EXP: 3600
+    command: [postgres, -c, config_file=/etc/postgresql/postgresql.conf, -c, log_min_messages=warning]
+    volumes:
+      - db-data:/var/lib/postgresql/data
+      - db-config:/etc/postgresql-custom
+      - ./db/roles.sql:/docker-entrypoint-initdb.d/init-scripts/99-roles.sql:ro
+      - ./db/realtime.sql:/docker-entrypoint-initdb.d/migrations/99-realtime.sql:ro
+      - ./db/jwt.sql:/docker-entrypoint-initdb.d/init-scripts/99-jwt.sql:ro
+    healthcheck:
+      test: [CMD, pg_isready, -U, postgres, -h, localhost]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  templates:
+    image: caddy:2.11.7-alpine
+    restart: unless-stopped
+    command: [caddy, file-server, --root, /templates, --listen, ':8080']
+    volumes:
+      - ../supabase/templates:/templates:ro
+    healthcheck:
+      test: [CMD, wget, -q, --spider, 'http://127.0.0.1:8080/otp.html']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  auth:
+    image: supabase/gotrue:v2.196.0
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+      templates: { condition: service_healthy }
+    environment:
+      GOTRUE_API_HOST: 0.0.0.0
+      GOTRUE_API_PORT: 9999
+      API_EXTERNAL_URL: ${SUPABASE_PUBLIC_URL}/auth/v1
+      GOTRUE_DB_DRIVER: postgres
+      GOTRUE_DB_DATABASE_URL: postgres://supabase_auth_admin:${POSTGRES_PASSWORD}@db:5432/postgres
+      GOTRUE_SITE_URL: ${SITE_URL}
+      GOTRUE_URI_ALLOW_LIST: ${SITE_URL}/**,salebell://**
+      GOTRUE_DISABLE_SIGNUP: ${DISABLE_SIGNUP:-true}
+      GOTRUE_JWT_ADMIN_ROLES: service_role
+      GOTRUE_JWT_AUD: authenticated
+      GOTRUE_JWT_DEFAULT_GROUP_NAME: authenticated
+      GOTRUE_JWT_EXP: 3600
+      GOTRUE_JWT_SECRET: ${JWT_SECRET}
+      GOTRUE_JWT_ISSUER: ${SUPABASE_PUBLIC_URL}/auth/v1
+      GOTRUE_EXTERNAL_EMAIL_ENABLED: 'true'
+      GOTRUE_EXTERNAL_ANONYMOUS_USERS_ENABLED: 'false'
+      GOTRUE_MAILER_AUTOCONFIRM: 'false'
+      GOTRUE_MAILER_OTP_LENGTH: 6
+      GOTRUE_MAILER_OTP_EXP: 900
+      GOTRUE_MAILER_TEMPLATES_CONFIRMATION: http://templates:8080/otp.html
+      GOTRUE_MAILER_TEMPLATES_MAGIC_LINK: http://templates:8080/otp.html
+      GOTRUE_MAILER_SUBJECTS_CONFIRMATION: Your Salebell sign-in code
+      GOTRUE_MAILER_SUBJECTS_MAGIC_LINK: Your Salebell sign-in code
+      GOTRUE_SMTP_HOST: ${SMTP_HOST:-}
+      GOTRUE_SMTP_PORT: ${SMTP_PORT:-587}
+      GOTRUE_SMTP_USER: ${SMTP_USER:-}
+      GOTRUE_SMTP_PASS: ${SMTP_PASS:-}
+      GOTRUE_SMTP_ADMIN_EMAIL: ${SMTP_ADMIN_EMAIL}
+      GOTRUE_SMTP_SENDER_NAME: ${SMTP_SENDER_NAME:-Salebell}
+    healthcheck:
+      test: [CMD, wget, --no-verbose, --tries=1, --spider, 'http://127.0.0.1:9999/health']
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  migrate:
+    image: supabase/postgres:17.6.1.136
+    profiles: [tools]
+    depends_on:
+      auth: { condition: service_healthy }
+    environment:
+      PGHOST: db
+      PGPORT: 5432
+      PGDATABASE: postgres
+      PGUSER: supabase_admin
+      PGPASSWORD: ${POSTGRES_PASSWORD}
+    entrypoint: [bash, /deploy/migrate.sh]
+    volumes:
+      - ./migrate.sh:/deploy/migrate.sh:ro
+      - ../supabase/migrations:/migrations:ro
+
+  rest:
+    image: postgrest/postgrest:v14.17
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    environment:
+      PGRST_DB_URI: postgres://authenticator:${POSTGRES_PASSWORD}@db:5432/postgres
+      PGRST_DB_SCHEMAS: public
+      PGRST_DB_EXTRA_SEARCH_PATH: public,extensions
+      PGRST_DB_ANON_ROLE: anon
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      PGRST_DB_USE_LEGACY_GUCS: 'false'
+      PGRST_ADMIN_SERVER_HOST: 0.0.0.0
+      PGRST_ADMIN_SERVER_PORT: 3001
+      PGRST_APP_SETTINGS_JWT_EXP: 3600
+    healthcheck:
+      test: [CMD, postgrest, --ready]
+      interval: 5s
+      timeout: 5s
+      retries: 30
+
+  realtime:
+    image: supabase/realtime:v2.134.10
+    restart: unless-stopped
+    depends_on:
+      db: { condition: service_healthy }
+    networks:
+      default:
+        aliases: [realtime-dev.supabase-realtime]
+    environment:
+      PORT: 4000
+      DB_HOST: db
+      DB_PORT: 5432
+      DB_USER: supabase_admin
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      DB_NAME: postgres
+      DB_AFTER_CONNECT_QUERY: SET search_path TO _realtime
+      DB_ENC_KEY: ${REALTIME_DB_ENC_KEY}
+      API_JWT_SECRET: ${JWT_SECRET}
+      SECRET_KEY_BASE: ${SECRET_KEY_BASE}
+      METRICS_JWT_SECRET: ${JWT_SECRET}
+      ANON_KEY: ${ANON_KEY}
+      ERL_AFLAGS: -proto_dist inet_tcp
+      DNS_NODES: "''"
+      RLIMIT_NOFILE: '10000'
+      APP_NAME: realtime
+      SEED_SELF_HOST: 'true'
+      RUN_JANITOR: 'true'
+      DISABLE_HEALTHCHECK_LOGGING: 'true'
+    healthcheck:
+      test: [CMD-SHELL, 'curl -sSfL --head -o /dev/null -H "Authorization: Bearer $$ANON_KEY" http://localhost:4000/api/tenants/realtime-dev/health']
+      interval: 10s
+      timeout: 5s
+      retries: 30
+      start_period: 20s
+
+  functions:
+    image: supabase/edge-runtime:v1.76.2
+    restart: unless-stopped
+    depends_on:
+      rest: { condition: service_healthy }
+    command: [start, --user-worker-request-idle-timeout, '150000', --main-service, /home/deno/main]
+    environment:
+      SUPABASE_URL: http://api-gw:8000
+      SUPABASE_PUBLIC_URL: ${SUPABASE_PUBLIC_URL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+      SITE_URL: ${SITE_URL}
+      DEPLOYMENT_MODE: self_hosted
+      APNS_KEY_ID: ${APNS_KEY_ID:-}
+      APNS_TEAM_ID: ${APNS_TEAM_ID:-}
+      APNS_TOPIC: ${APNS_TOPIC:-}
+      APNS_KEY_P8: ${APNS_KEY_P8:-}
+    volumes:
+      - ../supabase/functions:/home/deno/functions:ro
+      - ./functions:/home/deno/main:ro
+      - deno-cache:/root/.cache/deno
+    healthcheck:
+      test: [CMD-SHELL, "timeout 1 bash -c '</dev/tcp/127.0.0.1/9000'"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  api-gw:
+    image: kong/kong:3.9.3
+    restart: unless-stopped
+    depends_on:
+      auth: { condition: service_healthy }
+      rest: { condition: service_healthy }
+      functions: { condition: service_healthy }
+    environment:
+      KONG_DATABASE: 'off'
+      KONG_DECLARATIVE_CONFIG: /tmp/kong.yml
+      KONG_PROXY_LISTEN: 0.0.0.0:8000
+      KONG_ADMIN_LISTEN: 'off'
+      KONG_DNS_ORDER: LAST,A,CNAME
+      KONG_DNS_NOT_FOUND_TTL: 1
+      KONG_DNS_VALID_TTL: 5
+      KONG_PLUGINS: cors,key-auth,acl,request-termination
+      KONG_PROXY_ACCESS_LOG: 'off'
+      KONG_NGINX_PROXY_PROXY_BUFFER_SIZE: 160k
+      KONG_NGINX_PROXY_PROXY_BUFFERS: 64 160k
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${SERVICE_ROLE_KEY}
+    entrypoint: [sh, /config/entrypoint.sh]
+    volumes:
+      - ./gateway:/config:ro
+    healthcheck:
+      test: [CMD, kong, health]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  web:
+    build:
+      context: ../web
+      args:
+        NEXT_PUBLIC_SUPABASE_URL: ${SUPABASE_PUBLIC_URL}
+        NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: ${ANON_KEY}
+        NEXT_PUBLIC_SITE_URL: ${SITE_URL}
+        NEXT_PUBLIC_DEPLOYMENT_MODE: self_hosted
+        NEXT_PUBLIC_SUPPORT_EMAIL: ${NEXT_PUBLIC_SUPPORT_EMAIL:-}
+        NEXT_PUBLIC_COMPANY_NAME: ${NEXT_PUBLIC_COMPANY_NAME:-}
+        NEXT_PUBLIC_COMPANY_NUMBER: ${NEXT_PUBLIC_COMPANY_NUMBER:-}
+        NEXT_PUBLIC_COMPANY_ADDRESS: ${NEXT_PUBLIC_COMPANY_ADDRESS:-}
+        NEXT_PUBLIC_IOS_APP_URL: ${NEXT_PUBLIC_IOS_APP_URL:-}
+        NEXT_PUBLIC_SOURCE_URL: ${NEXT_PUBLIC_SOURCE_URL:-https://github.com/salebell/salebell}
+        SUPABASE_INTERNAL_URL: http://api-gw:8000
+    restart: unless-stopped
+    environment:
+      NODE_ENV: production
+      HOSTNAME: 0.0.0.0
+      PORT: 3000
+    healthcheck:
+      test: [CMD, node, -e, "fetch('http://127.0.0.1:3000/login').then(r=>process.exit(r.ok?0:1)).catch(()=>process.exit(1))"]
+      interval: 10s
+      timeout: 5s
+      retries: 20
+
+  proxy:
+    image: caddy:2.11.7-alpine
+    restart: unless-stopped
+    depends_on:
+      api-gw: { condition: service_healthy }
+      web: { condition: service_healthy }
+    environment:
+      SITE_HOST: ${SITE_HOST}
+      API_HOST: ${API_HOST}
+    ports:
+      - '80:80'
+      - '443:443'
+      - '443:443/udp'
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+
+  bootstrap:
+    image: node:22.23.3-alpine3.24
+    profiles: [tools]
+    environment:
+      OWNER_EMAIL: ${OWNER_EMAIL}
+      SUPABASE_ANON_KEY: ${ANON_KEY}
+      SUPABASE_SERVICE_ROLE_KEY: ${SERVICE_ROLE_KEY}
+    secrets: [owner_password]
+    volumes:
+      - ./bootstrap.mjs:/deploy/bootstrap.mjs:ro
+    command: [node, /deploy/bootstrap.mjs, up]
+
+secrets:
+  owner_password:
+    file: ${SALEBELL_DEPLOY_DIR:-.}/owner-password
+
+volumes:
+  db-data:
+  db-config:
+  deno-cache:
+  caddy-data:
+  caddy-config:

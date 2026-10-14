@@ -1,0 +1,18 @@
+{
+  "name": "salebell",
+  "private": true,
+  "license": "MIT",
+  "type": "module",
+  "description": "Real-time in-app purchase monitoring: verified App Store notifications, revenue ledger, phone alerts and integrations.",
+  "engines": { "node": ">=22.6" },
+  "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "dev:stop": "supabase stop",
+    "self-host": "node scripts/self-host.mjs",
+    "setup:owner": "bash scripts/setup.sh",
+    "test": "node --experimental-strip-types --no-warnings --test tests/*.test.ts",
+    "test:sql": "bash tests/sql/run.sh",
+    "deploy:functions": "supabase functions deploy --use-api",
+    "deploy:db": "supabase db push --linked"
+  }
+}

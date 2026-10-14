@@ -1,0 +1,6 @@
+# Only web/ is deployed (the Vercel project's root directory is web/).
+/*
+!/web
+/web/node_modules
+/web/.next
+/web/.env*.local

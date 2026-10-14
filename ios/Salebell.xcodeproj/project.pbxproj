@@ -1,0 +1,779 @@
+// !$*UTF8*$!
+{
+	archiveVersion = 1;
+	classes = {
+	};
+	objectVersion = 77;
+	objects = {
+
+/* Begin PBXBuildFile section */
+		08180BC1D0ECBA2DC1001F4E /* EventKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31219B085AE9D873468BE9D6 /* EventKind.swift */; };
+		09598575FC85841381C5B9E1 /* TodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156E1E612C58DDCE4B116B77 /* TodayWidget.swift */; };
+		0BC88BCD7B36FE9CC08F4D3E /* DecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */; };
+		0D7755A30EE03A99A013D8D4 /* EventLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */; };
+		0FE7B5655A7AE143EA39308C /* PushExplainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EE7065A47EE5093C261725 /* PushExplainerView.swift */; };
+		1248CE931B9A74E860957BA4 /* UserFacingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF1D1C680E6EE174CA93AE /* UserFacingError.swift */; };
+		273094CBB1976573AB3724AE /* SessionStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */; };
+		2E6D6540CBF33927B93FA730 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB1AB658E747F341FDC894B /* Backend.swift */; };
+		313F4D655B4E2C91EEE00AC3 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A3B1E1D90C6D9549F444AD /* FeedView.swift */; };
+		3428D73F462D9192C4F01EAE /* SharedClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577C772598FA5F2EBB2C9E09 /* SharedClient.swift */; };
+		3717A9291C9F1068DFFBC344 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D05789124B5A90D54C54CADF /* Supabase */; };
+		3996519137E23EF4B7CA017A /* AppOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C16D0F7E750C9C517A919E /* AppOverview.swift */; };
+		3A8225EC375BFF547C660E68 /* chaching.caf in Resources */ = {isa = PBXBuildFile; fileRef = 7EF8E563F572F3255E089769 /* chaching.caf */; };
+		4BC2F274F557715B1A7021DA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 79D45BA73082A3A87B6C14E8 /* PrivacyInfo.xcprivacy */; };
+		4D71D0F908CE8225F258AAF1 /* Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */; };
+		517AAC58CA3EC955CC22F26E /* StoreEventRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E3A22A4A74BFA0D5016ADA /* StoreEventRow.swift */; };
+		560636DB00A5357615D432E4 /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672556DC703741BED885C1A4 /* Money.swift */; };
+		57E7A144ED7B4B00A2B19B3A /* EmptyAppsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2328CED49DE3613D257FC7 /* EmptyAppsView.swift */; };
+		62593C85BFE097F46F8BC073 /* Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */; };
+		6659E107841EFB775AC77307 /* SalebellApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE0E78AA758A600398D026A /* SalebellApp.swift */; };
+		6E0C031001667E5D726277C6 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2718B6C627C2B517B26374 /* RootView.swift */; };
+		7132848F88AF3B0D69F82E9F /* OverviewView.swift in Sources */ = {isa = PBXBuildFile; fileRef = E222ECD4A830B267161F948A /* OverviewView.swift */; };
+		72DB49F62FFE7D6BEFCA32C6 /* Assets.xcassets in Resources */ = {isa = PBXBuildFile; fileRef = 874A6C78996F5B4DCC56D483 /* Assets.xcassets */; };
+		7BFDA6BE2E9CFD22E7EA3F2B /* DemoBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4DE316DB9E61677FF0A2A36 /* DemoBackend.swift */; };
+		833619BA52B3F1546D75D106 /* SalebellWidget.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 158B24D54D2904FB2AE50F83 /* SalebellWidget.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
+		8A8864CE6A02739AAE0532D6 /* AppModel.swift in Sources */ = {isa = PBXBuildFile; fileRef = 16F1CBBAFA04A027CB125794 /* AppModel.swift */; };
+		8D611B51FFF464EC826FAEC1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7281AAD42ACB5C9265EA216 /* AppDelegate.swift */; };
+		A16E20765581730182444DF0 /* SharedClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577C772598FA5F2EBB2C9E09 /* SharedClient.swift */; };
+		AA29ADB9AF7DAAACA9C92ADE /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E6AD60C329B68A473F98F5 /* AppConfig.swift */; };
+		B5DE3404F332F7788F4D055D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FABCDC0B10F305AA2EA1725C /* SwiftUI.framework */; };
+		B7A07FEF4B2B1AE972D0AB4E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75799B74AE76F3E962F15165 /* SignInView.swift */; };
+		BA6597CDB01E58F672663396 /* TestPushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A569D608E07D49710538E048 /* TestPushTests.swift */; };
+		C9B714EEF51BD5863C75C107 /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672556DC703741BED885C1A4 /* Money.swift */; };
+		CDB8AA068A139FDC51DC3AB1 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 2076870643AC83B2823A4BCB /* Supabase */; };
+		D7CF2284A58BD584C0585623 /* AppModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2AFF700053CB9C882FF178 /* AppModelTests.swift */; };
+		D8C3FA173A855B8638CA21F8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7197D36BE4F30B7C9D4BEF /* SettingsView.swift */; };
+		E887FDFD4E61506C371364EF /* AppOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C16D0F7E750C9C517A919E /* AppOverview.swift */; };
+		F71D99A9A2BB19A8819727A6 /* SupabaseBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27461E022FB198188E26DF8 /* SupabaseBackend.swift */; };
+		F7F9C2D2D7B9439F833CA7E6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74BDC2CB00F5EBB58B0D2D30 /* WidgetKit.framework */; };
+		FAB3D626F94D9EE5D23542F6 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E6AD60C329B68A473F98F5 /* AppConfig.swift */; };
+/* End PBXBuildFile section */
+
+/* Begin PBXContainerItemProxy section */
+		35EECF36F466457A70F81444 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C6DB6AB4DF6331ADB4F9070 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 90A1D9BBD541904F2B6A6A84;
+			remoteInfo = SalebellWidget;
+		};
+		7C695308CAEAB10BDF512552 /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C6DB6AB4DF6331ADB4F9070 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = 4EE8A585A491DAC5E2950C98;
+			remoteInfo = Salebell;
+		};
+/* End PBXContainerItemProxy section */
+
+/* Begin PBXCopyFilesBuildPhase section */
+		6B0A5E0D2D9D22E5638B6317 /* Embed Foundation Extensions */ = {
+			isa = PBXCopyFilesBuildPhase;
+			buildActionMask = 2147483647;
+			dstPath = "";
+			dstSubfolderSpec = 13;
+			files = (
+				833619BA52B3F1546D75D106 /* SalebellWidget.appex in Embed Foundation Extensions */,
+			);
+			name = "Embed Foundation Extensions";
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXCopyFilesBuildPhase section */
+
+/* Begin PBXFileReference section */
+		0CE0E78AA758A600398D026A /* SalebellApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalebellApp.swift; sourceTree = "<group>"; };
+		156E1E612C58DDCE4B116B77 /* TodayWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidget.swift; sourceTree = "<group>"; };
+		158B24D54D2904FB2AE50F83 /* SalebellWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SalebellWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
+		16F1CBBAFA04A027CB125794 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
+		2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStorageTests.swift; sourceTree = "<group>"; };
+		31219B085AE9D873468BE9D6 /* EventKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventKind.swift; sourceTree = "<group>"; };
+		35EE7065A47EE5093C261725 /* PushExplainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushExplainerView.swift; sourceTree = "<group>"; };
+		38E6AD60C329B68A473F98F5 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		48EF1D1C680E6EE174CA93AE /* UserFacingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFacingError.swift; sourceTree = "<group>"; };
+		49E3A22A4A74BFA0D5016ADA /* StoreEventRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreEventRow.swift; sourceTree = "<group>"; };
+		4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decoding.swift; sourceTree = "<group>"; };
+		5299FA3673C8BCDAFE8AD33C /* Salebell.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Salebell.entitlements; sourceTree = "<group>"; };
+		577C772598FA5F2EBB2C9E09 /* SharedClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedClient.swift; sourceTree = "<group>"; };
+		672556DC703741BED885C1A4 /* Money.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Money.swift; sourceTree = "<group>"; };
+		73CC24EC7990D2C0DD666895 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
+		74BDC2CB00F5EBB58B0D2D30 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
+		75799B74AE76F3E962F15165 /* SignInView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SignInView.swift; sourceTree = "<group>"; };
+		7790994540D153268634B300 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		79D45BA73082A3A87B6C14E8 /* PrivacyInfo.xcprivacy */ = {isa = PBXFileReference; lastKnownFileType = text.xml; path = PrivacyInfo.xcprivacy; sourceTree = "<group>"; };
+		7EF8E563F572F3255E089769 /* chaching.caf */ = {isa = PBXFileReference; lastKnownFileType = file; path = chaching.caf; sourceTree = "<group>"; };
+		874A6C78996F5B4DCC56D483 /* Assets.xcassets */ = {isa = PBXFileReference; lastKnownFileType = folder.assetcatalog; path = Assets.xcassets; sourceTree = "<group>"; };
+		96A3B1E1D90C6D9549F444AD /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
+		9B2328CED49DE3613D257FC7 /* EmptyAppsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyAppsView.swift; sourceTree = "<group>"; };
+		9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingTests.swift; sourceTree = "<group>"; };
+		A569D608E07D49710538E048 /* TestPushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPushTests.swift; sourceTree = "<group>"; };
+		A76DEE756755776C7E1571C4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
+		AD7197D36BE4F30B7C9D4BEF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		BA2AFF700053CB9C882FF178 /* AppModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelTests.swift; sourceTree = "<group>"; };
+		CDB1AB658E747F341FDC894B /* Backend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
+		D4C16D0F7E750C9C517A919E /* AppOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOverview.swift; sourceTree = "<group>"; };
+		D4DE316DB9E61677FF0A2A36 /* DemoBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoBackend.swift; sourceTree = "<group>"; };
+		D828FD5B85C54F5D6ABF43CB /* SalebellWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SalebellWidget.entitlements; sourceTree = "<group>"; };
+		DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLabelTests.swift; sourceTree = "<group>"; };
+		E222ECD4A830B267161F948A /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
+		E27461E022FB198188E26DF8 /* SupabaseBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseBackend.swift; sourceTree = "<group>"; };
+		EEC8730BF24ABFDE1BA1DBF7 /* Salebell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salebell.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		EF2718B6C627C2B517B26374 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		F6128F674B32D269B308E00A /* SalebellTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalebellTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
+		F61739589F6333F98F9CF1C0 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
+		F7281AAD42ACB5C9265EA216 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
+		FABCDC0B10F305AA2EA1725C /* SwiftUI.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = SwiftUI.framework; path = System/Library/Frameworks/SwiftUI.framework; sourceTree = SDKROOT; };
+/* End PBXFileReference section */
+
+/* Begin PBXFrameworksBuildPhase section */
+		1D5BB809DECF0463B44A70CF /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				3717A9291C9F1068DFFBC344 /* Supabase in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EB87DF282E09389A41E44BE3 /* Frameworks */ = {
+			isa = PBXFrameworksBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				CDB8AA068A139FDC51DC3AB1 /* Supabase in Frameworks */,
+				F7F9C2D2D7B9439F833CA7E6 /* WidgetKit.framework in Frameworks */,
+				B5DE3404F332F7788F4D055D /* SwiftUI.framework in Frameworks */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXFrameworksBuildPhase section */
+
+/* Begin PBXGroup section */
+		1F7A670F3B182F9FE77D19E6 /* App */ = {
+			isa = PBXGroup;
+			children = (
+				F7281AAD42ACB5C9265EA216 /* AppDelegate.swift */,
+				16F1CBBAFA04A027CB125794 /* AppModel.swift */,
+				0CE0E78AA758A600398D026A /* SalebellApp.swift */,
+			);
+			path = App;
+			sourceTree = "<group>";
+		};
+		377EF36FB01CD281330A9C1F /* Salebell */ = {
+			isa = PBXGroup;
+			children = (
+				7790994540D153268634B300 /* Info.plist */,
+				5299FA3673C8BCDAFE8AD33C /* Salebell.entitlements */,
+				1F7A670F3B182F9FE77D19E6 /* App */,
+				D74E855C3BA8645D17EA4E4C /* Models */,
+				4026ED730A898C9292DD4563 /* Resources */,
+				8D3248063EF8F0ECBA50F7DA /* Services */,
+				4252D7C92F0A5D0BE7A6A3DC /* Views */,
+			);
+			path = Salebell;
+			sourceTree = "<group>";
+		};
+		4026ED730A898C9292DD4563 /* Resources */ = {
+			isa = PBXGroup;
+			children = (
+				874A6C78996F5B4DCC56D483 /* Assets.xcassets */,
+				7EF8E563F572F3255E089769 /* chaching.caf */,
+				79D45BA73082A3A87B6C14E8 /* PrivacyInfo.xcprivacy */,
+			);
+			path = Resources;
+			sourceTree = "<group>";
+		};
+		4252D7C92F0A5D0BE7A6A3DC /* Views */ = {
+			isa = PBXGroup;
+			children = (
+				9B2328CED49DE3613D257FC7 /* EmptyAppsView.swift */,
+				96A3B1E1D90C6D9549F444AD /* FeedView.swift */,
+				E222ECD4A830B267161F948A /* OverviewView.swift */,
+				35EE7065A47EE5093C261725 /* PushExplainerView.swift */,
+				EF2718B6C627C2B517B26374 /* RootView.swift */,
+				AD7197D36BE4F30B7C9D4BEF /* SettingsView.swift */,
+				75799B74AE76F3E962F15165 /* SignInView.swift */,
+				48EF1D1C680E6EE174CA93AE /* UserFacingError.swift */,
+			);
+			path = Views;
+			sourceTree = "<group>";
+		};
+		5175ED8064790B243A602E8C /* Config */ = {
+			isa = PBXGroup;
+			children = (
+				F61739589F6333F98F9CF1C0 /* Debug.xcconfig */,
+				73CC24EC7990D2C0DD666895 /* Release.xcconfig */,
+			);
+			path = Config;
+			sourceTree = "<group>";
+		};
+		6261660A1B363E49A6E870AC /* Frameworks */ = {
+			isa = PBXGroup;
+			children = (
+				FABCDC0B10F305AA2EA1725C /* SwiftUI.framework */,
+				74BDC2CB00F5EBB58B0D2D30 /* WidgetKit.framework */,
+			);
+			name = Frameworks;
+			sourceTree = "<group>";
+		};
+		803730E900C5E31011DFB7CE /* SalebellWidget */ = {
+			isa = PBXGroup;
+			children = (
+				A76DEE756755776C7E1571C4 /* Info.plist */,
+				D828FD5B85C54F5D6ABF43CB /* SalebellWidget.entitlements */,
+				156E1E612C58DDCE4B116B77 /* TodayWidget.swift */,
+			);
+			path = SalebellWidget;
+			sourceTree = "<group>";
+		};
+		8D3248063EF8F0ECBA50F7DA /* Services */ = {
+			isa = PBXGroup;
+			children = (
+				38E6AD60C329B68A473F98F5 /* AppConfig.swift */,
+				CDB1AB658E747F341FDC894B /* Backend.swift */,
+				D4DE316DB9E61677FF0A2A36 /* DemoBackend.swift */,
+				577C772598FA5F2EBB2C9E09 /* SharedClient.swift */,
+				E27461E022FB198188E26DF8 /* SupabaseBackend.swift */,
+			);
+			path = Services;
+			sourceTree = "<group>";
+		};
+		B0AA945388CD200FDC92BF86 /* Products */ = {
+			isa = PBXGroup;
+			children = (
+				EEC8730BF24ABFDE1BA1DBF7 /* Salebell.app */,
+				F6128F674B32D269B308E00A /* SalebellTests.xctest */,
+				158B24D54D2904FB2AE50F83 /* SalebellWidget.appex */,
+			);
+			name = Products;
+			sourceTree = "<group>";
+		};
+		B769EB21B3E0B989DB5DAD3C /* SalebellTests */ = {
+			isa = PBXGroup;
+			children = (
+				BA2AFF700053CB9C882FF178 /* AppModelTests.swift */,
+				9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */,
+				DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */,
+				2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */,
+				A569D608E07D49710538E048 /* TestPushTests.swift */,
+			);
+			path = SalebellTests;
+			sourceTree = "<group>";
+		};
+		C1BE2FF21CF7A2665D0E1973 = {
+			isa = PBXGroup;
+			children = (
+				5175ED8064790B243A602E8C /* Config */,
+				377EF36FB01CD281330A9C1F /* Salebell */,
+				B769EB21B3E0B989DB5DAD3C /* SalebellTests */,
+				803730E900C5E31011DFB7CE /* SalebellWidget */,
+				6261660A1B363E49A6E870AC /* Frameworks */,
+				B0AA945388CD200FDC92BF86 /* Products */,
+			);
+			sourceTree = "<group>";
+		};
+		D74E855C3BA8645D17EA4E4C /* Models */ = {
+			isa = PBXGroup;
+			children = (
+				D4C16D0F7E750C9C517A919E /* AppOverview.swift */,
+				4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */,
+				31219B085AE9D873468BE9D6 /* EventKind.swift */,
+				672556DC703741BED885C1A4 /* Money.swift */,
+				49E3A22A4A74BFA0D5016ADA /* StoreEventRow.swift */,
+			);
+			path = Models;
+			sourceTree = "<group>";
+		};
+/* End PBXGroup section */
+
+/* Begin PBXNativeTarget section */
+		4EE8A585A491DAC5E2950C98 /* Salebell */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 5AEF4031710DCFFBE51D0115 /* Build configuration list for PBXNativeTarget "Salebell" */;
+			buildPhases = (
+				EAEACFA462C054E59BEEB973 /* Sources */,
+				5ABFAF3AAD6BF1EA2DFF3928 /* Resources */,
+				1D5BB809DECF0463B44A70CF /* Frameworks */,
+				6B0A5E0D2D9D22E5638B6317 /* Embed Foundation Extensions */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				BACD15FC9F3DF5CE2701A7F3 /* PBXTargetDependency */,
+			);
+			name = Salebell;
+			packageProductDependencies = (
+				D05789124B5A90D54C54CADF /* Supabase */,
+			);
+			productName = Salebell;
+			productReference = EEC8730BF24ABFDE1BA1DBF7 /* Salebell.app */;
+			productType = "com.apple.product-type.application";
+		};
+		90A1D9BBD541904F2B6A6A84 /* SalebellWidget */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 355A5C1B7FBDA03D13FFFDD0 /* Build configuration list for PBXNativeTarget "SalebellWidget" */;
+			buildPhases = (
+				DC56B1D3FF02A6B18C6D7B8E /* Sources */,
+				EB87DF282E09389A41E44BE3 /* Frameworks */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SalebellWidget;
+			packageProductDependencies = (
+				2076870643AC83B2823A4BCB /* Supabase */,
+			);
+			productName = SalebellWidget;
+			productReference = 158B24D54D2904FB2AE50F83 /* SalebellWidget.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
+		CA333945D24F0300C6922092 /* SalebellTests */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 06DD478EC614CED2BD293AFE /* Build configuration list for PBXNativeTarget "SalebellTests" */;
+			buildPhases = (
+				0E7EB8D13ACB26CE29CAC24D /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+				788DF4C5F2BD04694864D860 /* PBXTargetDependency */,
+			);
+			name = SalebellTests;
+			packageProductDependencies = (
+			);
+			productName = SalebellTests;
+			productReference = F6128F674B32D269B308E00A /* SalebellTests.xctest */;
+			productType = "com.apple.product-type.bundle.unit-test";
+		};
+/* End PBXNativeTarget section */
+
+/* Begin PBXProject section */
+		8C6DB6AB4DF6331ADB4F9070 /* Project object */ = {
+			isa = PBXProject;
+			attributes = {
+				BuildIndependentTargetsInParallel = YES;
+				LastUpgradeCheck = 1430;
+				TargetAttributes = {
+					4EE8A585A491DAC5E2950C98 = {
+						ProvisioningStyle = Automatic;
+					};
+					90A1D9BBD541904F2B6A6A84 = {
+						ProvisioningStyle = Automatic;
+					};
+					CA333945D24F0300C6922092 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+				};
+			};
+			buildConfigurationList = 776667DA8A647133A7FC7A59 /* Build configuration list for PBXProject "Salebell" */;
+			developmentRegion = en;
+			hasScannedForEncodings = 0;
+			knownRegions = (
+				Base,
+				en,
+			);
+			mainGroup = C1BE2FF21CF7A2665D0E1973;
+			minimizedProjectReferenceProxies = 1;
+			packageReferences = (
+				010A47250159F7C160AB5226 /* XCRemoteSwiftPackageReference "supabase-swift" */,
+			);
+			preferredProjectObjectVersion = 77;
+			productRefGroup = B0AA945388CD200FDC92BF86 /* Products */;
+			projectDirPath = "";
+			projectRoot = "";
+			targets = (
+				4EE8A585A491DAC5E2950C98 /* Salebell */,
+				90A1D9BBD541904F2B6A6A84 /* SalebellWidget */,
+				CA333945D24F0300C6922092 /* SalebellTests */,
+			);
+		};
+/* End PBXProject section */
+
+/* Begin PBXResourcesBuildPhase section */
+		5ABFAF3AAD6BF1EA2DFF3928 /* Resources */ = {
+			isa = PBXResourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				72DB49F62FFE7D6BEFCA32C6 /* Assets.xcassets in Resources */,
+				4BC2F274F557715B1A7021DA /* PrivacyInfo.xcprivacy in Resources */,
+				3A8225EC375BFF547C660E68 /* chaching.caf in Resources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXResourcesBuildPhase section */
+
+/* Begin PBXSourcesBuildPhase section */
+		0E7EB8D13ACB26CE29CAC24D /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				D7CF2284A58BD584C0585623 /* AppModelTests.swift in Sources */,
+				0BC88BCD7B36FE9CC08F4D3E /* DecodingTests.swift in Sources */,
+				0D7755A30EE03A99A013D8D4 /* EventLabelTests.swift in Sources */,
+				273094CBB1976573AB3724AE /* SessionStorageTests.swift in Sources */,
+				BA6597CDB01E58F672663396 /* TestPushTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		DC56B1D3FF02A6B18C6D7B8E /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FAB3D626F94D9EE5D23542F6 /* AppConfig.swift in Sources */,
+				E887FDFD4E61506C371364EF /* AppOverview.swift in Sources */,
+				62593C85BFE097F46F8BC073 /* Decoding.swift in Sources */,
+				560636DB00A5357615D432E4 /* Money.swift in Sources */,
+				A16E20765581730182444DF0 /* SharedClient.swift in Sources */,
+				09598575FC85841381C5B9E1 /* TodayWidget.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		EAEACFA462C054E59BEEB973 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				AA29ADB9AF7DAAACA9C92ADE /* AppConfig.swift in Sources */,
+				8D611B51FFF464EC826FAEC1 /* AppDelegate.swift in Sources */,
+				8A8864CE6A02739AAE0532D6 /* AppModel.swift in Sources */,
+				3996519137E23EF4B7CA017A /* AppOverview.swift in Sources */,
+				2E6D6540CBF33927B93FA730 /* Backend.swift in Sources */,
+				4D71D0F908CE8225F258AAF1 /* Decoding.swift in Sources */,
+				7BFDA6BE2E9CFD22E7EA3F2B /* DemoBackend.swift in Sources */,
+				57E7A144ED7B4B00A2B19B3A /* EmptyAppsView.swift in Sources */,
+				08180BC1D0ECBA2DC1001F4E /* EventKind.swift in Sources */,
+				313F4D655B4E2C91EEE00AC3 /* FeedView.swift in Sources */,
+				C9B714EEF51BD5863C75C107 /* Money.swift in Sources */,
+				7132848F88AF3B0D69F82E9F /* OverviewView.swift in Sources */,
+				0FE7B5655A7AE143EA39308C /* PushExplainerView.swift in Sources */,
+				6E0C031001667E5D726277C6 /* RootView.swift in Sources */,
+				6659E107841EFB775AC77307 /* SalebellApp.swift in Sources */,
+				D8C3FA173A855B8638CA21F8 /* SettingsView.swift in Sources */,
+				3428D73F462D9192C4F01EAE /* SharedClient.swift in Sources */,
+				B7A07FEF4B2B1AE972D0AB4E /* SignInView.swift in Sources */,
+				517AAC58CA3EC955CC22F26E /* StoreEventRow.swift in Sources */,
+				F71D99A9A2BB19A8819727A6 /* SupabaseBackend.swift in Sources */,
+				1248CE931B9A74E860957BA4 /* UserFacingError.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+/* End PBXSourcesBuildPhase section */
+
+/* Begin PBXTargetDependency section */
+		788DF4C5F2BD04694864D860 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 4EE8A585A491DAC5E2950C98 /* Salebell */;
+			targetProxy = 7C695308CAEAB10BDF512552 /* PBXContainerItemProxy */;
+		};
+		BACD15FC9F3DF5CE2701A7F3 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = 90A1D9BBD541904F2B6A6A84 /* SalebellWidget */;
+			targetProxy = 35EECF36F466457A70F81444 /* PBXContainerItemProxy */;
+		};
+/* End PBXTargetDependency section */
+
+/* Begin XCBuildConfiguration section */
+		38D7C9EDD972A1077B06BDD7 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SalebellWidget/SalebellWidget.entitlements;
+				INFOPLIST_FILE = SalebellWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widget";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		4055EA37B60A2737029B62DB /* Release */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = 73CC24EC7990D2C0DD666895 /* Release.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = "dwarf-with-dsym";
+				ENABLE_NS_ASSERTIONS = NO;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = NO;
+				MTL_FAST_MATH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_COMPILATION_MODE = wholemodule;
+				SWIFT_OPTIMIZATION_LEVEL = "-O";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Release;
+		};
+		51F761BDE0FDDF08C8BC4F4F /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SalebellWidget/SalebellWidget.entitlements;
+				INFOPLIST_FILE = SalebellWidget/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widget";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+		54B9F64D148CECA3DEE0AE1C /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Salebell/Salebell.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Salebell/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		AC957C5E350C8C46D319BA30 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).tests";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = "$(APP_BUNDLE_ID).tests";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = "$(APP_BUNDLE_ID).tests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salebell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salebell";
+			};
+			name = Debug;
+		};
+		B3198BED63F221B1300E9DA6 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			baseConfigurationReference = F61739589F6333F98F9CF1C0 /* Debug.xcconfig */;
+			buildSettings = {
+				ALWAYS_SEARCH_USER_PATHS = NO;
+				CLANG_ANALYZER_NONNULL = YES;
+				CLANG_ANALYZER_NUMBER_OBJECT_CONVERSION = YES_AGGRESSIVE;
+				CLANG_CXX_LANGUAGE_STANDARD = "gnu++14";
+				CLANG_CXX_LIBRARY = "libc++";
+				CLANG_ENABLE_MODULES = YES;
+				CLANG_ENABLE_OBJC_ARC = YES;
+				CLANG_ENABLE_OBJC_WEAK = YES;
+				CLANG_WARN_BLOCK_CAPTURE_AUTORELEASING = YES;
+				CLANG_WARN_BOOL_CONVERSION = YES;
+				CLANG_WARN_COMMA = YES;
+				CLANG_WARN_CONSTANT_CONVERSION = YES;
+				CLANG_WARN_DEPRECATED_OBJC_IMPLEMENTATIONS = YES;
+				CLANG_WARN_DIRECT_OBJC_ISA_USAGE = YES_ERROR;
+				CLANG_WARN_DOCUMENTATION_COMMENTS = YES;
+				CLANG_WARN_EMPTY_BODY = YES;
+				CLANG_WARN_ENUM_CONVERSION = YES;
+				CLANG_WARN_INFINITE_RECURSION = YES;
+				CLANG_WARN_INT_CONVERSION = YES;
+				CLANG_WARN_NON_LITERAL_NULL_CONVERSION = YES;
+				CLANG_WARN_OBJC_IMPLICIT_RETAIN_SELF = YES;
+				CLANG_WARN_OBJC_LITERAL_CONVERSION = YES;
+				CLANG_WARN_OBJC_ROOT_CLASS = YES_ERROR;
+				CLANG_WARN_QUOTED_INCLUDE_IN_FRAMEWORK_HEADER = YES;
+				CLANG_WARN_RANGE_LOOP_ANALYSIS = YES;
+				CLANG_WARN_STRICT_PROTOTYPES = YES;
+				CLANG_WARN_SUSPICIOUS_MOVE = YES;
+				CLANG_WARN_UNGUARDED_AVAILABILITY = YES_AGGRESSIVE;
+				CLANG_WARN_UNREACHABLE_CODE = YES;
+				CLANG_WARN__DUPLICATE_METHOD_MATCH = YES;
+				COPY_PHASE_STRIP = NO;
+				DEBUG_INFORMATION_FORMAT = dwarf;
+				ENABLE_STRICT_OBJC_MSGSEND = YES;
+				ENABLE_TESTABILITY = YES;
+				ENABLE_USER_SCRIPT_SANDBOXING = YES;
+				GCC_C_LANGUAGE_STANDARD = gnu11;
+				GCC_DYNAMIC_NO_PIC = NO;
+				GCC_NO_COMMON_BLOCKS = YES;
+				GCC_OPTIMIZATION_LEVEL = 0;
+				GCC_PREPROCESSOR_DEFINITIONS = (
+					"$(inherited)",
+					"DEBUG=1",
+				);
+				GCC_WARN_64_TO_32_BIT_CONVERSION = YES;
+				GCC_WARN_ABOUT_RETURN_TYPE = YES_ERROR;
+				GCC_WARN_UNDECLARED_SELECTOR = YES;
+				GCC_WARN_UNINITIALIZED_AUTOS = YES_AGGRESSIVE;
+				GCC_WARN_UNUSED_FUNCTION = YES;
+				GCC_WARN_UNUSED_VARIABLE = YES;
+				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
+				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
+				MTL_FAST_MATH = YES;
+				ONLY_ACTIVE_ARCH = YES;
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
+				PRODUCT_NAME = "$(TARGET_NAME)";
+				SDKROOT = iphoneos;
+				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
+				SWIFT_OPTIMIZATION_LEVEL = "-Onone";
+				SWIFT_STRICT_CONCURRENCY = complete;
+				SWIFT_VERSION = 6.0;
+				TARGETED_DEVICE_FAMILY = 1;
+			};
+			name = Debug;
+		};
+		DC41723AE298D1473A2FD4C4 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				BUNDLE_LOADER = "$(TEST_HOST)";
+				GENERATE_INFOPLIST_FILE = YES;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@loader_path/Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).tests";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = "$(APP_BUNDLE_ID).tests";
+				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = "$(APP_BUNDLE_ID).tests";
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salebell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salebell";
+			};
+			name = Release;
+		};
+		FD6669036731EC3BB0962984 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
+				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = Salebell/Salebell.entitlements;
+				CODE_SIGN_IDENTITY = "iPhone Developer";
+				INFOPLIST_FILE = Salebell/Info.plist;
+				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+				);
+				SDKROOT = iphoneos;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
+		};
+/* End XCBuildConfiguration section */
+
+/* Begin XCConfigurationList section */
+		06DD478EC614CED2BD293AFE /* Build configuration list for PBXNativeTarget "SalebellTests" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				AC957C5E350C8C46D319BA30 /* Debug */,
+				DC41723AE298D1473A2FD4C4 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		355A5C1B7FBDA03D13FFFDD0 /* Build configuration list for PBXNativeTarget "SalebellWidget" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				38D7C9EDD972A1077B06BDD7 /* Debug */,
+				51F761BDE0FDDF08C8BC4F4F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		5AEF4031710DCFFBE51D0115 /* Build configuration list for PBXNativeTarget "Salebell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				54B9F64D148CECA3DEE0AE1C /* Debug */,
+				FD6669036731EC3BB0962984 /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		776667DA8A647133A7FC7A59 /* Build configuration list for PBXProject "Salebell" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				B3198BED63F221B1300E9DA6 /* Debug */,
+				4055EA37B60A2737029B62DB /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+/* End XCConfigurationList section */
+
+/* Begin XCRemoteSwiftPackageReference section */
+		010A47250159F7C160AB5226 /* XCRemoteSwiftPackageReference "supabase-swift" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/supabase/supabase-swift";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 2.55.0;
+			};
+			traits = (
+			);
+		};
+/* End XCRemoteSwiftPackageReference section */
+
+/* Begin XCSwiftPackageProductDependency section */
+		2076870643AC83B2823A4BCB /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 010A47250159F7C160AB5226 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+		D05789124B5A90D54C54CADF /* Supabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 010A47250159F7C160AB5226 /* XCRemoteSwiftPackageReference "supabase-swift" */;
+			productName = Supabase;
+		};
+/* End XCSwiftPackageProductDependency section */
+	};
+	rootObject = 8C6DB6AB4DF6331ADB4F9070 /* Project object */;
+}

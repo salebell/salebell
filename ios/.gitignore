@@ -1,0 +1,5 @@
+# Salebell.xcodeproj is generated from project.yml (xcodegen) but committed so it opens without tools.
+build/
+DerivedData/
+xcuserdata/
+*.xcuserstate

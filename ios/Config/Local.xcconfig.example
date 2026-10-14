@@ -1,0 +1,6 @@
+// Copy to Local.xcconfig. Public configuration only; never add an APNs private key.
+DEVELOPMENT_TEAM = YOURTEAMID
+APP_BUNDLE_ID = com.yourcompany.salebell
+SUPABASE_URL = https:/$()/api.salebell.example.com
+SUPABASE_PUBLISHABLE_KEY = YOUR_INSTANCE_ANON_KEY
+SITE_URL = https:/$()/salebell.example.com

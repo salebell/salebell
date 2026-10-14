@@ -1,0 +1,62 @@
+# Routes adapted from Supabase's supported Kong gateway, self-hosted/v0.8.1.
+# Legacy JWT API keys are generated uniquely per installation. User JWTs pass through.
+_format_version: '3.0'
+_transform: true
+consumers:
+  - username: anon
+    keyauth_credentials: [{ key: __ANON_KEY__ }]
+  - username: service_role
+    keyauth_credentials: [{ key: __SERVICE_KEY__ }]
+acls:
+  - consumer: anon
+    group: anon
+  - consumer: service_role
+    group: admin
+services:
+  - name: auth-open-verify
+    url: http://auth:9999/verify
+    routes: [{ name: auth-open-verify, paths: [/auth/v1/verify], strip_path: true }]
+    plugins: [{ name: cors }]
+  - name: auth-open-callback
+    url: http://auth:9999/callback
+    routes: [{ name: auth-open-callback, paths: [/auth/v1/callback], strip_path: true }]
+    plugins: [{ name: cors }]
+  - name: auth-open-authorize
+    url: http://auth:9999/authorize
+    routes: [{ name: auth-open-authorize, paths: [/auth/v1/authorize], strip_path: true }]
+    plugins: [{ name: cors }]
+  - name: auth-v1
+    url: http://auth:9999/
+    routes: [{ name: auth-v1, paths: [/auth/v1/], strip_path: true }]
+    plugins:
+      - name: cors
+      - name: key-auth
+        config: { hide_credentials: false }
+      - name: acl
+        config: { hide_groups_header: true, allow: [admin, anon] }
+  - name: rest-v1
+    url: http://rest:3000/
+    routes: [{ name: rest-v1, paths: [/rest/v1/], strip_path: true }]
+    plugins:
+      - name: cors
+      - name: key-auth
+        config: { hide_credentials: false }
+      - name: acl
+        config: { hide_groups_header: true, allow: [admin, anon] }
+  # Publish only the WebSocket route; Realtime's admin/tenant REST API stays private.
+  - name: realtime-v1-ws
+    url: http://realtime-dev.supabase-realtime:4000/socket
+    protocol: ws
+    routes: [{ name: realtime-v1-ws, paths: [/realtime/v1/], strip_path: true }]
+    plugins:
+      - name: cors
+      - name: key-auth
+        config: { hide_credentials: false }
+      - name: acl
+        config: { hide_groups_header: true, allow: [admin, anon] }
+  # Webhook handlers verify Apple/Stripe signatures; browser handlers verify Auth users.
+  - name: functions-v1
+    url: http://functions:9000/
+    read_timeout: 160000
+    routes: [{ name: functions-v1, paths: [/functions/v1/], strip_path: true }]
+    plugins: [{ name: cors }]

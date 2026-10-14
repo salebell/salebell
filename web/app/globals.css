@@ -1,0 +1,160 @@
+@import "tailwindcss";
+
+/* Semantic tokens. Light is warm paper, dark is warm graphite; the accent is "money green". */
+:root {
+  --bg: #faf9f6;
+  --surface: #ffffff;
+  --surface-2: #f3f1ec;
+  --border: #e4e1d9;
+  --border-strong: #cfcbc1;
+  --fg: #191814;
+  --muted: #625f57;
+  --accent: #0b7a4b;
+  --accent-hover: #086a40;
+  --accent-fg: #ffffff;
+  --accent-soft: #e3f2ea;
+  --accent-text: #08663f;
+  --danger: #b42318;
+  --danger-soft: #fdecea;
+  --warn: #8a5300;
+  --warn-soft: #fdf3dc;
+  --ring: #0b7a4b;
+  color-scheme: light;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e0e0c;
+    --surface: #161614;
+    --surface-2: #1d1d1a;
+    --border: #2b2a26;
+    --border-strong: #3d3c37;
+    --fg: #ecebe6;
+    --muted: #a19e95;
+    --accent: #4fd18f;
+    --accent-hover: #6ddca3;
+    --accent-fg: #04140b;
+    --accent-soft: #11291c;
+    --accent-text: #6ddca3;
+    --danger: #ff8a80;
+    --danger-soft: #2c1513;
+    --warn: #f2c063;
+    --warn-soft: #2a2010;
+    --ring: #6ddca3;
+    color-scheme: dark;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+  --color-accent-hover: var(--accent-hover);
+  --color-accent-fg: var(--accent-fg);
+  --color-accent-soft: var(--accent-soft);
+  --color-accent-text: var(--accent-text);
+  --color-danger: var(--danger);
+  --color-danger-soft: var(--danger-soft);
+  --color-warn: var(--warn);
+  --color-warn-soft: var(--warn-soft);
+  --font-sans: ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  --font-mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --animate-pop: pop 0.5s cubic-bezier(0.2, 0.9, 0.3, 1.2) both;
+  --animate-flash: flash 2.4s ease-out both;
+}
+
+@keyframes pop {
+  from { opacity: 0; transform: translateY(-10px) scale(0.98); }
+  to { opacity: 1; transform: none; }
+}
+
+@keyframes flash {
+  from { background-color: var(--accent-soft); }
+  to { background-color: transparent; }
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--bg);
+  color: var(--fg);
+  font-feature-settings: "ss01", "cv11";
+  text-rendering: optimizeLegibility;
+}
+
+:focus-visible {
+  outline: 2px solid var(--ring);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: "tnum";
+}
+
+/* Long-form text on /docs, /privacy, /terms. */
+.prose-sp {
+  line-height: 1.7;
+  color: var(--fg);
+}
+.prose-sp h2 {
+  font-size: 1.375rem;
+  font-weight: 600;
+  letter-spacing: -0.015em;
+  margin: 2.75rem 0 0.75rem;
+  scroll-margin-top: 5rem;
+}
+.prose-sp h3 {
+  font-size: 1.0625rem;
+  font-weight: 600;
+  margin: 1.75rem 0 0.5rem;
+  scroll-margin-top: 5rem;
+}
+.prose-sp p,
+.prose-sp ul,
+.prose-sp ol {
+  margin: 0.75rem 0;
+  color: color-mix(in oklab, var(--fg) 88%, var(--muted));
+}
+.prose-sp ul { list-style: disc; padding-left: 1.25rem; }
+.prose-sp ol { list-style: decimal; padding-left: 1.25rem; }
+.prose-sp li { margin: 0.35rem 0; }
+.prose-sp a { color: var(--accent-text); text-decoration: underline; text-underline-offset: 3px; }
+.prose-sp code {
+  font-family: var(--font-mono);
+  font-size: 0.85em;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 5px;
+  padding: 0.1em 0.35em;
+  overflow-wrap: anywhere;
+}
+.prose-sp pre {
+  font-family: var(--font-mono);
+  font-size: 0.8125rem;
+  line-height: 1.6;
+  background: var(--surface-2);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  padding: 1rem;
+  overflow-x: auto;
+  margin: 1rem 0;
+}
+.prose-sp pre code { background: none; border: 0; padding: 0; font-size: inherit; }
+.prose-sp strong { font-weight: 600; color: var(--fg); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
