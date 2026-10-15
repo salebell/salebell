@@ -23,3 +23,8 @@ PSQL=("$BIN/psql" -X -q -v ON_ERROR_STOP=1 -h "$DIR" -p "$PORT" -U postgres -d p
 "${PSQL[@]}" -f tests/sql/supabase_stub.sql
 for f in supabase/migrations/*.sql; do "${PSQL[@]}" -f "$f"; done
 "${PSQL[@]}" -f tests/sql/schema_test.sql
+"${PSQL[@]}" -f deploy/installer/control.sql
+"${PSQL[@]}" -f tests/sql/installer_test.sql
+"${PSQL[@]}" -c 'create database salebell_browser_install_test'
+sed '/^create role /d' tests/sql/supabase_stub.sql | "${PSQL[@]}" -d salebell_browser_install_test
+BROWSER_PSQL_BIN="$BIN/psql" BROWSER_PGHOST="$DIR" BROWSER_PGPORT="$PORT" node --experimental-strip-types --no-warnings tests/sql/browser_installation_test.mjs

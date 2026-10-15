@@ -74,6 +74,8 @@ curl -i -X POST https://your-site.example/hooks/apple/notarealkey1/production -d
 
 ## Deploy
 
+For an independent instance on Vercel with hosted Supabase, use [the hosted installation guide](../docs/VERCEL_SUPABASE_DEPLOYMENT.md). The opt-in `/deploy` installer requires shared OAuth app registration on its canonical host; installing users authorize their own projects. Server-only operator settings live in `deploy/installer/.env.example`, separate from public web configuration. Regenerate `web/installer/release.json` with `npm run installer:assets` from the repository root after release source changes.
+
 For production self-hosting, use [the Compose installer](../docs/SELF_HOSTING.md). For a managed-cloud deployment, configure your own Supabase project and web host with `web/` as the project directory. If using Vercel, link the intended project explicitly before deploying:
 
 ```bash

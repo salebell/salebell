@@ -1,5 +1,7 @@
 # Self-host Salebell
 
+This guide installs everything on your own server with Docker Compose. For **Vercel + hosted Supabase**, use the [separate deployment guide](VERCEL_SUPABASE_DEPLOYMENT.md); that setup uses provider-supplied addresses and does not need the two DNS records below.
+
 Run Salebell on your own server with the web dashboard, database and notification receivers included. Apps, integrations, full event history, forwarding and CSV export are available without a Salebell subscription or Stripe configuration.
 
 You do **not** need a Supabase account, Vercel account, email provider or iPhone build to get started. The installer runs the required services with Docker Compose.

@@ -39,29 +39,32 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.google-connect]
-# Caller authentication and workspace admin checks also run in the handler/RPCs.
-verify_jwt = true
+# Verify the bearer token through Auth.getUser in the handler; this supports
+# modern signing keys as well as legacy JWTs. Workspace checks run in the RPCs.
+verify_jwt = false
 
 [functions.fx-refresh]
 # Called by pg_cron without credentials; idempotent and a no-op within 6 hours.
 verify_jwt = false
 
 [functions.test-alert]
-verify_jwt = true
+# The handler verifies the user with Auth.getUser before any privileged work.
+verify_jwt = false
 
 [functions.apple-test]
-verify_jwt = true
+verify_jwt = false
 
 [functions.apple-connect]
-# The handler also verifies the caller and requires workspace owner/admin access.
-verify_jwt = true
+# Auth.getUser verifies the caller; workspace owner/admin access is required.
+verify_jwt = false
 
 [functions.apple-credentials]
-# Saved-key management is restricted to workspace owners and admins in the handler and RPCs.
-verify_jwt = true
+# Auth.getUser verifies the caller; saved-key management requires owner/admin access.
+verify_jwt = false
 
 [functions.billing]
 verify_jwt = true
 
 [functions.delete-account]
-verify_jwt = true
+# The handler verifies the user with Auth.getUser before any privileged work.
+verify_jwt = false

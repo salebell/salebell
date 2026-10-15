@@ -4,6 +4,8 @@
 
 Use [the self-hosting guide](SELF_HOSTING.md) for a production installation on your own infrastructure. It requires no Stripe or Salebell Cloud subscription and uses a separate Docker Compose stack. The sections below cover development, app connection and optional managed-cloud administration.
 
+To run your own unrestricted instance on Vercel and hosted Supabase, follow [Vercel and Supabase deployment](VERCEL_SUPABASE_DEPLOYMENT.md), including backend migrations, functions and owner creation. Importing the web app alone does not install the backend.
+
 ## Develop locally
 
 Install Node.js **22.6+**, Supabase CLI **2.90+** and Docker Desktop (or a compatible Docker daemon). Start Docker, then run this from the repository root:

@@ -6,6 +6,8 @@
   "description": "Real-time in-app purchase monitoring: verified App Store notifications, revenue ledger, phone alerts and integrations.",
   "engines": { "node": ">=22.6" },
   "scripts": {
+    "installer:assets": "node web/scripts/build-installer-assets.mjs",
+    "installer:assets:check": "node web/scripts/build-installer-assets.mjs --check",
     "dev": "node scripts/dev.mjs",
     "dev:stop": "supabase stop",
     "self-host": "node scripts/self-host.mjs",

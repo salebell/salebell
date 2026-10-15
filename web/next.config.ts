@@ -1,5 +1,9 @@
 import type { NextConfig } from "next";
 import { deploymentMode } from "./lib/deployment.ts";
+import { siteOrigin } from "./lib/installer-config.ts";
+
+// Vercel supplies a stable production hostname before the first build.
+process.env.NEXT_PUBLIC_SITE_URL = siteOrigin(process.env);
 
 const mode = deploymentMode(process.env.NEXT_PUBLIC_DEPLOYMENT_MODE);
 

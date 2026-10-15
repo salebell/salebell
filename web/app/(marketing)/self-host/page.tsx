@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ButtonLink } from "@/components/ui";
 import { SOURCE_URL, IS_SELF_HOSTED } from "@/lib/env";
+import { installerConfig } from "@/lib/installer-config";
 
 export const metadata: Metadata = {
   title: "Self-host Salebell",
@@ -10,9 +11,13 @@ export const metadata: Metadata = {
 };
 
 export default function SelfHostPage() {
+  let browserInstaller: string | null = null;
+  try { const config = installerConfig(); if (config?.publicEnabled) browserInstaller = config.origin; } catch { /* keep the supported manual paths available */ }
   return <article className="prose-sp mx-auto max-w-3xl px-4 py-14 sm:px-6 sm:py-20">
     <p className="!mt-0 text-sm font-medium text-accent-text">Open source · MIT license</p>
     <h1 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Your infrastructure. Full Salebell.</h1>
+    <p>Prefer Vercel and hosted Supabase? <a className="text-accent-text underline" href={`${SOURCE_URL}/blob/HEAD/docs/VERCEL_SUPABASE_DEPLOYMENT.md`}>Follow the hosted installation guide</a>. Each installation uses your own provider accounts; custom domains are optional.</p>
+    {browserInstaller && <div className="my-6"><ButtonLink href={`${browserInstaller}/deploy`}>Deploy Salebell</ButtonLink><p className="mt-2 text-sm text-muted">Connect your Vercel and Supabase accounts and finish setup in your browser.</p></div>}
     <p className="text-lg">Self-host apps, integrations, event history, revenue estimates, CSV export and raw Apple notification forwarding without a Salebell subscription. You pay for and operate your infrastructure and delivery providers.</p>
     <p>You do not need a Supabase account, Vercel account, email provider or iPhone build to get started. Docker runs the dashboard, database and notification receivers on your server.</p>
     <div className="my-6 flex flex-wrap gap-3"><a href={`${SOURCE_URL}/blob/HEAD/docs/SELF_HOSTING.md`} className="font-medium">Step-by-step installation guide ↗</a><a href={SOURCE_URL} className="font-medium">Browse the source ↗</a></div>

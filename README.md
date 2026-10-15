@@ -38,6 +38,7 @@
 | **Use Cloud** | An email address and your app | [Open Salebell](https://salebell.vercel.app) → [connect an app](#connect-your-first-app) |
 | **Develop locally** | Node.js 22.6+, Supabase CLI 2.90+, Docker | [One-command setup ↓](#develop-locally) |
 | **Self-host** | Node.js 22.6+, Docker Compose v2, a server and two hostnames | [Production setup ↓](#self-host-in-production) |
+| **Host on Vercel + Supabase** | Your own provider accounts | [Hosted installation guide](docs/VERCEL_SUPABASE_DEPLOYMENT.md), including the preview browser installer |
 
 **Self-hosted:** all existing features, no subscription or Stripe. You operate the infrastructure. [Cloud plans](docs/PRODUCT.md#2-cloud-pricing-and-self-hosted-access) apply only to the managed service.
 

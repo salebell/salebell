@@ -1,9 +1,12 @@
 import { createServerClient } from "@supabase/ssr";
 import { NextResponse, type NextRequest } from "next/server";
 import { authRedirect } from "./lib/auth-redirect";
+import { initialInstallRedirect } from "./lib/installer-bootstrap";
 
 // Refreshes the session, guards /app/**, and takes returning users to their apps.
 export async function proxy(request: NextRequest) {
+  const setup = await initialInstallRedirect(request.nextUrl, process.env);
+  if (setup) return NextResponse.redirect(setup);
   let response = NextResponse.next({ request });
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,

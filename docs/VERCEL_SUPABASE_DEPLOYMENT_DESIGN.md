@@ -1,7 +1,7 @@
 # Browser deployment to Vercel and Supabase
 
 Date: 2026-10-15
-Status: Proposed; awaiting written-design review
+Status: Approved design; implementation added, public release awaits provider qualification
 
 ## Intended outcome
 
@@ -64,7 +64,7 @@ Use authenticated, bounded server requests to advance a persisted job one step a
 
 Use an atomic database lease with a fencing version for each job. Recheck the lease before committing progress. A unique active binding for a target Supabase project prevents separate sessions from provisioning it simultaneously. Transient provider errors use bounded retries and honor retry headers; permission failures stop for reconnection.
 
-Release assets are generated from the repository's SQL and function sources with checksums and a pinned release identifier. The deploy flow clones the matching immutable release revision rather than a moving default branch. Include complete function dependency graphs and JWT settings. Bundle assets for server access; do not fetch arbitrary branch content or execute user-supplied SQL during installation. The deployed dashboard and backend must match the same release identifier.
+Release assets are generated from the repository's SQL, function and frontend sources with checksums and a pinned release identifier. The deploy flow clones the matching immutable release revision rather than a moving default branch. Include complete function dependency graphs and JWT settings. Bundle assets for server access; do not fetch arbitrary branch content or execute user-supplied SQL during installation. Verify the clone's deployed content fingerprint, record its own Git commit ID and use that ID for subsequent builds; repository cloning need not preserve the upstream commit history. The deployed dashboard and backend must match the same release identifier.
 
 ## Installation steps
 
@@ -97,6 +97,8 @@ Use the documented Management API function deployment operation with complete so
 Configure Auth's site URL and redirect allow-list for that origin, keep email/password authentication enabled and disable public registration. Password login works without SMTP. Email codes and password-recovery email require a later email-provider setup.
 
 Verify the target project's signing-key configuration works with the repository's authenticated-function JWT verification and server-side user checks. Modern signing keys must work or trigger a documented implementation correction; do not silently disable function verification globally.
+
+Implementation correction: the six protected user functions authenticate bearer tokens through their existing Auth `getUser` boundary and enforce workspace permissions. Their individual legacy gateway checks are disabled in `supabase/config.toml` to support current signing keys. Anonymous rejection is tested for every handler; webhook signature checks remain separate.
 
 ### 5. Create the owner and finish
 
