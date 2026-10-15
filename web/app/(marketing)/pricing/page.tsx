@@ -1,8 +1,9 @@
 import type { Metadata } from "next";
+import { redirect } from "next/navigation";
 import { Faq } from "@/components/marketing/faq";
 import { PricingTable } from "@/components/marketing/pricing-table";
 import { FOUNDER, FOUNDER_SENTENCE, PRICES, YEARLY_SAVING } from "@/lib/plans";
-import { CLOUD_URL, IS_SELF_HOSTED, SOURCE_URL } from "@/lib/env";
+import { IS_SELF_HOSTED, SOURCE_URL } from "@/lib/env";
 import { ButtonLink } from "@/components/ui";
 import { IphoneAppNote } from "@/components/iphone-app";
 
@@ -44,6 +45,7 @@ const faqs = [
 ];
 
 export default function PricingPage() {
+  if (IS_SELF_HOSTED) redirect("/self-host");
   return (
     <div className="mx-auto max-w-4xl px-4 py-16 sm:px-6 sm:py-20">
       <div className="mx-auto mb-10 max-w-2xl text-center">
@@ -57,12 +59,11 @@ export default function PricingPage() {
         <p className="mt-4 text-sm text-muted">All apps and integrations, full history, CSV export and forwarding. You manage hosting, updates, backups and delivery credentials. Your infrastructure and provider costs are separate.</p>
         <p className="mt-3 text-sm"><a href={SOURCE_URL} className="text-accent-text underline underline-offset-2">Read the source · MIT license ↗</a></p>
       </section>
-      {IS_SELF_HOSTED && <p className="mb-6 text-sm text-muted">You are using a self-hosted instance with full features. The plans below are for the separate, optional managed cloud.</p>}
       <h2 className="mb-6 text-center text-2xl font-semibold">Optional managed cloud</h2>
       <p className="mx-auto mb-8 max-w-3xl rounded-xl border border-dashed border-accent/50 bg-accent-soft/50 px-4 py-3 text-center text-sm text-pretty">
         {FOUNDER_SENTENCE}
       </p>
-      <PricingTable cta={IS_SELF_HOSTED ? `${CLOUD_URL}/login` : "/login"} />
+      <PricingTable />
       <p className="mt-6 text-center text-sm text-muted">Prices in USD. Taxes may apply depending on where you are.</p>
       <p className="mt-3 text-center text-sm text-muted">Apple App Store is available today. Android / Google Play RTDN: Preview.</p>
       <p className="mt-3 text-center text-sm text-muted"><IphoneAppNote /></p>

@@ -28,7 +28,7 @@ export function SiteFooter() {
             </span>
           </div>
           <nav aria-label="Footer" className="flex flex-wrap gap-x-5 gap-y-2">
-            <Link href="/pricing" className="hover:text-fg">Pricing</Link>
+            {!IS_SELF_HOSTED && <Link href="/pricing" className="hover:text-fg">Pricing</Link>}
             <Link href="/docs" className="hover:text-fg">Setup guide</Link>
             <Link href="/self-host" className="hover:text-fg">Self-host</Link>
             <a href={SOURCE_URL} className="hover:text-fg">Source code ↗</a>

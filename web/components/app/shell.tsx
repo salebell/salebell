@@ -7,15 +7,16 @@ import { Logo } from "@/components/logo";
 import { Button, Skeleton } from "@/components/ui";
 import { useWorkspace } from "./workspace";
 
-const nav = [
-  { href: "/app", label: "Apps", match: (p: string) => p === "/app" || p.startsWith("/app/apps") || p === "/app/new" },
-  { href: "/app/billing", label: "Billing", match: (p: string) => p.startsWith("/app/billing") },
-  { href: "/app/account", label: "Account", match: (p: string) => p.startsWith("/app/account") },
-];
-
 export function AppShell({ children }: { children: ReactNode }) {
   const pathname = usePathname();
   const { ws, error, refresh } = useWorkspace();
+  const isSelfHosted = ws?.instance.deploymentMode === "self_hosted";
+  const settingsPath = isSelfHosted ? "/app/instance" : "/app/billing";
+  const nav = [
+    { href: "/app", label: "Apps", match: (p: string) => p === "/app" || p.startsWith("/app/apps") || p === "/app/new" },
+    ...(ws ? [{ href: settingsPath, label: isSelfHosted ? "Instance" : "Billing", match: (p: string) => p.startsWith(settingsPath) }] : []),
+    { href: "/app/account", label: "Account", match: (p: string) => p.startsWith("/app/account") },
+  ];
 
   return (
     <>
@@ -33,7 +34,7 @@ export function AppShell({ children }: { children: ReactNode }) {
                     aria-current={active ? "page" : undefined}
                     className={`rounded-md px-2 py-1.5 text-sm transition-colors sm:px-2.5 ${active ? "bg-surface-2 font-medium text-fg" : "text-muted hover:text-fg"}`}
                   >
-                    {item.href === "/app/billing" && ws?.instance.deploymentMode === "self_hosted" ? "Instance" : item.label}
+                    {item.label}
                   </Link>
                 );
               })}

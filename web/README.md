@@ -1,6 +1,6 @@
 # Salebell web
 
-Marketing site and dashboard for Salebell, deployed on Vercel at https://salebell.vercel.app.
+Shared website and dashboard for Salebell Cloud and self-hosted installations. The managed service runs at https://salebell.vercel.app; self-hosted instances run the same app through Docker Compose.
 Next.js 16 (App Router, Turbopack), TypeScript, Tailwind CSS 4, Supabase (`@supabase/ssr`).
 The product contract is [`docs/PRODUCT.md`](../docs/PRODUCT.md).
 
@@ -26,13 +26,15 @@ npm test        # unit tests (node --test)
 
 ## Environment
 
-Only public values live here; every secret is a Supabase Edge Function secret.
+The browser receives only public configuration. Provider secrets live in Supabase Edge Function secrets (cloud) or the private deployment environment (self-hosted).
 
 | Variable | Required | Purpose |
 |---|---|---|
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Local Supabase API origin, or your hosted project's URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Local public key or hosted publishable key (`sb_publishable_…`); never a service-role key |
 | `NEXT_PUBLIC_SITE_URL` | yes | Website origin; `http://localhost:3000` locally, your HTTPS origin in production. Used in webhook URLs, sitemap and OG tags |
+| `NEXT_PUBLIC_DEPLOYMENT_MODE` | no | `cloud` (default) or `self_hosted`; selects public-page content and the default login method. Compose sets it automatically |
+| `SUPABASE_INTERNAL_URL` | no | Server-only API URL for webhook proxying; Compose sets this to its private gateway |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | launch | Support contact on /privacy, /terms and the footer; hidden (with a build warning) when unset |
 | `NEXT_PUBLIC_IOS_APP_URL` | no | App Store or TestFlight link for the iPhone app; until set, the UI says it's coming soon |
 | `NEXT_PUBLIC_COMPANY_NUMBER` | launch | Company number shown on /privacy, /terms and the footer; `npm run build` warns while unset |
@@ -41,17 +43,20 @@ Only public values live here; every secret is a Supabase Edge Function secret.
 ## Layout
 
 ```
-app/(marketing)/      /, /pricing, /docs, /privacy, /terms (static)
-app/login/            email one-time code sign-in
+app/(marketing)/      /, /pricing, /self-host, /docs, /privacy, /terms
+app/login/            email-code sign-in (cloud), password by default (self-hosted)
 app/app/              signed-in dashboard (client components, data via supabase-js + RLS)
   page.tsx            apps list; first-run onboarding when there are none
   new/                add app (wizard step 1)
   apps/[id]/          overview (KPIs, chart, live feed, CSV), setup, integrations, forwarding, settings
-  billing/            plan, Stripe Checkout and portal via the `billing` function
+  billing/            cloud plan, Stripe Checkout and portal; self-hosted users redirect to instance/
+  instance/           self-hosted capabilities and guides; cloud users redirect to billing/
   account/            sign out, workspace name, iPhone app, delete account via `delete-account`
 proxy.ts              refreshes sessions, guards /app/**, redirects signed-in / to /app
 lib/database.types.ts generated Supabase types plus app aliases
 ```
+
+Workspace navigation and feature access use the database's `instance_settings()` response, not the browser deployment flag. Self-hosted builds hide cloud pricing links and offers; `/pricing` redirects to `/self-host`. The Compose function router excludes `billing` and `stripe-webhook`, while the cloud handlers retain their server-side deployment checks. Shared source and existing migrations stay in this repository.
 
 **Add app** shows **Connect store → Pick app → Connect app**: upload a team key, enter the Issuer ID and continue, select an app to advance, then connect. Saved teams load apps directly. Selection makes no database write; connection performs a fresh app lookup and guarded Apple setup. Verification and alerts each have their own task. Manual setup and expandable connection details remain available. [Setup guide](../docs/SETUP.md).
 

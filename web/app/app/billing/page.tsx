@@ -1,6 +1,6 @@
 "use client";
 
-import { useSearchParams } from "next/navigation";
+import { redirect, useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { PageHeader } from "@/components/app/page-header";
 import { useLoadedWorkspace } from "@/components/app/workspace";
@@ -9,8 +9,6 @@ import { Alert, Badge, Button, Card } from "@/components/ui";
 import { functionError } from "@/lib/errors";
 import { FOUNDER_SENTENCE, PLAN_ROWS, PRICES, YEARLY_PER_MONTH } from "@/lib/plans";
 import { supabaseBrowser } from "@/lib/supabase/client";
-import { SOURCE_URL } from "@/lib/env";
-import { ButtonLink } from "@/components/ui";
 
 const STATUS: Record<string, { label: string; tone: "accent" | "warn" | "danger" | "neutral" }> = {
   active: { label: "Active", tone: "accent" },
@@ -72,18 +70,7 @@ function BillingContent() {
     window.location.href = data.url;
   }
 
-  if (isSelfHosted) return (
-    <div className="max-w-3xl space-y-6">
-      <PageHeader title="Your instance" description={account.name} />
-      <Card className="space-y-3 p-5 sm:p-6">
-        <Badge tone="accent">Self-hosted</Badge>
-        <h2 className="text-xl font-semibold">All features, on your infrastructure</h2>
-        <p className="text-sm text-muted">Apps, integrations, full event history and CSV export are available without a Salebell subscription. Your operator manages hosting, updates, backups and delivery credentials.</p>
-        <p className="text-sm text-muted">iPhone push requires an app built for this instance and your own APNs credentials. Google Play RTDN setup is available in preview.</p>
-        <div className="flex flex-wrap gap-3"><ButtonLink href="/self-host" variant="secondary">Self-hosting guide</ButtonLink><a href={SOURCE_URL} className="text-sm font-medium text-accent-text underline underline-offset-2">Source code ↗</a></div>
-      </Card>
-    </div>
-  );
+  if (isSelfHosted) redirect("/app/instance");
 
   return (
     <div className="max-w-3xl space-y-6">

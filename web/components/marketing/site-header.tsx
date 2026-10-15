@@ -5,7 +5,7 @@ import { IS_SELF_HOSTED, SOURCE_URL } from "@/lib/env";
 
 // Docs drops out below sm so Sign in fits at 375px; the footer still links it.
 const links = [
-  { href: "/pricing", label: "Pricing", className: "" },
+  ...(!IS_SELF_HOSTED ? [{ href: "/pricing", label: "Pricing", className: "" }] : []),
   { href: "/docs", label: "Docs", className: "hidden sm:inline-flex" },
   { href: "/self-host", label: "Self-host", className: "hidden sm:inline-flex" },
 ];

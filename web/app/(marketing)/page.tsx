@@ -7,12 +7,14 @@ import { PhoneMock } from "@/components/marketing/phone-mock";
 import { IphoneAppNote } from "@/components/iphone-app";
 import { ButtonLink, SectionHeading } from "@/components/ui";
 import { FOUNDER, PRICES } from "@/lib/plans";
-import { CLOUD_URL, IS_SELF_HOSTED, SOURCE_URL } from "@/lib/env";
+import { IS_SELF_HOSTED, SOURCE_URL } from "@/lib/env";
 
 const features = [
   {
-    title: "Open source. Your choice of hosting.",
-    body: "Run Salebell on your infrastructure under the MIT license, or use optional managed cloud. Keep StoreKit 2: no SDK or app update is needed.",
+    title: IS_SELF_HOSTED ? "Open source. Your infrastructure." : "Open source. Your choice of hosting.",
+    body: IS_SELF_HOSTED
+      ? "This instance runs Salebell on its operator's infrastructure, with all features included. Keep StoreKit 2: no SDK or app update is needed."
+      : "Run Salebell on your infrastructure under the MIT license, or use optional managed cloud. Keep StoreKit 2: no SDK or app update is needed.",
     icon: "M4 7h16M4 12h10M4 17h7",
   },
   {
@@ -130,7 +132,7 @@ const faqs = [
       </p>
     ),
   },
-  {
+  ...(!IS_SELF_HOSTED ? [{
     q: "Can I cancel Cloud Pro any time?",
     a: (
       <p>
@@ -138,7 +140,7 @@ const faqs = [
         apps and integrations pause and older history is hidden until you upgrade again.
       </p>
     ),
-  },
+  }] : []),
 ];
 
 const destinations: [string, string, string?][] = [
@@ -189,17 +191,17 @@ export default function Home() {
             </h1>
             <p className="mt-6 max-w-2xl text-lg leading-relaxed text-muted text-pretty sm:text-xl">
               Salebell turns Apple&apos;s App Store Server Notifications into purchase alerts and a live revenue dashboard. Purchases,
-              renewals, trials and refunds, with no SDK. Self-host the full product or use our optional managed cloud.
+              renewals, trials and refunds, with no SDK. {IS_SELF_HOSTED ? "This self-hosted instance includes all features without a subscription." : "Self-host the full product or use our optional managed cloud."}
             </p>
             <div className="mt-8 flex flex-col gap-3 sm:flex-row">
               <ButtonLink href="/login" size="lg">
                 {IS_SELF_HOSTED ? "Open dashboard" : "Start free on cloud"}
               </ButtonLink>
-              <ButtonLink href="/self-host" size="lg" variant="secondary">
-                Self-host Salebell
+              <ButtonLink href={IS_SELF_HOSTED ? "/docs" : "/self-host"} size="lg" variant="secondary">
+                {IS_SELF_HOSTED ? "Connect an app" : "Self-host Salebell"}
               </ButtonLink>
             </div>
-            <p className="mt-4 text-sm text-muted">MIT licensed. Self-host without plan limits. Cloud Free covers one app.</p>
+            <p className="mt-4 text-sm text-muted">{IS_SELF_HOSTED ? "MIT licensed. No commercial plan limits. Operated independently." : "MIT licensed. Self-host without plan limits. Cloud Free covers one app."}</p>
             <p className="mt-2 text-sm text-muted">Android / Google Play RTDN: <span className="font-medium">Preview</span>.</p>
             <p className="mt-2 text-sm text-muted">
               <IphoneAppNote />
@@ -321,7 +323,7 @@ export default function Home() {
       </section>
 
       {/* Pricing teaser */}
-      <section className="border-t border-border bg-surface/50">
+      {!IS_SELF_HOSTED && <section className="border-t border-border bg-surface/50">
         <div className="mx-auto flex max-w-6xl flex-col items-start justify-between gap-8 px-4 py-16 sm:px-6 md:flex-row md:items-center">
           <div>
             <h2 className="text-2xl font-semibold tracking-tight sm:text-3xl">Free to self-host. Optional cloud from $0.</h2>
@@ -334,10 +336,10 @@ export default function Home() {
             <ButtonLink href="/pricing" variant="secondary">
               Compare plans
             </ButtonLink>
-            <ButtonLink href={IS_SELF_HOSTED ? `${CLOUD_URL}/login` : "/login"}>Try cloud free</ButtonLink>
+            <ButtonLink href="/login">Try cloud free</ButtonLink>
           </div>
         </div>
-      </section>
+      </section>}
 
       <section className="border-t border-border"><div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-5 px-4 py-10 sm:px-6"><div><h2 className="text-xl font-semibold">Own your instance and your data</h2><p className="mt-2 text-sm text-muted">Deploy Salebell with Docker Compose. Use your domain, your database and your delivery credentials.</p></div><div className="flex gap-3"><ButtonLink href="/self-host" variant="secondary">Installation guide</ButtonLink><a href={SOURCE_URL} className="self-center text-sm font-medium text-accent-text underline underline-offset-2">View source ↗</a></div></div></section>
 

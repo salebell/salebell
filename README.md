@@ -80,7 +80,7 @@ Use the production installer below for public instances. [More troubleshooting](
 
 ## Self-host in production
 
-Requires **Node.js 22.6+**, **Docker Engine + Compose v2**, persistent volumes and off-server backups. Point **two distinct hostnames** at your server; open **ports 80/443**.
+Run these commands on a server with **Git**, **Node.js 22.6+** and **Docker Engine + Compose v2**. Point **two distinct hostnames** at its public IP and open **ports 80/443**. HTTPS is automatic. No Supabase account, Vercel account, Stripe or email provider is needed.
 
 ```sh
 git clone https://github.com/salebell/salebell.git salebell
@@ -93,7 +93,13 @@ npm run self-host -- init \
 npm run self-host -- up
 ```
 
-Open your site → password sign-in → owner email + **`deploy/owner-password`**. Credentials: **`deploy/.env`**. Registration is closed by default; SMTP is optional.
+Wait for **Salebell is ready at ...**, then read your generated password on the server:
+
+```sh
+cat deploy/owner-password
+```
+
+Open your site's `/login` page. Sign in with your `--email` address and that password. Registration is closed by default. Keep **`deploy/.env`** and **`deploy/owner-password`** private.
 
 ```sh
 npm run self-host -- status
@@ -101,7 +107,7 @@ npm run self-host -- check
 npm run self-host -- backup
 ```
 
-`check` verifies internal services. Also verify public HTTPS + real delivery, and copy backups off-server. [Configure, upgrade, restore →](docs/SELF_HOSTING.md)
+Copy the whole backup directory off-server. `check` verifies internal services; also confirm public HTTPS and a real notification. [Step-by-step installation →](docs/SELF_HOSTING.md) · [Configuration, updates and recovery →](docs/SELF_HOSTING_OPERATIONS.md)
 
 ## Connect your first app
 
@@ -154,7 +160,7 @@ flowchart LR
 
 | Need | Guide |
 | :--- | :--- |
-| **Operate your instance** | [Install, SMTP, backups, upgrades, restore](docs/SELF_HOSTING.md) |
+| **Operate your instance** | [Install and sign in](docs/SELF_HOSTING.md) · [SMTP, backups, updates and recovery](docs/SELF_HOSTING_OPERATIONS.md) |
 | **Build the iPhone companion** | [Configure backend, signing, APNs & widget](ios/README.md#self-hosted-companion). Self-hosted builds must match your backend and Apple identity. |
 | **Deploy your own Cloud service** | [Web environment & deployment](web/README.md) + [owner setup & verification](docs/SETUP.md#configure-a-hosted-deployment-as-the-owner) |
 | **Configure optional providers** | [Email, Stripe and APNs setup](docs/SETUP.md#launch-priorities) · [.env.setup.example](.env.setup.example) |

@@ -65,6 +65,9 @@ async function check() {
   // Table SELECT is revoked from anon; PostgREST returns 401/403 rather than [] rows.
   await request("/rest/v1/accounts?select=id", { expected: [401, 403] });
   await request("/functions/v1/test-alert", { method: "POST", body: {}, expected: 401 });
+  for (const slug of ["billing", "stripe-webhook"]) {
+    await request(`/functions/v1/${slug}`, { token: session.access_token, method: "POST", body: {}, expected: 404 });
+  }
   const [app] = await request("/rest/v1/apps", {
     token: session.access_token, method: "POST", expected: 201, headers: { Prefer: "return=representation" },
     body: { account_id: accounts[0].id, name: "Installation check", bundle_id: `com.example.installation.${crypto.randomUUID().replaceAll("-", "")}` },
@@ -79,7 +82,7 @@ async function check() {
   }
   await checkRealtime(session.access_token);
   await request("/auth/v1/logout?scope=local", { token: session.access_token, method: "POST", expected: 204 });
-  console.log("Verified owner password sign-in, workspace provisioning, self-hosted mode, anonymous isolation, protected functions, Apple webhook proxy and authenticated Realtime.");
+  console.log("Verified owner password sign-in, workspace provisioning, self-hosted mode, disabled billing routes, anonymous isolation, protected functions, Apple webhook proxy and authenticated Realtime.");
 }
 
 try {
