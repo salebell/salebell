@@ -4,43 +4,17 @@ import { createInstallerHandler, publicStatus } from "./installer-http.ts";
 import type { InstallerConfig } from "./installer-config.ts";
 import type { InstallJob } from "./installer-types.ts";
 
-const config: InstallerConfig = { origin: "https://install.example", vercelClientId: "oac_x", vercelSecret: "private", vercelSlug: "salebell", supabaseClientId: "client", supabaseSecret: "private", encryptionKey: "ab".repeat(32), controlUrl: "https://control.supabase.co", controlKey: "private", releaseRef: "a".repeat(40), supabaseProduct: "supabase", publicEnabled: false, cleanupSecret: "cleanup-private" };
+const config: InstallerConfig = { origin: "https://install.example", supabaseClientId: "client", supabaseSecret: "private", encryptionKey: "ab".repeat(32), controlUrl: "https://control.supabase.co", controlKey: "private", releaseRef: "a".repeat(40), supabaseProduct: "supabase", publicEnabled: false, cleanupSecret: "cleanup-private" };
 const release = { id: "a".repeat(64), migrations: [], functions: [] };
-test("disabled installer exposes no API", async () => {
-  const handler = createInstallerHandler(null, release);
-  assert.equal((await handler(new Request("https://install.example/api/deploy/start", { method: "POST" }), "start")).status, 404);
-});
-test("cross-origin mutations fail before accessing storage", async () => {
-  let fetched = false;
-  const handler = createInstallerHandler(config, release, async () => { fetched = true; throw new Error("should not run"); });
-  const response = await handler(new Request("https://install.example/api/deploy/start", { method: "POST", headers: { origin: "https://attacker.example" } }), "start");
-  assert.equal(response.status, 403); assert.equal(fetched, false);
-});
-test("status requires a valid session cookie and does not cache responses", async () => {
-  const handler = createInstallerHandler(config, release);
-  const response = await handler(new Request("https://install.example/api/deploy/status"), "status");
-  assert.equal(response.status, 401);
-  assert.equal(response.headers.get("cache-control"), "no-store");
-});
-test("public status strips provider credentials, OAuth verifier and owner email", () => {
-  const job: InstallJob = { id: "job", version: 0, phase: "functions", cursor: 2, createdAt: 0, expiresAt: Date.now() + 1000, ownerEmail: "private@example.com", vercel: { access: "secret-token", configurationId: "icfg_x" }, supabase: { access: "secret-token" }, pending: { provider: "supabase", hash: "h", expires: 100, verifier: "private-verifier" } };
-  const status = JSON.stringify(publicStatus(job));
-  assert.equal(status.includes("secret-token"), false); assert.equal(status.includes("private-verifier"), false); assert.equal(status.includes("private@example.com"), false);
-});
-test("cleanup rejects an incorrect bearer token without querying storage", async () => {
-  const handler = createInstallerHandler(config, release, async () => { throw new Error("should not run"); });
-  assert.equal((await handler(new Request("https://install.example/api/deploy/cleanup", { headers: { authorization: "Bearer wrong" } }), "cleanup")).status, 401);
-});
-test("revoked credentials expose reconnect actions even while stored tokens exist", () => {
-  const job: InstallJob = { id: "job", version: 0, phase: "functions", cursor: 0, createdAt: 0, expiresAt: Date.now() + 1000, error: "provider_authorization", vercel: { access: "revoked", configurationId: "icfg_x" }, supabase: { access: "revoked" } };
-  assert.equal(publicStatus(job).reconnect, true);
-});
-test("Vercel callback consumes its session-bound state once before exchanging provider credentials", async () => {
-  let record: { id: string; version: number; document: unknown; credentials: unknown; hash: string; lease?: string } | null = null;
-  let exchanges = 0;
-  let rejectBinding = false;
+const site = "https://instance.vercel.app";
+const ref = "abcdefghijklmnopqrst";
+const info = { release: release.id, mode: "self_hosted", setup: true, origin: site, installerOrigin: config.origin, supabaseUrl: `https://${ref}.supabase.co`, publicKey: "public" };
+function fixture() {
+  let record: { id: string; version: number; document: InstallJob; credentials: unknown; hash: string; lease?: string } | null = null;
+  let exchanges = 0, mutations = 0, rejectBinding = false, mismatch = false;
   const handler = createInstallerHandler(config, release, async (input, init) => {
     const url = new URL(String(input));
+    assert.notEqual(url.hostname, "api.vercel.com", "the installer requires no Vercel API credentials");
     if (url.hostname === "control.supabase.co") {
       const action = url.pathname.split("/").at(-1);
       const body = JSON.parse(String(init?.body));
@@ -55,43 +29,122 @@ test("Vercel callback consumes its session-bound state once before exchanging pr
       }
       return Response.json(record);
     }
-    if (url.pathname.endsWith("/oauth/access_token")) { exchanges++; return Response.json({ access_token: "provider-private", installation_id: "icfg_x", team_id: "team_x" }); }
-    if (url.pathname === "/v1/oauth/token") return Response.json({ access_token: "supabase-private", refresh_token: "refresh-private", expires_in: 3600 });
-    if (url.pathname.includes("/integrations/configuration/")) return Response.json({ id: "icfg_x", integrationId: "oac_x", projects: ["prj_x"] });
-    if (url.pathname.endsWith("/env") && init?.method === "GET") return Response.json({ envs: [{ key: "NEXT_PUBLIC_SUPABASE_URL", value: "https://abcdefghijklmnopqrst.supabase.co" }, { key: "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY", value: "public" }] });
-    if (url.pathname.endsWith("/domains")) return Response.json({ domains: [{ name: "instance.vercel.app" }] });
-    if (url.pathname === "/v9/projects/prj_x" && init?.method === "GET") return Response.json({ id: "prj_x", name: "salebell", link: { type: "github", repoId: 1 } });
-    if (url.pathname === "/v1/projects/abcdefghijklmnopqrst") return Response.json({ id: "abcdefghijklmnopqrst", name: "database" });
-    if (url.pathname.endsWith("/api-keys")) return Response.json([{ name: "anon", api_key: "public" }]);
-    if (url.pathname === "/v6/deployments") return Response.json({ deployments: [{ uid: "dpl_clone", state: "READY" }] });
-    if (url.pathname === "/v13/deployments/dpl_clone") return Response.json({ id: "dpl_clone", readyState: "READY", meta: { githubCommitSha: "b".repeat(40) } });
-    if (url.pathname === "/api/instance-release") return Response.json({ release: release.id });
-    return Response.json({});
+    if (url.pathname === "/v1/oauth/token") {
+      exchanges++;
+      const body = new URLSearchParams(String(init?.body));
+      assert.ok(body.get("code_verifier"));
+      assert.equal(body.get("redirect_uri"), `${config.origin}/api/deploy/supabase-callback`);
+      return Response.json({ access_token: "supabase-private", refresh_token: "refresh-private", expires_in: 3600 });
+    }
+    if (url.pathname === "/api/instance-release") {
+      assert.equal(new Headers(init?.headers).get("authorization"), null, "no provider credential reaches the website");
+      return Response.json(info);
+    }
+    if (url.pathname === `/v1/projects/${ref}`) return Response.json({ id: ref, name: "database" });
+    if (url.pathname.endsWith("/api-keys")) return Response.json([{ name: "anon", api_key: mismatch ? "wrong" : "public" }, { type: "secret", api_key: "sb_secret_admin" }]);
+    if (url.pathname.endsWith("/functions")) return Response.json([]);
+    if (url.pathname.endsWith("/database/query")) {
+      mutations++;
+      const query = JSON.parse(String(init?.body)).query;
+      if (query.startsWith("select to_regclass")) return Response.json([{ installed: null }]);
+      if (query.startsWith("select exists")) return Response.json([{ occupied: false }]);
+      return Response.json([]);
+    }
+    if (url.pathname.endsWith("/config/auth") || url.pathname.endsWith("/secrets")) { mutations++; return Response.json({}); }
+    if (url.pathname === "/api/instance-health") return Response.json({ release: release.id, mode: "self_hosted", origin: site });
+    if (url.pathname.startsWith("/hooks/")) return new Response(null, { status: 404 });
+    if (url.pathname === "/auth/v1/admin/users") return Response.json(init?.method === "POST" ? {} : { users: [] });
+    if (url.pathname === "/auth/v1/token") return Response.json({ access_token: "user-private", user: { id: "user-id", email: "owner@example.com" } });
+    if (url.pathname === "/rest/v1/accounts") return Response.json([{ id: "account-id" }]);
+    if (url.pathname === "/functions/v1/test-alert") return new Response(null, { status: 400 });
+    if (url.pathname === "/auth/v1/logout") return new Response(null, { status: 204 });
+    throw new Error(`Unexpected request: ${url.pathname}`);
   });
-  const started = await handler(new Request("https://install.example/api/deploy/start", { method: "POST", headers: { origin: config.origin } }), "start");
-  const cookie = started.headers.get("set-cookie")!.split(";")[0];
-  const state = new URL((await started.json()).url).searchParams.get("external-id")!;
-  const callback = `https://install.example/api/deploy/vercel-callback?code=once&configurationId=icfg_x&currentProjectId=prj_x&external-id=${state}`;
-  assert.equal((await handler(new Request(callback, { headers: { cookie } }), "vercel-callback")).status, 303);
-  assert.equal(exchanges, 1);
-  const replay = await handler(new Request(callback, { headers: { cookie } }), "vercel-callback");
-  assert.ok(replay.headers.get("location")?.includes("oauth_state_invalid"));
-  assert.equal(exchanges, 1);
-  const status = await handler(new Request("https://install.example/api/deploy/status", { headers: { cookie } }), "status");
-  const publicBody = await status.text();
-  assert.equal(publicBody.includes("provider-private"), false);
-  assert.equal(JSON.parse(publicBody).needsSupabase, true);
-  const connect = await handler(new Request("https://install.example/api/deploy/connect-supabase", { method: "POST", headers: { cookie, origin: config.origin } }), "connect-supabase");
-  const supabaseState = new URL((await connect.json()).url).searchParams.get("state");
-  const supabaseCallback = `https://install.example/api/deploy/supabase-callback?code=once&state=${supabaseState}`;
-  assert.equal((await handler(new Request(supabaseCallback, { headers: { cookie } }), "supabase-callback")).status, 303);
-  rejectBinding = true;
-  const rejected = await handler(new Request("https://install.example/api/deploy/select", { method: "POST", headers: { cookie, origin: config.origin, "content-type": "application/json" }, body: JSON.stringify({ projectId: "prj_x" }) }), "select");
-  assert.equal((await rejected.json()).error, "project_in_use");
-  assert.equal((record as unknown as { document: { target?: unknown } }).document.target, undefined, "the error handler must not persist an unbound target");
-  rejectBinding = false;
-  const selected = await handler(new Request("https://install.example/api/deploy/select", { method: "POST", headers: { cookie, origin: config.origin, "content-type": "application/json" }, body: JSON.stringify({ projectId: "prj_x" }) }), "select");
-  assert.equal(selected.status, 200);
-  assert.equal((await selected.json()).phase, "validate");
-  assert.equal((record as unknown as { document: { target: { revision: string } } }).document.target.revision, "b".repeat(40), "the clone's own commit is preserved instead of assuming upstream history");
+  let cookie = "";
+  async function call(action: string, body?: Record<string, unknown>, query = "") {
+    const response = await handler(new Request(`${config.origin}/api/deploy/${action}${query}`, {
+      method: body ? "POST" : "GET", headers: { cookie, origin: config.origin, ...(body ? { "content-type": "application/json" } : {}) },
+      ...(body ? { body: JSON.stringify(body) } : {}),
+    }), action);
+    if (response.headers.has("set-cookie")) cookie = response.headers.get("set-cookie")!.split(";")[0];
+    return response;
+  }
+  async function connect() {
+    await call("start", { site });
+    const response = await call("connect-supabase", { site });
+    const url = new URL((await response.json()).url);
+    assert.equal(url.origin, "https://api.supabase.com");
+    assert.equal(url.searchParams.get("code_challenge_method"), "S256");
+    return `?code=once&state=${url.searchParams.get("state")}`;
+  }
+  return { call, connect, get record() { return record; }, get exchanges() { return exchanges; }, get mutations() { return mutations; }, set rejectBinding(v: boolean) { rejectBinding = v; }, set mismatch(v: boolean) { mismatch = v; } };
+}
+test("disabled installer and removed Vercel OAuth endpoints expose no API", async () => {
+  const disabled = createInstallerHandler(null, release);
+  assert.equal((await disabled(new Request(`${config.origin}/api/deploy/start`, { method: "POST" }), "start")).status, 404);
+  const handler = createInstallerHandler(config, release);
+  for (const action of ["connect-vercel", "vercel-callback", "projects"]) assert.equal((await handler(new Request(`${config.origin}/api/deploy/${action}`), action)).status, 404);
+});
+test("cross-origin mutations fail before accessing storage", async () => {
+  let fetched = false;
+  const handler = createInstallerHandler(config, release, async () => { fetched = true; throw new Error("should not run"); });
+  const response = await handler(new Request(`${config.origin}/api/deploy/start`, { method: "POST", headers: { origin: "https://attacker.example" } }), "start");
+  assert.equal(response.status, 403); assert.equal(fetched, false);
+});
+test("status requires a valid session cookie and does not cache responses", async () => {
+  const response = await fixture().call("status");
+  assert.equal(response.status, 401); assert.equal(response.headers.get("cache-control"), "no-store");
+});
+test("public status strips provider credentials, OAuth verifier and owner email", () => {
+  const job: InstallJob = { id: "job", version: 0, phase: "functions", cursor: 2, createdAt: 0, expiresAt: Date.now() + 1000, ownerEmail: "private@example.com", supabase: { access: "secret-token" }, pending: { provider: "supabase", hash: "h", expires: 100, verifier: "private-verifier" } };
+  const status = JSON.stringify(publicStatus(job));
+  assert.equal(status.includes("secret-token"), false); assert.equal(status.includes("private-verifier"), false); assert.equal(status.includes("private@example.com"), false);
+  assert.equal(publicStatus({ ...job, error: "provider_authorization" }).reconnect, true);
+});
+test("cleanup rejects an incorrect bearer token without querying storage", async () => {
+  const handler = createInstallerHandler(config, release, async () => { throw new Error("should not run"); });
+  assert.equal((await handler(new Request(`${config.origin}/api/deploy/cleanup`, { headers: { authorization: "Bearer wrong" } }), "cleanup")).status, 401);
+});
+test("start creates a native deploy link with no shared Vercel integration", async () => {
+  const response = await fixture().call("start", {});
+  assert.equal(response.status, 200);
+  const url = new URL((await response.json()).url);
+  assert.equal(url.origin, "https://vercel.com"); assert.equal(url.searchParams.has("integration-ids"), false);
+  assert.ok(response.headers.get("set-cookie")?.includes("HttpOnly; Secure; SameSite=Lax"));
+});
+test("Supabase callback consumes session-bound PKCE state once before exchanging credentials", async () => {
+  const f = fixture(); const query = await f.connect();
+  assert.equal((await f.call("supabase-callback", undefined, query)).status, 303);
+  assert.equal(f.exchanges, 1);
+  const replay = await f.call("supabase-callback", undefined, query);
+  assert.ok(replay.headers.get("location")?.includes("oauth_state_invalid")); assert.equal(f.exchanges, 1);
+  assert.equal((await (await f.call("status")).text()).includes("supabase-private"), false);
+});
+test("mismatched public keys and failed unique bindings cannot persist a target or mutate a backend", async () => {
+  const f = fixture(); const query = await f.connect(); await f.call("supabase-callback", undefined, query);
+  f.mismatch = true;
+  assert.equal((await (await f.call("select", { site })).json()).error, "project_mismatch");
+  f.mismatch = false; f.rejectBinding = true;
+  assert.equal((await (await f.call("select", { site })).json()).error, "project_in_use");
+  assert.equal(f.record?.document.target, undefined); assert.equal(f.mutations, 0);
+  f.rejectBinding = false;
+  assert.equal((await (await f.call("select", { site })).json()).phase, "validate");
+});
+test("authorized setup reaches owner completion without any Vercel token and removes temporary credentials", async () => {
+  const f = fixture(); const query = await f.connect(); await f.call("supabase-callback", undefined, query);
+  assert.equal((await (await f.call("select", { site })).json()).phase, "validate");
+  let phase = "validate";
+  for (let i = 0; i < 10 && phase !== "owner"; i++) {
+    const response = await f.call("advance", {}); assert.equal(response.status, 200);
+    phase = (await response.json()).phase;
+  }
+  assert.equal(phase, "owner"); assert.ok(f.mutations > 0);
+  const result = await f.call("owner", { email: "owner@example.com", password: "correct-password-123" });
+  assert.equal(result.status, 200); assert.equal((await result.json()).phase, "complete");
+  assert.equal(f.record?.credentials, null);
+});
+test("site selection cannot change the address authorized in the connection flow", async () => {
+  const f = fixture(); const query = await f.connect(); await f.call("supabase-callback", undefined, query);
+  const response = await f.call("select", { site: "https://different.vercel.app" });
+  assert.equal((await response.json()).error, "project_mismatch"); assert.equal(f.mutations, 0);
 });

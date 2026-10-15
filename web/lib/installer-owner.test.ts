@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { finishOwner } from "./installer-owner.ts";
 import type { InstallJob } from "./installer-types.ts";
 
-const make = (): InstallJob => ({ id: "72b256b8-1426-4ac3-8d3a-9a77d85fae1f", version: 1, phase: "owner", cursor: 0, createdAt: 1, expiresAt: Date.now() + 100000, ownerEmail: "owner@example.com", target: { projectId: "prj_x", projectName: "salebell", supabaseRef: "abcdefghijklmnopqrst", supabaseName: "db", publicKey: "public", origin: "https://app.vercel.app", configurationId: "icfg_x" } });
+const make = (): InstallJob => ({ id: "72b256b8-1426-4ac3-8d3a-9a77d85fae1f", version: 1, phase: "owner", cursor: 0, createdAt: 1, expiresAt: Date.now() + 100000, ownerEmail: "owner@example.com", target: { projectName: "salebell", supabaseRef: "abcdefghijklmnopqrst", supabaseName: "db", publicKey: "public", origin: "https://app.vercel.app" } });
 test("existing owner is authenticated without creating or resetting a password, then the check session is revoked", async () => {
   let loggedOut = false;
   const result = await finishOwner(make(), "owner@example.com", "long-password", "sb_secret_server", async (url, init) => {

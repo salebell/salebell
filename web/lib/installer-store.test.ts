@@ -10,13 +10,13 @@ test("control storage encrypts provider credentials and never sends a secret key
     const headers = new Headers(init?.headers);
     assert.equal(headers.get("authorization"), null);
     const body = JSON.parse(String(init?.body));
-    assert.equal(body.p_document.vercel, undefined);
+    assert.equal(body.p_document.supabase, undefined);
     assert.equal(body.p_document.pending, undefined);
     assert.equal(String(init?.body).includes("provider-token"), false);
     checked = true;
     return Response.json({ ...body.p_document, version: 1 });
   });
-  const job: InstallJob = { id: "72b256b8-1426-4ac3-8d3a-9a77d85fae1f", version: 0, phase: "clone", cursor: 0, createdAt: 100, expiresAt: 100000, vercel: { access: "provider-token", configurationId: "icfg_x" } };
+  const job: InstallJob = { id: "72b256b8-1426-4ac3-8d3a-9a77d85fae1f", version: 0, phase: "clone", cursor: 0, createdAt: 100, expiresAt: 100000, supabase: { access: "provider-token" } };
   await store.create(job, "hash");
   assert.ok(checked);
 });

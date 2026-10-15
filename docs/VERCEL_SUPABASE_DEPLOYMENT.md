@@ -2,7 +2,7 @@
 
 Vercel hosts your dashboard. Your own Supabase project hosts the database, authentication and backend functions. You can use the addresses supplied by those providers; you do not need to buy a domain or configure the two DNS names from the Docker guide.
 
-The browser installer is implemented as a preview and remains disabled until its operator configures the OAuth integrations and qualifies a real installation. An inactive `/deploy` page explains this instead of starting a partial deployment. The manual steps below work independently of the browser installer.
+The browser installer is implemented as a preview and remains disabled until its operator configures the Supabase OAuth app and qualifies a real installation. An inactive `/deploy` page explains this instead of starting a partial deployment. The manual steps below work independently of the browser installer.
 
 ## Browser installation
 
@@ -10,11 +10,13 @@ When the operator enables the installer:
 
 1. Choose **Deploy Salebell** on the self-host page.
 2. Sign in to Vercel and GitHub, create your repository/project, and create or connect a new, empty Supabase project through Vercel's Supabase integration. Review provider plan selections and charges.
-3. Authorize the Salebell Vercel integration and select **Connect Supabase** for the organization containing your database.
-4. Select your Salebell project. The installer checks the connection, applies migrations, deploys functions and configures sign-in. Keep the setup page open; return in the same browser to resume an interrupted installation.
+3. Keep the pre-filled Salebell setup defaults and deploy. Visit the new production website and choose **Finish setup**; the link fills in its address.
+4. Select **Connect Supabase** for the organization containing your new database, then confirm **Install Salebell** for the displayed website. The installer checks the connection, applies migrations, deploys functions and configures sign-in. Keep the setup page open; return in the same browser to resume an interrupted installation.
 5. Create your owner email/password and open the dashboard. Add your first app using the existing onboarding.
 
-The OAuth applications are registered once by the Salebell installer operator. Every installing user grants access to **their own** provider projects. The operator's personal provider token is never substituted for a user's authorization. No OAuth client secret is copied into the user's deployment. Once installed, the instance runs independently of the installer service.
+Only the Supabase OAuth app is registered once by the Salebell installer operator. Vercel uses its existing native Supabase integration and standard Deploy Button; no Salebell Vercel integration or Vercel OAuth app is required. Every installing user grants access to **their own** provider projects. The operator's personal provider token is never substituted for a user's authorization. No Supabase OAuth client secret is copied into the user's deployment. Once installed, the instance runs independently of the installer service.
+
+The browser installer initially accepts public production addresses ending in `.vercel.app`; custom domains can be configured after setup. It validates the website's release and public Supabase connection against the project authorized through OAuth. The website address is shown for explicit confirmation before any backend changes. It does not need access to the user's Vercel API or create another web deployment.
 
 The first release accepts empty projects and resumes its own interrupted installations. It does not import or upgrade an existing Salebell database. Canceling stops setup and discards its stored provider credentials; it does not delete provider resources. Provider account connections last at most 24 hours before reconnection is required; the browser session expires after seven days. Recovery after that session expires is an operator task, not a fresh install over the existing database.
 
@@ -82,13 +84,9 @@ The dashboard should show **Self-hosted** and an **Instance** tab. Add an app, m
 
 These steps belong to the operator of the shared installer website. Installing users do not repeat them or share their private credentials with the operator in chat.
 
-### Register the authorization apps
+### Register the Supabase authorization app
 
-Register a Salebell **connectable Vercel integration**, with:
-
-- A fixed Redirect URL: `https://YOUR_INSTALLER_HOST/api/deploy/vercel-callback`.
-- Access to the selected project's integration configuration, project settings, environment variables and deployments. Environment access must include reading Supabase's public connection variables and writing the Salebell build values. Confirm these permissions against the live API before public launch.
-- A public integration ID (`oac_…`), URL slug and server-only client secret.
+In your Supabase organization, open [OAuth Apps](https://supabase.com/dashboard/org/_/apps) and select **Add application**. Use Salebell as the name and your canonical installer origin as the website URL. No Vercel integration registration is needed.
 
 Register a **Supabase OAuth app**, with:
 
@@ -96,7 +94,7 @@ Register a **Supabase OAuth app**, with:
 - Project metadata read, database read/write, Auth read/write, Edge Functions read/write, and secrets/API keys read/write. It does not need project creation, organization administration or storage permissions.
 - A client ID and server-only client secret. Supabase OAuth uses PKCE and a single-use state value.
 
-These registrations identify Salebell's Connect buttons. They are separate from a user's personal access token and separate from creating the user's Vercel/Supabase projects.
+This registration identifies Salebell's Connect Supabase button. It is separate from a user's personal access token and separate from creating the user's Vercel/Supabase projects. Save its credentials as `INSTALLER_SUPABASE_CLIENT_ID` and `INSTALLER_SUPABASE_CLIENT_SECRET` in Vercel production settings; store the secret as Secret/Sensitive.
 
 ### Configure the control database and host
 
@@ -104,7 +102,7 @@ Apply [`deploy/installer/control.sql`](../deploy/installer/control.sql) to the c
 
 Set the server-only values documented in [`deploy/installer/.env.example`](../deploy/installer/.env.example) on the canonical Vercel project. Keep its normal website/Supabase public values configured too. Generate the installer encryption key with `openssl rand -hex 32`. Use a separate random cleanup secret. Never commit actual values.
 
-`INSTALLER_RELEASE_REF` must be a full immutable commit containing the generated release assets and both the frontend and backend sources. `INSTALLER_SUPABASE_PRODUCT` is the actual product slug from the live Vercel Supabase integration, not an invented ID. The source link pins this commit, while selection verifies the deployed release fingerprint and records the clone's own commit ID for subsequent builds. A clone does not have to preserve the upstream commit ID.
+`INSTALLER_RELEASE_REF` must be a full immutable commit containing the generated release assets and both the frontend and backend sources. `INSTALLER_SUPABASE_PRODUCT` is the actual product slug from the live Vercel Supabase integration, not an invented ID. The source link pins this commit, while selection verifies the deployed frontend/backend release fingerprint. A clone does not have to preserve the upstream commit ID. The Deploy Button pre-fills only non-sensitive setup defaults; Supabase's native integration supplies the user's public connection settings.
 
 Generate and check the tracked backend/frontend release manifest whenever release sources change:
 
@@ -113,7 +111,7 @@ npm run installer:assets
 npm run installer:assets:check
 ```
 
-Keep `INSTALLER_PUBLIC_ENABLED=false` during qualification. `INSTALLER_ENABLED=true` enables the direct preview page and APIs only on the exact configured origin; leave it false on other deployments. Account callbacks and the control database are for this host only. An installed user's site receives its own public connection values and a link back to setup, not the operator's credentials.
+Keep `INSTALLER_PUBLIC_ENABLED=false` during qualification. `INSTALLER_ENABLED=true` enables the direct preview page and APIs only on the exact configured origin; leave it false on other deployments. The Supabase callback and the control database are for this host only. An installed user's site receives its own public connection values and a link back to setup, not the operator's credentials.
 
 The control database removes encrypted credentials at completion/cancellation or their 24-hour expiry, and removes session records after seven days. Cleanup runs every 15 minutes when `pg_cron` is installed. If that extension is unavailable, schedule an authenticated GET to `/api/deploy/cleanup` with `Authorization: Bearer <INSTALLER_CLEANUP_SECRET>` in your operator scheduler. Expired credentials cannot be read even before cleanup runs. Finish or cancel active installations before rotating the encryption key: rotation invalidates their encrypted authorization records and may require operator recovery.
 
@@ -122,8 +120,9 @@ The control database removes encrypted credentials at completion/cancellation or
 Complete a real fresh installation with disposable projects, verifying:
 
 - The clone keeps the whole repository, uses `web/` as its build root and receives the expected native Supabase variables.
-- The Salebell callback configures self-hosted/setup mode before the initial build. Initial visitors see setup rather than account registration.
-- Both OAuth flows work for another user's permitted projects, including a Marketplace-created Supabase organization, without accessing the operator's own application project.
+- The pre-filled deployment defaults configure self-hosted/setup mode for the initial build. Initial visitors see setup rather than account registration. The Finish setup link supplies the production address automatically.
+- Supabase OAuth works for another user's permitted projects, including a Marketplace-created Supabase organization, without accessing the operator's own application project. No Salebell Vercel OAuth prompt appears.
+- Wrong release fingerprints, unsupported website addresses, mismatched public keys and the operator's website/database are rejected before provisioning.
 - Migrations, function source uploads and each function's authentication work with current Supabase signing keys. Protected handlers validate bearer tokens through Auth; webhooks use their own signed payload verification.
 - Password login creates a workspace, anonymous data stays private, Realtime connects, the Vercel webhook proxy accepts a real Apple sandbox event and a configured alert arrives.
 - Interrupted setup, failed builds, expired authorization and repeated owner submissions recover without resetting passwords or applying migrations twice.

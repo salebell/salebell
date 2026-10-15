@@ -29,5 +29,5 @@ export async function finishOwner(job: InstallJob, email: string, password: stri
   } finally {
     await apiRequest(`${origin}/auth/v1/logout?scope=local`, { method: "POST", headers: userHeaders }, fetcher);
   }
-  return { ...job, phase: "complete", ownerId: session.user.id, pending: undefined, vercel: undefined, supabase: undefined, error: undefined };
+  return { ...job, phase: "complete", ownerId: session.user.id, pending: undefined, supabase: undefined, error: undefined };
 }

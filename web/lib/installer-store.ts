@@ -4,7 +4,7 @@ import type { InstallJob } from "./installer-types.ts";
 import { seal, unseal } from "./installer-security.ts";
 import { apiRequest } from "./installer-providers.ts";
 
-type RecordRow = { id: string; version: number; document: Omit<InstallJob, "pending" | "vercel" | "supabase">; credentials: string | null; lease?: string };
+type RecordRow = { id: string; version: number; document: Omit<InstallJob, "pending" | "supabase">; credentials: string | null; lease?: string };
 export class InstallerStore {
   config: Pick<InstallerConfig, "controlUrl" | "controlKey" | "encryptionKey">; fetcher: typeof fetch;
   constructor(config: InstallerStore["config"], fetcher: typeof fetch = fetch) { this.config = config; this.fetcher = fetcher; }
@@ -14,14 +14,15 @@ export class InstallerStore {
     return apiRequest<T>(`${this.config.controlUrl}/rest/v1/rpc/${name}`, { method: "POST", headers, body: JSON.stringify(body) }, this.fetcher);
   }
   private encode(job: InstallJob) {
-    const { pending, vercel, supabase, ...document } = job;
-    const credentials = pending || vercel || supabase ? seal({ pending, vercel, supabase }, this.config.encryptionKey, job.id) : null;
+    const { pending, supabase, ...document } = job;
+    const credentials = pending || supabase ? seal({ pending, supabase }, this.config.encryptionKey, job.id) : null;
     return { document, credentials };
   }
   private decode(row: RecordRow | null, code: string): InstallJob {
     if (!row) throw new Error(code);
-    const credentials = row.credentials ? unseal<Pick<InstallJob, "pending" | "vercel" | "supabase">>(row.credentials, this.config.encryptionKey, row.id) : {};
-    return { ...row.document, ...credentials, id: row.id, version: row.version };
+    const credentials = row.credentials ? unseal<Pick<InstallJob, "pending" | "supabase">>(row.credentials, this.config.encryptionKey, row.id) : {};
+    // Ignore obsolete credentials from the preview that used Vercel OAuth.
+    return { ...row.document, pending: credentials.pending, supabase: credentials.supabase, id: row.id, version: row.version };
   }
   async create(job: InstallJob, hash: string) {
     const { document, credentials } = this.encode(job);

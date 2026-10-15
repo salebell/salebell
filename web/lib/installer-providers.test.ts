@@ -1,6 +1,6 @@
 import test from "node:test";
 import assert from "node:assert/strict";
-import { apiRequest, ProviderError, SupabaseProvider, VercelProvider } from "./installer-providers.ts";
+import { apiRequest, ProviderError, SupabaseProvider } from "./installer-providers.ts";
 
 test("provider failures do not expose secret response bodies", async () => {
   await assert.rejects(apiRequest("https://api.supabase.com/v1/projects", {}, async () => new Response("token=private database password", { status: 403 })), (error: unknown) => error instanceof ProviderError && error.code === "provider_authorization" && !error.message.includes("private"));
@@ -28,17 +28,4 @@ test("function upload preserves source paths and JWT protection", async () => {
     return Response.json({ slug: "apple-test", status: "ACTIVE" }, { status: 201 });
   });
   await provider.deployFunction({ slug: "apple-test", verifyJwt: true, files: [{ name: "apple-test/index.ts", content: "import '../_shared/example.ts';" }, { name: "_shared/example.ts", content: "export const x = 1;" }] });
-});
-test("Vercel API calls retain team scope and reject an unbound configuration", async () => {
-  const client = new VercelProvider("private", "team_123", async (url) => {
-    assert.equal(new URL(String(url)).searchParams.get("teamId"), "team_123");
-    return Response.json({ id: "icfg_other", integrationId: "oac_other", projects: ["prj_other"] });
-  });
-  await assert.rejects(client.verifyConfiguration("icfg_right", "oac_right", "prj_right"), /project_mismatch/);
-});
-test("Vercel deployment listing normalizes uid and state before selection or recovery", async () => {
-  const client = new VercelProvider("private", undefined, async () => Response.json({ deployments: [{ uid: "dpl_one", name: "salebell", state: "READY", meta: { salebellInstaller: "job" } }] }));
-  const result = await client.deployments("prj_one");
-  assert.equal(result.deployments[0].id, "dpl_one");
-  assert.equal(result.deployments[0].readyState, "READY");
 });

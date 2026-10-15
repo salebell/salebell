@@ -21,8 +21,6 @@ export async function apiRequest<T>(url: string, init: RequestInit = {}, fetcher
   try { return await response.json() as T; } catch { throw new ProviderError("provider_invalid_response"); }
 }
 export type SqlRows = Record<string, unknown>[];
-export type VercelProject = { id: string; name: string; rootDirectory?: string; link?: { type: string; repoId?: number | string; productionBranch?: string }; latestDeployments?: { id: string }[] };
-export type VercelDeployment = { id: string; readyState: string; meta?: Record<string, string>; gitSource?: { sha?: string; ref?: string }; alias?: string[] };
 export type ApiKey = { name: string; api_key: string; type?: string };
 export class SupabaseProvider {
   ref: string; token: string; fetcher: typeof fetch;
@@ -49,45 +47,6 @@ export class SupabaseProvider {
     for (const file of asset.files) form.append("file", new Blob([file.content], { type: "application/typescript" }), file.name);
     return apiRequest<{ slug: string; status: string }>(`https://api.supabase.com/v1/projects/${this.ref}/functions/deploy?slug=${encodeURIComponent(asset.slug)}`, { method: "POST", headers: { authorization: `Bearer ${this.token}` }, body: form }, this.fetcher);
   }
-}
-export class VercelProvider {
-  token: string; teamId?: string; fetcher: typeof fetch;
-  constructor(token: string, teamId?: string, fetcher: typeof fetch = fetch) { this.token = token; this.teamId = teamId; this.fetcher = fetcher; }
-  call<T>(path: string, method = "GET", body?: unknown) {
-    const url = new URL(path, "https://api.vercel.com");
-    if (this.teamId) url.searchParams.set("teamId", this.teamId);
-    return apiRequest<T>(url.href, { method, headers: { authorization: `Bearer ${this.token}`, ...(body === undefined ? {} : { "content-type": "application/json" }) }, ...(body === undefined ? {} : { body: JSON.stringify(body) }) }, this.fetcher);
-  }
-  async verifyConfiguration(id: string, integrationId: string, projectId?: string) {
-    const result = await this.call<{ id: string; integrationId: string; projects?: string[] | null }>(`/v1/integrations/configuration/${encodeURIComponent(id)}`);
-    if (result.id !== id || result.integrationId !== integrationId || (projectId && result.projects && !result.projects.includes(projectId))) throw new Error("project_mismatch");
-    return result;
-  }
-  project(id: string) { return this.call<VercelProject>(`/v9/projects/${encodeURIComponent(id)}`); }
-  projects() { return this.call<{ projects: VercelProject[] }>("/v9/projects?limit=100"); }
-  domains(id: string) { return this.call<{ domains: { name: string; redirect?: string | null }[] }>(`/v9/projects/${encodeURIComponent(id)}/domains`); }
-  environments(id: string) { return this.call<{ envs: { key: string; value?: string; target?: string[] }[] }>(`/v10/projects/${encodeURIComponent(id)}/env?decrypt=true`); }
-  async configure(id: string, values: Record<string, string>) {
-    await this.call(`/v9/projects/${encodeURIComponent(id)}`, "PATCH", { rootDirectory: "web", framework: "nextjs" });
-    await this.call(`/v10/projects/${encodeURIComponent(id)}/env?upsert=true`, "POST", Object.entries(values).map(([key, value]) => ({ key, value, type: "plain", target: ["production"] })));
-  }
-  async deployments(id: string) {
-    const result = await this.call<{ deployments: (Omit<VercelDeployment, "id" | "readyState"> & { uid: string; state?: string; readyState?: string })[] }>(`/v6/deployments?projectId=${encodeURIComponent(id)}&limit=20&target=production`);
-    return { deployments: result.deployments.map(value => ({ ...value, id: value.uid, readyState: value.readyState ?? value.state ?? "UNKNOWN" })) };
-  }
-  deployment(id: string) { return this.call<VercelDeployment>(`/v13/deployments/${encodeURIComponent(id)}`); }
-  deploy(project: VercelProject, revision: string, installationId: string) {
-    if (project.link?.type !== "github" || !project.link.repoId) throw new Error("unsupported_repository");
-    return this.call<VercelDeployment>("/v13/deployments", "POST", { name: project.name, project: project.id, target: "production", gitSource: { type: "github", repoId: String(project.link.repoId), ref: revision }, meta: { salebellInstaller: installationId, salebellRelease: revision } });
-  }
-}
-export async function exchangeVercel(config: InstallerConfig, code: string, fetcher: typeof fetch = fetch) {
-  const result = await apiRequest<{ access_token: string; installation_id: string; team_id?: string }>("https://api.vercel.com/v2/oauth/access_token", {
-    method: "POST", headers: { "content-type": "application/x-www-form-urlencoded" },
-    body: new URLSearchParams({ client_id: config.vercelClientId, client_secret: config.vercelSecret, code, redirect_uri: `${config.origin}/api/deploy/vercel-callback` }),
-  }, fetcher);
-  if (!result.access_token || !result.installation_id) throw new ProviderError("provider_invalid_response");
-  return { access: result.access_token, configurationId: result.installation_id, teamId: result.team_id };
 }
 export async function exchangeSupabase(config: InstallerConfig, code: string, verifier: string, fetcher: typeof fetch = fetch): Promise<ProviderTokens> {
   return supabaseToken(config, { grant_type: "authorization_code", code, code_verifier: verifier, redirect_uri: `${config.origin}/api/deploy/supabase-callback` }, fetcher);

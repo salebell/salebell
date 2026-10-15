@@ -1,31 +1,41 @@
 import type { InstallJob, Release, Target } from "./installer-types.ts";
-import { SupabaseProvider, VercelProvider, apiRequest } from "./installer-providers.ts";
-import { httpsOrigin } from "./installer-config.ts";
+import { SupabaseProvider, apiRequest } from "./installer-providers.ts";
+import { deploymentOrigin, type InstallerConfig } from "./installer-config.ts";
 import { migrationSQL, reservationSQL, settingsSQL } from "./installer-sql.ts";
 
-export async function bindTarget(job: InstallJob, projectId: string, vercel: VercelProvider, db: SupabaseProvider, integrationId: string): Promise<Target> {
-  if (!job.vercel || !/^[a-zA-Z0-9_-]{3,100}$/.test(projectId)) throw new Error("project_mismatch");
-  await vercel.verifyConfiguration(job.vercel.configurationId, integrationId, projectId);
-  const [project, env, domains, database, keys] = await Promise.all([vercel.project(projectId), vercel.environments(projectId), vercel.domains(projectId), db.metadata(), db.keys()]);
-  if (project.id !== projectId || database.id !== db.ref || project.link?.type !== "github") throw new Error("project_mismatch");
-  const production = env.envs.filter(value => !value.target || value.target.includes("production"));
-  const url = production.find(value => value.key === "NEXT_PUBLIC_SUPABASE_URL")?.value;
-  const publicKey = production.find(value => value.key === "NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY")?.value;
-  if (url !== `https://${db.ref}.supabase.co` || !publicKey || !keys.some(key => (key.type === "publishable" || key.name === "anon") && key.api_key === publicKey)) throw new Error("project_mismatch");
-  const domain = domains.domains.find(value => !value.redirect && /^[a-z0-9-]+\.vercel\.app$/i.test(value.name));
-  if (!domain) throw new Error("production_domain_pending");
-  return { projectId, projectName: project.name, supabaseRef: db.ref, supabaseName: database.name, origin: httpsOrigin(`https://${domain.name}`), publicKey, configurationId: job.vercel.configurationId, teamId: job.vercel.teamId };
+type DeploymentInfo = { release: string; mode: string; setup: boolean; origin: string; installerOrigin: string; supabaseUrl: string; publicKey: string };
+export async function readDeployment(site: string, release: Release, installerOrigin: string, fetcher: typeof fetch = fetch): Promise<DeploymentInfo> {
+  const origin = deploymentOrigin(site);
+  if (origin === installerOrigin) throw new Error("project_mismatch");
+  const info = await apiRequest<DeploymentInfo>(`${origin}/api/instance-release`, {}, fetcher);
+  if (info.release !== release.id) throw new Error("release_mismatch");
+  if (info.origin !== origin || info.installerOrigin !== installerOrigin || info.setup !== true || info.mode !== "self_hosted"
+    || typeof info.supabaseUrl !== "string" || !/^https:\/\/[a-z0-9]{20}\.supabase\.co$/.test(info.supabaseUrl)
+    || typeof info.publicKey !== "string" || !info.publicKey) throw new Error("project_mismatch");
+  return info;
 }
-export type RunnerDeps = { db: SupabaseProvider; vercel: VercelProvider; revision: string; installerOrigin?: string; fetcher?: typeof fetch };
+export async function bindTarget(site: string, token: string, release: Release, config: Pick<InstallerConfig, "origin" | "controlUrl">, fetcher: typeof fetch = fetch): Promise<Target> {
+  const info = await readDeployment(site, release, config.origin, fetcher);
+  if (info.supabaseUrl === config.controlUrl) throw new Error("project_mismatch");
+  const ref = new URL(info.supabaseUrl).hostname.split(".")[0];
+  const db = new SupabaseProvider(ref, token, fetcher);
+  const [database, keys] = await Promise.all([db.metadata(), db.keys()]);
+  if (database.id !== ref || !keys.some(key => (key.type === "publishable" || key.name === "anon") && key.api_key === info.publicKey)) throw new Error("project_mismatch");
+  return { projectName: new URL(info.origin).hostname.split(".")[0], supabaseRef: ref, supabaseName: database.name, origin: info.origin, publicKey: info.publicKey };
+}
+export async function verifyDeployment(target: Target, release: Release, installerOrigin: string, fetcher?: typeof fetch) {
+  const info = await readDeployment(target.origin, release, installerOrigin, fetcher);
+  if (info.supabaseUrl !== `https://${target.supabaseRef}.supabase.co` || info.publicKey !== target.publicKey) throw new Error("project_mismatch");
+}
+export type RunnerDeps = { db: SupabaseProvider; installerOrigin: string; fetcher?: typeof fetch };
 export async function advanceInstallation(job: InstallJob, release: Release, deps: RunnerDeps): Promise<InstallJob> {
-  if (!job.target || !job.vercel || !job.supabase || deps.db.ref !== job.target.supabaseRef) throw new Error("provider_reconnect_required");
-  if (job.phase === "verify" && job.error === "deployment_failed") return { ...job, phase: "deploy", deploymentId: undefined, error: undefined, retryAt: undefined };
+  if (!job.target || !job.supabase || deps.db.ref !== job.target.supabaseRef) throw new Error("provider_reconnect_required");
   const next: InstallJob = { ...job, error: undefined, retryAt: undefined };
-  const { db, vercel } = deps;
+  const { db } = deps;
   const target = job.target;
-  const revision = target.revision ?? deps.revision;
   switch (job.phase) {
     case "validate": {
+      await verifyDeployment(target, release, deps.installerOrigin, deps.fetcher);
       const functions = await db.functions();
       if (functions.some(fn => !release.functions.some(asset => asset.slug === fn.slug))) throw new Error("project_not_empty");
       const reservation = await db.query("select to_regclass('private.browser_installation') as installed");
@@ -62,20 +72,9 @@ export async function advanceInstallation(job: InstallJob, release: Release, dep
     case "auth":
       await db.updateAuth(target.origin);
       await db.setSiteUrl(target.origin);
-      next.phase = "deploy"; break;
-    case "deploy": {
-      const project = await vercel.project(target.projectId);
-      await vercel.configure(target.projectId, { NEXT_PUBLIC_SUPABASE_URL: `https://${target.supabaseRef}.supabase.co`, NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY: target.publicKey, NEXT_PUBLIC_SITE_URL: target.origin, NEXT_PUBLIC_DEPLOYMENT_MODE: "self_hosted", SALEBELL_BROWSER_INSTALL: "true", ...(deps.installerOrigin ? { SALEBELL_INSTALLER_ORIGIN: deps.installerOrigin } : {}) });
-      const previous = (await vercel.deployments(target.projectId)).deployments.find(value => value.meta?.salebellInstaller === job.id && value.meta?.salebellRelease === revision && !["ERROR", "CANCELED"].includes(value.readyState));
-      const deployment = previous ?? await vercel.deploy(project, revision, job.id);
-      next.deploymentId = deployment.id; next.phase = "verify"; break;
-    }
+      next.phase = "verify"; break;
     case "verify": {
-      if (!job.deploymentId) throw new Error("deployment_missing");
-      const deployment = await vercel.deployment(job.deploymentId);
-      if (["ERROR", "CANCELED"].includes(deployment.readyState)) throw new Error("deployment_failed");
-      if (deployment.readyState !== "READY") { next.retryAt = Date.now() + 5000; break; }
-      if (deployment.meta?.salebellInstaller !== job.id || deployment.meta?.salebellRelease !== revision || (deployment.gitSource?.sha ?? deployment.meta?.githubCommitSha) !== revision) throw new Error("release_mismatch");
+      await verifyDeployment(target, release, deps.installerOrigin, deps.fetcher);
       const health = await apiRequest<{ release: string; mode: string; origin: string }>(`${target.origin}/api/instance-health`, {}, deps.fetcher);
       if (health.release !== release.id || health.mode !== "self_hosted" || health.origin !== target.origin) throw new Error("instance_not_ready");
       const response = await (deps.fetcher ?? fetch)(`${target.origin}/hooks/apple/notarealkey1/production`, { method: "POST", body: "{}", headers: { "content-type": "application/json" }, redirect: "error", signal: AbortSignal.timeout(15_000) });
