@@ -1,0 +1,53 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="380" viewBox="0 0 1200 380" fill="none" role="img" aria-labelledby="title description">
+  <title id="title">Salebell — Your app sells. Your phone rings.</title>
+  <desc id="description">An emerald bell sends a purchase signal from the App Store to your phone. Open-source purchase and subscription alerts.</desc>
+  <defs>
+    <linearGradient id="background" x1="0" y1="0" x2="1200" y2="380" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#0b1418"/>
+      <stop offset="1" stop-color="#102d28"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(960 165) rotate(90) scale(260 300)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#34d399" stop-opacity=".17"/>
+      <stop offset="1" stop-color="#34d399" stop-opacity="0"/>
+    </radialGradient>
+    <linearGradient id="bell" x1="905" y1="95" x2="1020" y2="225" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#a7f3d0"/>
+      <stop offset="1" stop-color="#34d399"/>
+    </linearGradient>
+    <pattern id="grid" width="40" height="40" patternUnits="userSpaceOnUse">
+      <path d="M40 0H0V40" stroke="#a7f3d0" stroke-opacity=".035"/>
+    </pattern>
+  </defs>
+  <rect width="1200" height="380" rx="24" fill="url(#background)"/>
+  <rect width="1200" height="380" rx="24" fill="url(#grid)"/>
+  <rect width="1200" height="380" rx="24" fill="url(#glow)"/>
+  <rect x=".5" y=".5" width="1199" height="379" rx="23.5" stroke="#a7f3d0" stroke-opacity=".12"/>
+  <g font-family="-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif">
+    <circle cx="62" cy="53" r="5" fill="#34d399"/>
+    <text x="79" y="60" fill="#d1fae5" font-size="23" font-weight="700" letter-spacing="-.5">salebell</text>
+    <rect x="193" y="37" width="118" height="28" rx="14" fill="#34d399" fill-opacity=".08" stroke="#34d399" stroke-opacity=".25"/>
+    <text x="252" y="56" fill="#a7f3d0" font-size="11" font-weight="600" text-anchor="middle" letter-spacing="1.5">OPEN SOURCE</text>
+    <text x="56" y="148" fill="#f0fdf4" font-size="60" font-weight="750" letter-spacing="-2.5">Your app sells.</text>
+    <text x="56" y="215" fill="#6ee7b7" font-size="60" font-weight="750" letter-spacing="-2.5">Your phone rings.</text>
+    <text x="59" y="260" fill="#9bb6ae" font-size="19">In-app purchases. Subscriptions. Instant alerts.</text>
+    <path d="M59 299H635" stroke="#a7f3d0" stroke-opacity=".12"/>
+    <text x="59" y="334" fill="#c1d6cf" font-size="13" font-weight="500" letter-spacing="1">VERIFIED EVENTS</text>
+    <circle cx="225" cy="329" r="2" fill="#34d399"/>
+    <text x="244" y="334" fill="#c1d6cf" font-size="13" font-weight="500" letter-spacing="1">LIVE REVENUE</text>
+    <circle cx="388" cy="329" r="2" fill="#34d399"/>
+    <text x="407" y="334" fill="#c1d6cf" font-size="13" font-weight="500" letter-spacing="1">YOUR INFRASTRUCTURE</text>
+    <circle cx="960" cy="161" r="125" stroke="#6ee7b7" stroke-opacity=".08"/>
+    <circle cx="960" cy="161" r="97" stroke="#6ee7b7" stroke-opacity=".14"/>
+    <circle cx="960" cy="161" r="71" fill="#34d399" fill-opacity=".06" stroke="#6ee7b7" stroke-opacity=".18"/>
+    <path d="M922 170V147C922 125 936 112 960 112C984 112 998 125 998 147V170L1007 186H913L922 170Z" fill="url(#bell)"/>
+    <path d="M947 197C947 205 953 211 960 211C967 211 973 205 973 197" fill="#fbbf24"/>
+    <path d="M960 103V96M905 125L897 119M1015 125L1023 119" stroke="#6ee7b7" stroke-width="5" stroke-linecap="round"/>
+    <path d="M859 164C842 164 838 175 838 191M1061 164C1078 164 1082 175 1082 191" stroke="#6ee7b7" stroke-opacity=".5" stroke-width="2" stroke-linecap="round"/>
+    <rect x="779" y="278" width="362" height="49" rx="14" fill="#0b1d1a" stroke="#6ee7b7" stroke-opacity=".2"/>
+    <text x="806" y="309" fill="#d1fae5" font-size="14" font-weight="600">App Store</text>
+    <path d="M889 302H917M912 297L917 302L912 307" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="933" y="309" fill="#6ee7b7" font-size="14" font-weight="600">Salebell</text>
+    <path d="M1005 302H1033M1028 297L1033 302L1028 307" stroke="#34d399" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+    <text x="1050" y="309" fill="#d1fae5" font-size="14" font-weight="600">You</text>
+  </g>
+</svg>
