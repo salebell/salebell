@@ -19,7 +19,7 @@ final class DemoBackend: Backend, @unchecked Sendable {
 
     func authStates() -> AsyncStream<AuthState> {
         AsyncStream { c in
-            c.yield(mode == .signedOut ? .signedOut : .signedIn(email: "indie@example.com"))
+            c.yield(mode == .signedOut ? .signedOut : .signedIn(email: "indie@example.com", userID: UUID(uuidString: "11111111-1111-4111-8111-111111111111")!))
         }
     }
 

@@ -1,7 +1,9 @@
+import OSLog
 import UIKit
 import UserNotifications
 import WidgetKit
 
+@MainActor
 final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCenterDelegate {
     let model = AppModel()
 
@@ -10,10 +12,6 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
         UNUserNotificationCenter.current().delegate = self
         Task {
             await model.updateNotificationPermission()
-            // Fresh token on every launch: APNs may rotate it at any time.
-            if model.notificationPermission == .allowed {
-                application.registerForRemoteNotifications()
-            }
         }
         return true
     }
@@ -23,20 +21,31 @@ final class AppDelegate: NSObject, UIApplicationDelegate, UNUserNotificationCent
     }
 
     func application(_ application: UIApplication, didFailToRegisterForRemoteNotificationsWithError error: Error) {
-        // Expected in the Simulator without a push-capable team; nothing to do.
+        let failure = error as NSError
+        Logger(subsystem: "com.salebell", category: "Push").error(
+            "APNs registration failed: domain=\(failure.domain, privacy: .public) code=\(failure.code) description=\(failure.localizedDescription, privacy: .private)")
     }
 
     // Show sale alerts while the app is open, and refresh the numbers.
+    // These protocol callbacks are nonisolated; hop to MainActor for UI-owned state.
+    // Complete after the short state update, without waiting for network refreshes.
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                            willPresent notification: UNNotification) async -> UNNotificationPresentationOptions {
-        await MainActor.run { model.refresh() }
-        WidgetCenter.shared.reloadAllTimelines()
-        return [.banner, .sound, .list]
+                                            willPresent notification: UNNotification,
+                                            withCompletionHandler completionHandler: @escaping @Sendable (UNNotificationPresentationOptions) -> Void) {
+        Task { @MainActor in
+            model.refresh()
+            WidgetCenter.shared.reloadAllTimelines()
+            completionHandler([.banner, .sound, .list])
+        }
     }
 
     nonisolated func userNotificationCenter(_ center: UNUserNotificationCenter,
-                                            didReceive response: UNNotificationResponse) async {
-        await MainActor.run { model.openFeedFromNotification() }
-        WidgetCenter.shared.reloadAllTimelines()
+                                            didReceive response: UNNotificationResponse,
+                                            withCompletionHandler completionHandler: @escaping @Sendable () -> Void) {
+        Task { @MainActor in
+            model.openFeedFromNotification()
+            WidgetCenter.shared.reloadAllTimelines()
+            completionHandler()
+        }
     }
 }

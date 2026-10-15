@@ -128,7 +128,9 @@ site URL. Row Level Security protects all data. No service-role key, Stripe key 
 - **Push**: once an app is added to the account, a short explainer asks for permission. The empty-account screen shows the setup steps and a refresh button. Then the app calls
   `register_push_device(p_token, p_apns_environment, p_app_version)` on every launch, token change and sign-in.
   Returning from iPhone Settings retries device registration after permission is enabled. Settings shows unfinished registration and offers a retry.
-  Sign out deletes this phone's `push_devices` row, so the next person to use the phone doesn't get your alerts.
+  Sign out waits for in-flight registration and deletes this phone's tracked `push_devices` rows.
+  If removal fails, the app keeps the user signed in and shows an error so they can retry.
+  Device cleanup IDs are stored per authenticated user; a saved ID alone never marks push setup complete.
   Tapping a notification opens the Feed. The backend sends `sound: "chaching.caf"`, which is bundled.
 - **Settings**: notification status, the *Sandbox alerts* toggle (`push_devices.sandbox_alerts`), email, sign out,
   **Delete account** (`delete-account` Edge Function, guideline 5.1.1(v)), and links to the docs, privacy and terms pages.

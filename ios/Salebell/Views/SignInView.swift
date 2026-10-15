@@ -7,7 +7,7 @@ struct SignInView: View {
     private enum Field { case email, code, password }
     static let resendCooldown: TimeInterval = 60
 
-    @State private var step = Step.email
+    @State private var step = Step.password
     @State private var email = ""
     @State private var code = ""
     @State private var password = ""
@@ -95,7 +95,7 @@ struct SignInView: View {
             Button("Use a password") {
                 step = .password
                 errorMessage = nil
-                focus = .password
+                focus = emailLooksValid ? .password : .email
             }
             .font(.footnote)
         }
@@ -153,6 +153,9 @@ struct SignInView: View {
                 .keyboardType(.emailAddress)
                 .textInputAutocapitalization(.never)
                 .autocorrectionDisabled()
+                .submitLabel(.next)
+                .focused($focus, equals: .email)
+                .onSubmit { focus = .password }
                 .padding(14)
                 .background(Color(.secondarySystemGroupedBackground), in: .rect(cornerRadius: 12))
                 .accessibilityLabel("Email address")

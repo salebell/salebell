@@ -6,6 +6,7 @@ struct SettingsView: View {
 
     @State private var sandboxAlerts = false
     @State private var sandboxLoaded = false
+    @State private var isSavingSandboxAlerts = false
     @State private var confirmSignOut = false
     @State private var confirmDelete = false
     @State private var isDeleting = false
@@ -58,7 +59,7 @@ struct SettingsView: View {
                 EmptyView()
             }
             Toggle("Sandbox alerts", isOn: Binding(get: { sandboxAlerts }, set: setSandboxAlerts))
-                .disabled(model.pushDeviceID == nil || !sandboxLoaded)
+                .disabled(model.pushDeviceID == nil || !sandboxLoaded || isSavingSandboxAlerts || model.isEndingSession)
             Button(action: sendTest) {
                 HStack {
                     Label("Send a test cha-ching", systemImage: "bell.badge")
@@ -93,9 +94,13 @@ struct SettingsView: View {
         Section("Account") {
             LabeledContent("Email", value: model.email ?? "")
             Button("Sign out") { confirmSignOut = true }
+                .disabled(model.isEndingSession || isSavingSandboxAlerts)
                 .confirmationDialog("Sign out of Salebell?", isPresented: $confirmSignOut, titleVisibility: .visible) {
                     Button("Sign out", role: .destructive) {
-                        Task { await model.signOut() }
+                        Task {
+                            do { try await model.signOut() }
+                            catch { errorMessage = UserFacingError.message(for: error) }
+                        }
                     }
                 } message: {
                     Text("This iPhone stops receiving sale alerts until you sign in again.")
@@ -126,7 +131,7 @@ struct SettingsView: View {
                     if isDeleting { Spacer(); ProgressView() }
                 }
             }
-            .disabled(isDeleting)
+            .disabled(isDeleting || model.isEndingSession || isSavingSandboxAlerts)
             .confirmationDialog("Delete your Salebell account?", isPresented: $confirmDelete, titleVisibility: .visible) {
                 Button("Delete account", role: .destructive) { delete() }
             } message: {
@@ -151,20 +156,28 @@ struct SettingsView: View {
     private func loadSandboxAlerts() async {
         sandboxLoaded = false
         guard let id = model.pushDeviceID else { return }
-        if let value = try? await model.backend.sandboxAlerts(deviceID: id) {
+        do {
+            let value = try await model.backend.sandboxAlerts(deviceID: id)
+            guard !Task.isCancelled, model.pushDeviceID == id else { return }
             sandboxAlerts = value
+            sandboxLoaded = true
+        } catch {
+            guard !Task.isCancelled, model.pushDeviceID == id else { return }
+            errorMessage = UserFacingError.message(for: error)
         }
-        sandboxLoaded = true
     }
 
     private func setSandboxAlerts(_ enabled: Bool) {
-        guard let id = model.pushDeviceID else { return }
+        guard let id = model.pushDeviceID, !isSavingSandboxAlerts, !model.isEndingSession else { return }
         let previous = sandboxAlerts
         sandboxAlerts = enabled
+        isSavingSandboxAlerts = true
         Task {
+            defer { isSavingSandboxAlerts = false }
             do {
                 try await model.backend.setSandboxAlerts(enabled, deviceID: id)
             } catch {
+                guard model.pushDeviceID == id else { return }
                 sandboxAlerts = previous
                 errorMessage = UserFacingError.message(for: error)
             }

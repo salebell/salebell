@@ -3,7 +3,14 @@ import Foundation
 enum AuthState: Equatable, Sendable {
     case loading
     case signedOut
-    case signedIn(email: String)
+    case signedIn(email: String, userID: UUID)
+
+    var accountID: String? {
+        if case .signedIn(_, let userID) = self {
+            return userID.uuidString
+        }
+        return nil
+    }
 }
 
 struct AppSummary: Identifiable, Equatable, Sendable, Decodable {
@@ -19,7 +26,7 @@ protocol Backend: Sendable {
     func verify(email: String, code: String) async throws
     /// Email + password sign-in, used by the App Review demo account.
     func signIn(email: String, password: String) async throws
-    func signOut() async
+    func signOut() async throws
     func deleteAccount() async throws
 
     func overview() async throws -> [AppOverview]

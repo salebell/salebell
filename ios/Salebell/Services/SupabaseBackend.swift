@@ -24,7 +24,7 @@ final class SupabaseBackend: Backend {
                     switch event {
                     case .initialSession, .signedIn, .signedOut, .tokenRefreshed, .userUpdated, .userDeleted:
                         if let session {
-                            continuation.yield(.signedIn(email: session.user.email ?? ""))
+                            continuation.yield(.signedIn(email: session.user.email ?? "", userID: session.user.id))
                         } else {
                             continuation.yield(.signedOut)
                         }
@@ -50,9 +50,9 @@ final class SupabaseBackend: Backend {
         try await client.auth.signIn(email: email, password: password)
     }
 
-    func signOut() async {
+    func signOut() async throws {
         // Local scope: other devices of the same user stay signed in.
-        try? await client.auth.signOut(scope: .local)
+        try await client.auth.signOut(scope: .local)
     }
 
     func deleteAccount() async throws {

@@ -1,3 +1,4 @@
+import OSLog
 import Observation
 import SwiftUI
 import UserNotifications
@@ -27,6 +28,13 @@ final class AppModel {
 
     private var deviceToken: String?
     private var hasApps = false
+    private(set) var isEndingSession = false
+    private var registrationTask: Task<Void, Never>?
+    private var authUpdateTask: Task<Void, Never>?
+    private var isObservingAuth = false
+    private var authGeneration = 0
+    private var deviceIDs: Set<UUID> = []
+    private static let logger = Logger(subsystem: "com.salebell", category: "Push")
     private let defaults: UserDefaults
     private static let deviceIDKey = "pushDeviceID"
     private static let explainerShownKey = "pushExplainerShown"
@@ -42,7 +50,6 @@ final class AppModel {
         #endif
         backend = SupabaseBackend()
         isDemo = false
-        pushDeviceID = defaults.string(forKey: Self.deviceIDKey).flatMap(UUID.init(uuidString:))
     }
 
     /// Seed the model for previews and tests without contacting Auth or iOS permissions.
@@ -53,23 +60,34 @@ final class AppModel {
         self.authState = authState
         self.notificationPermission = notificationPermission
         isDemo = false
-        pushDeviceID = defaults.string(forKey: Self.deviceIDKey).flatMap(UUID.init(uuidString:))
+        restoreDevices()
     }
 
     var email: String? {
-        if case .signedIn(let email) = authState { email } else { nil }
+        if case .signedIn(let email, _) = authState { email } else { nil }
     }
 
     func start() async {
+        guard !isObservingAuth else { return }
+        isObservingAuth = true
+        defer {
+            isObservingAuth = false
+            authUpdateTask?.cancel()
+        }
         for await state in backend.authStates() {
-            let wasSignedIn = email != nil
+            guard !Task.isCancelled else { break }
+            let changedAccount = authState.accountID != state.accountID
             authState = state
-            if case .signedOut = state {
+            if changedAccount {
+                authGeneration += 1
                 hasApps = false
                 showPushExplainer = false
-            }
-            if case .signedIn = state, !wasSignedIn {
-                await didSignIn()
+                restoreDevices()
+                authUpdateTask?.cancel()
+                if state.accountID != nil {
+                    // Do not suspend the auth stream while registration uses the network.
+                    authUpdateTask = Task { await updateNotificationPermission() }
+                }
             }
         }
     }
@@ -80,9 +98,35 @@ final class AppModel {
 
     // MARK: Account
 
-    func signOut() async {
-        await removeThisDevice()
-        await backend.signOut()
+    func signOut() async throws {
+        guard !isEndingSession, let owner = authState.accountID else { return }
+        isEndingSession = true
+        defer { isEndingSession = false }
+        // Cancellation cannot undo a server write. Drain it before removing devices.
+        await registrationTask?.value
+        guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
+        do {
+            // Resolve an ambiguous upload failure (the server may have committed it).
+            if let deviceToken {
+                let id = try await backend.registerPushDevice(
+                    token: deviceToken, environment: AppConfig.apnsEnvironment, appVersion: AppConfig.appVersion)
+                guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
+                deviceIDs.insert(id)
+                pushDeviceID = id
+                persistDevices()
+            }
+            for id in deviceIDs {
+                try await backend.unregisterPushDevice(id: id)
+                guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
+            }
+        } catch {
+            Self.logger.error("Device removal failed: \(String(describing: error), privacy: .private)")
+            throw PushLifecycleError.removalFailed
+        }
+        forgetDevice()
+        try await backend.signOut()
+        guard authState.accountID == owner || authState.accountID == nil else { return }
+        authGeneration += 1
         authState = .signedOut
         selectedTab = .overview
         hasApps = false
@@ -90,8 +134,19 @@ final class AppModel {
     }
 
     func deleteAccount() async throws {
+        guard !isEndingSession else { return }
+        isEndingSession = true
+        defer { isEndingSession = false }
+        let owner = authState.accountID
+        await registrationTask?.value
+        guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
         try await backend.deleteAccount()
-        forgetDevice()
+        // Server account deletion cascades to push_devices.
+        defaults.removeObject(forKey: deviceStorageKey(owner))
+        guard authState.accountID == owner || authState.accountID == nil else { return }
+        deviceIDs = []
+        pushDeviceID = nil
+        authGeneration += 1
         authState = .signedOut
         selectedTab = .overview
         hasApps = false
@@ -100,12 +155,9 @@ final class AppModel {
 
     // MARK: Push
 
-    private func didSignIn() async {
-        await updateNotificationPermission()
-    }
-
     func updateNotificationPermission() async {
         let settings = await UNUserNotificationCenter.current().notificationSettings()
+        guard !Task.isCancelled else { return }
         notificationPermission = switch settings.authorizationStatus {
         case .notDetermined: .notDetermined
         case .denied: .denied
@@ -134,12 +186,17 @@ final class AppModel {
     func requestNotificationPermission() async {
         defaults.set(true, forKey: Self.explainerShownKey)
         showPushExplainer = false
-        _ = try? await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+        do {
+            _ = try await UNUserNotificationCenter.current().requestAuthorization(options: [.alert, .sound, .badge])
+        } catch {
+            defaults.set(false, forKey: Self.explainerShownKey)
+            Self.logger.error("Permission request failed: \(String(describing: error), privacy: .private)")
+        }
         await updateNotificationPermission()
     }
 
     func retryPushRegistration() async {
-        guard notificationPermission == .allowed, email != nil, !isDemo else { return }
+        guard notificationPermission == .allowed, email != nil, !isDemo, !isEndingSession else { return }
         UIApplication.shared.registerForRemoteNotifications()
         await registerCurrentToken()
     }
@@ -156,32 +213,93 @@ final class AppModel {
     }
 
     private func registerCurrentToken() async {
-        guard let deviceToken, email != nil else { return }
-        do {
-            let id = try await backend.registerPushDevice(
-                token: deviceToken, environment: AppConfig.apnsEnvironment, appVersion: AppConfig.appVersion)
-            pushDeviceID = id
-            defaults.set(id.uuidString, forKey: Self.deviceIDKey)
-        } catch {
-            // Retried on the next launch or sign-in.
+        guard !isEndingSession, !isDemo, notificationPermission == .allowed else { return }
+        if let registrationTask {
+            await registrationTask.value
+            return
+        }
+        guard deviceToken != nil, authState.accountID != nil else { return }
+        let task = Task {
+            await uploadCurrentToken()
+            registrationTask = nil
+        }
+        registrationTask = task
+        await task.value
+    }
+
+    private func uploadCurrentToken() async {
+        while let token = deviceToken, let owner = authState.accountID {
+            let generation = authGeneration
+            do {
+                let id = try await backend.registerPushDevice(
+                    token: token, environment: AppConfig.apnsEnvironment, appVersion: AppConfig.appVersion)
+                guard generation == authGeneration, owner == authState.accountID else {
+                    // The next iteration transfers the token to the new account.
+                    if isEndingSession { return }
+                    continue
+                }
+                deviceIDs.insert(id)
+                pushDeviceID = id
+                persistDevices()
+                // Retain obsolete IDs durably until their removal succeeds.
+                for obsolete in deviceIDs where obsolete != id {
+                    try await backend.unregisterPushDevice(id: obsolete)
+                    guard generation == authGeneration else { return }
+                    deviceIDs.remove(obsolete)
+                    persistDevices()
+                }
+            } catch {
+                Self.logger.error("Push registration failed: \(String(describing: error), privacy: .private)")
+                return // Retried on activation, sign-in, or a token callback.
+            }
+            if token == deviceToken || isEndingSession { return }
         }
     }
 
-    /// Stops pushes for the signed-in user to this phone before signing out.
-    private func removeThisDevice() async {
-        if let pushDeviceID {
-            try? await backend.unregisterPushDevice(id: pushDeviceID)
+    private func deviceStorageKey(_ owner: String?) -> String {
+        "pushDevices.\(owner ?? "signedOut")"
+    }
+
+    private func restoreDevices() {
+        let ids = defaults.stringArray(forKey: deviceStorageKey(authState.accountID)) ?? []
+        deviceIDs = Set(ids.compactMap(UUID.init(uuidString:)))
+        if authState.accountID != nil,
+           let legacyID = defaults.string(forKey: Self.deviceIDKey).flatMap(UUID.init(uuidString:)) {
+            // Retain the old unscoped ID for cleanup only. Server RLS permits
+            // deletion only if it belongs to the authenticated account.
+            deviceIDs.insert(legacyID)
+            persistDevices()
         }
-        forgetDevice()
+        // A saved row is cleanup state, not proof of a current registration.
+        pushDeviceID = nil
+    }
+
+    private func persistDevices() {
+        defaults.set(deviceIDs.map(\.uuidString), forKey: deviceStorageKey(authState.accountID))
     }
 
     private func forgetDevice() {
+        defaults.removeObject(forKey: deviceStorageKey(authState.accountID))
+        defaults.removeObject(forKey: Self.deviceIDKey) // Remove the legacy unscoped ID.
+        deviceIDs = []
         pushDeviceID = nil
-        defaults.removeObject(forKey: Self.deviceIDKey)
     }
 
     func openFeedFromNotification() {
         selectedTab = .feed
         refresh()
+    }
+}
+
+private enum PushLifecycleError: LocalizedError {
+    case removalFailed, accountChanged
+
+    var errorDescription: String? {
+        switch self {
+        case .removalFailed:
+            "Couldn't stop alerts for this iPhone. You are still signed in. Check your connection and try again."
+        case .accountChanged:
+            "Your account changed. Please try again."
+        }
     }
 }

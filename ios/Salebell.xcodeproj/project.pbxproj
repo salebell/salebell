@@ -36,6 +36,7 @@
 		8D611B51FFF464EC826FAEC1 /* AppDelegate.swift in Sources */ = {isa = PBXBuildFile; fileRef = F7281AAD42ACB5C9265EA216 /* AppDelegate.swift */; };
 		A16E20765581730182444DF0 /* SharedClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 577C772598FA5F2EBB2C9E09 /* SharedClient.swift */; };
 		AA29ADB9AF7DAAACA9C92ADE /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E6AD60C329B68A473F98F5 /* AppConfig.swift */; };
+		B1F9D9C631A4B83DA7C9311F /* NotificationDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55ABD7BB3A4BAFB59FA9C1BA /* NotificationDelegateTests.swift */; };
 		B5DE3404F332F7788F4D055D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FABCDC0B10F305AA2EA1725C /* SwiftUI.framework */; };
 		B7A07FEF4B2B1AE972D0AB4E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75799B74AE76F3E962F15165 /* SignInView.swift */; };
 		BA6597CDB01E58F672663396 /* TestPushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A569D608E07D49710538E048 /* TestPushTests.swift */; };
@@ -93,6 +94,7 @@
 		49E3A22A4A74BFA0D5016ADA /* StoreEventRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreEventRow.swift; sourceTree = "<group>"; };
 		4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decoding.swift; sourceTree = "<group>"; };
 		5299FA3673C8BCDAFE8AD33C /* Salebell.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Salebell.entitlements; sourceTree = "<group>"; };
+		55ABD7BB3A4BAFB59FA9C1BA /* NotificationDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegateTests.swift; sourceTree = "<group>"; };
 		577C772598FA5F2EBB2C9E09 /* SharedClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedClient.swift; sourceTree = "<group>"; };
 		672556DC703741BED885C1A4 /* Money.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Money.swift; sourceTree = "<group>"; };
 		73CC24EC7990D2C0DD666895 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
@@ -251,6 +253,7 @@
 				BA2AFF700053CB9C882FF178 /* AppModelTests.swift */,
 				9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */,
 				DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */,
+				55ABD7BB3A4BAFB59FA9C1BA /* NotificationDelegateTests.swift */,
 				2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */,
 				A569D608E07D49710538E048 /* TestPushTests.swift */,
 			);
@@ -409,6 +412,7 @@
 				D7CF2284A58BD584C0585623 /* AppModelTests.swift in Sources */,
 				0BC88BCD7B36FE9CC08F4D3E /* DecodingTests.swift in Sources */,
 				0D7755A30EE03A99A013D8D4 /* EventLabelTests.swift in Sources */,
+				B1F9D9C631A4B83DA7C9311F /* NotificationDelegateTests.swift in Sources */,
 				273094CBB1976573AB3724AE /* SessionStorageTests.swift in Sources */,
 				BA6597CDB01E58F672663396 /* TestPushTests.swift in Sources */,
 			);
