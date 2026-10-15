@@ -97,4 +97,6 @@ reset role;
 \ir apple_credentials_test.sql
 \ir apple_connection_test.sql
 \ir instance_settings_test.sql
+\ir google_play_test.sql
+\ir google_onboarding_test.sql
 \echo ALL SQL TESTS PASSED

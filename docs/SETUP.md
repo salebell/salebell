@@ -37,7 +37,7 @@ The default **Add app** flow has one task at a time:
 3. Check the app and any existing server, then press **Start receiving notifications**. URL cards are under **Connection details**; **Your server** shows App Store → Salebell → your server. Supported existing destinations stay connected through forwarding. Changed Apple settings stop setup for renewed review; retries reuse the saved app.
 4. **Check your connection** shows receipt status and the optional **Send an App Store test notification** form. Its key selector offers saved encrypted **In-App Purchase keys**, a new upload, or one-time use. The test remains visible after a notification arrives. Go to the dashboard or choose **Set up alerts (optional) →** anytime; recording does not require alerts.
 
-Saved keys can be replaced or deleted, and **Enter app details manually** remains available. iOS / App Store is selected; Android / Google Play is marked **Coming soon**. [Apple automation and key permissions](APPLE_AUTOMATION.md).
+Saved keys can be replaced or deleted, and **Enter app details manually** remains available. iOS / App Store is selected by default; choose Android for the Google Play preview. [Apple automation and key permissions](APPLE_AUTOMATION.md).
 
 Manual setup remains available:
 
@@ -47,7 +47,7 @@ Manual setup remains available:
 
 Keys are optional for manual setup. An App Store Connect team key enables automatic configuration; a separate In-App Purchase key enables requesting an Apple test. Purchase-testing keys can also be saved encrypted, or used for one request. Alert integrations can be added later. The iPhone app is optional. Cloud users can install its configured distribution link; self-hosted operators build a companion for their backend and APNs identity. [iPhone setup](../ios/README.md#self-hosted-companion).
 
-Android / Google Play **RTDN** is coming soon. Its future Pub/Sub and API setup is described in [the roadmap](GOOGLE_PLAY_RTDN.md); no Google keys are requested today.
+For Android, choose **Add app → Android**, enter the package name, upload a service-account JSON key and configure Pub/Sub. Finish by saving the topic in Play Console and sending a test. Keys are encrypted; connection status confirms actual receipt. [Google setup and required permissions](GOOGLE_PLAY_RTDN.md).
 
 ## Configure a hosted deployment as the owner
 

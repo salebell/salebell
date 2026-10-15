@@ -144,3 +144,7 @@ test("labels Apple's TEST notification and Salebell's own test alert differently
   assert.equal(formatAlert({ name: "X" }, event({ type: "test", rawType: "TEST", productId: null, storefront: null })).body, "App Store test notification");
   assert.equal(formatAlert({ name: "X" }, event({ type: "test", rawType: "SALEBELL_TEST", productId: null, storefront: null })).body, "Salebell test alert");
 });
+
+test("labels Google Play delivery tests with the correct store", () => {
+  assert.equal(formatAlert({ name: "X" }, event({ store: "play_store", type: "test", rawType: "TEST", productId: null, storefront: null })).body, "Google Play test notification");
+});

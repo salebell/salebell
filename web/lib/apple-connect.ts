@@ -1,3 +1,15 @@
+import type { SupabaseClient } from "@supabase/supabase-js";
+import type { Database } from "./database.types.ts";
+
+export function findSavedAppleApp<T extends { bundle_id: string; store: string }>(apps: readonly T[], bundleId: string | undefined): T | undefined {
+  return apps.find((app) => app.store === "app_store" && app.bundle_id === bundleId);
+}
+
+export function loadSavedAppleApp(client: SupabaseClient<Database>, accountId: string, bundleId: string) {
+  return client.from("apps").select("id,bundle_id,apple_app_id")
+    .eq("account_id", accountId).eq("store", "app_store").eq("bundle_id", bundleId).maybeSingle();
+}
+
 export type SavedAppleCredential = {
   id: string;
   provider: "apple_connect" | "apple_iap";

@@ -14,7 +14,7 @@ export default function SelfHostPage() {
     <p className="!mt-0 text-sm font-medium text-accent-text">Open source · MIT license</p>
     <h1 className="mt-3 text-4xl font-semibold tracking-[-0.03em] sm:text-5xl">Your infrastructure. Full Salebell.</h1>
     <p className="text-lg">Self-host apps, integrations, event history, revenue estimates, CSV export and raw Apple notification forwarding without a Salebell subscription. You pay for and operate your infrastructure and delivery providers.</p>
-    <p>Apple App Store Server Notifications V2 work today. Android / Google Play RTDN support is <strong>Coming soon</strong>; no Google credentials or receiver are required today.</p>
+    <p>Apple App Store Server Notifications V2 work today. Android / Google Play RTDN support is <strong>available in preview</strong>, with encrypted JSON credentials and authenticated Pub/Sub setup.</p>
     <div className="my-6 flex flex-wrap gap-3"><a href={SOURCE_URL} className="font-medium">Browse the repository ↗</a><a href={`${SOURCE_URL}/blob/HEAD/docs/SELF_HOSTING.md`} className="font-medium">Full installation and operations guide ↗</a></div>
 
     <h2>Install with Docker Compose</h2>

@@ -10,6 +10,7 @@ import { ButtonLink, Card, Skeleton } from "@/components/ui";
 import { count, timeAgo, usd } from "@/lib/format";
 import { useNow } from "@/lib/hooks";
 import { loadOverview } from "@/lib/overview";
+import { StoreBadge } from "@/components/app/platform-cards";
 
 type Today = Record<string, { usd: number; purchases: number }>;
 
@@ -17,6 +18,9 @@ export default function AppsPage() {
   const { ws, pausedAppIds } = useLoadedWorkspace();
   const now = useNow();
   const [today, setToday] = useState<Today | null>(null);
+  // Keep the inline import mounted when refresh adds the first app, preserving its in-memory key handoff.
+  const [showWelcome, setShowWelcome] = useState(() => ws.apps.length === 0);
+  if (ws.apps.length === 0 && !showWelcome) setShowWelcome(true);
   const appIds = ws.apps.map((a) => a.id).join(",");
 
   useEffect(() => {
@@ -28,7 +32,7 @@ export default function AppsPage() {
     });
   }, [appIds]);
 
-  if (ws.apps.length === 0) {
+  if (ws.apps.length === 0 || showWelcome) {
     return (
       <div className="mx-auto max-w-2xl">
         <p className="font-mono text-xs uppercase tracking-[0.14em] text-accent-text">Welcome to Salebell</p>
@@ -62,15 +66,16 @@ export default function AppsPage() {
             >
               <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-semibold group-hover:text-accent-text">{app.name}</p>
+                  <p className="mb-1 truncate font-semibold group-hover:text-accent-text">{app.name}</p>
+                  <StoreBadge store={app.store} />
                   <p className="truncate font-mono text-xs text-muted">{app.bundle_id}</p>
                 </div>
                 <ConnectionBadge app={app} paused={pausedAppIds.has(app.id)} />
               </div>
               <div className="mt-6 flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-xs text-muted">Today, USD est.</p>
-                  {today ? (
+                  <p className="text-xs text-muted">{app.store === "play_store" ? "Revenue" : "Today, USD est."}</p>
+                  {app.store === "play_store" ? <p className="mt-0.5 text-lg font-semibold">Unavailable</p> : today ? (
                     <p className="tnum mt-0.5 text-2xl font-semibold tracking-tight">{t ? usd(t.usd) : "–"}</p>
                   ) : (
                     <Skeleton className="mt-1.5 h-7 w-24" />

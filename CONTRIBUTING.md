@@ -1,6 +1,6 @@
 # Contributing to Salebell
 
-Salebell is MIT-licensed software for receiving verified app purchase events and sending useful alerts. iOS/App Store notifications are implemented. Google Play RTDN is coming soon; see [the roadmap](docs/GOOGLE_PLAY_RTDN.md).
+Salebell is MIT-licensed software for receiving verified app purchase events and sending useful alerts. iOS/App Store notifications are implemented. Google Play RTDN has preview Android onboarding and authenticated Pub/Sub delivery. See [implementation and remaining work](docs/GOOGLE_PLAY_RTDN.md).
 
 Start with [local development](README.md#develop-locally), then read [the product contract](docs/PRODUCT.md). For production self-hosting, use [the operator guide](docs/SELF_HOSTING.md).
 

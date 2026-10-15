@@ -36,6 +36,13 @@ set role authenticated;
 select set_config('request.jwt.claim.sub','90000000-0000-4000-8000-000000000001',true);
 insert into public.apps(account_id,name,bundle_id)
   select :'self_account'::uuid, 'Self hosted ' || n, 'com.selfhost.app' || n from generate_series(1,51) n;
+-- All inserts share now() in this transaction. Give each fixture a deterministic
+-- age so cloud app gating cannot randomly rank app51 first by its generated UUID.
+reset role;
+update public.apps set created_at = now() - interval '1 minute'
+  + substring(bundle_id from '[0-9]+$')::integer * interval '1 microsecond'
+  where account_id = :'self_account';
+set role authenticated;
 select pg_temp.check((select count(*) from public.apps where account_id = :'self_account') = 51,
   'self-hosted free accounts can exceed the cloud Pro app cap');
 select id as self_app from public.apps where account_id = :'self_account' and bundle_id = 'com.selfhost.app51' \gset

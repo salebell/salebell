@@ -186,6 +186,8 @@ export type Database = {
           last_event_production_at: string | null
           last_event_sandbox_at: string | null
           name: string
+          package_name: string | null
+          store: string
           webhook_key: string
         }
         Insert: {
@@ -200,6 +202,8 @@ export type Database = {
           last_event_production_at?: string | null
           last_event_sandbox_at?: string | null
           name: string
+          package_name?: string | null
+          store?: string
           webhook_key?: string
         }
         Update: {
@@ -214,6 +218,8 @@ export type Database = {
           last_event_production_at?: string | null
           last_event_sandbox_at?: string | null
           name?: string
+          package_name?: string | null
+          store?: string
           webhook_key?: string
         }
         Relationships: [
@@ -512,14 +518,48 @@ export type Database = {
       create_account: { Args: { p_name: string }; Returns: string }
       delete_sole_owned_accounts: { Args: { p_user: string }; Returns: number }
       disable_push_devices: { Args: { p_tokens: string[] }; Returns: number }
+      delete_user_google_play_connection: {
+        Args: { p_app_id: string; p_user: string }
+        Returns: boolean
+      }
+      google_connection_status: {
+        Args: { p_app_id: string; p_user: string }
+        Returns: Json
+      }
+      google_webhook_app: {
+        Args: { p_key: string }
+        Returns: {
+          audience: string
+          connection_version: string
+          enabled: boolean
+          id: string
+          name: string
+          package_name: string
+          service_account_email: string
+          subscription: string
+        }[]
+      }
       is_account_member: {
         Args: { p_account: string; p_roles?: string[] }
         Returns: boolean
       }
       instance_settings: { Args: Record<PropertyKey, never>; Returns: Json }
+      load_google_play_credentials: {
+        Args: { p_app_id: string }
+        Returns: Json
+      }
       log_alert_deliveries: {
         Args: { p_app_id: string; p_deliveries: Json; p_event_id: string }
         Returns: undefined
+      }
+      record_google_play_event: {
+        Args: {
+          p_app_id: string
+          p_connection_version?: string
+          p_event: Json
+          p_payload: Json
+        }
+        Returns: Json
       }
       record_store_event: {
         Args: {
@@ -537,6 +577,30 @@ export type Database = {
           p_token: string
         }
         Returns: string
+      }
+      save_google_play_connection: {
+        Args: {
+          p_app_id: string
+          p_audience: string
+          p_credentials: Json
+          p_service_account_email: string
+          p_subscription: string
+        }
+        Returns: undefined
+      }
+      save_user_google_play_connection: {
+        Args: {
+          p_app_id: string
+          p_user: string
+          p_package_name: string
+          p_webhook_key: string
+          p_audience: string
+          p_service_account_email: string
+          p_subscription: string
+          p_credentials: Json
+          p_topic: string
+        }
+        Returns: undefined
       }
       sole_owned_accounts: {
         Args: { p_user: string }

@@ -4,7 +4,7 @@ import { ANALYTICS_ENABLED, SITE_URL } from "@/lib/env";
 import "./globals.css";
 
 const description =
-  "Open-source in-app purchase monitoring. Self-host Salebell or use optional managed cloud for verified Apple events, alerts and a live revenue dashboard. No SDK. Google Play RTDN coming soon.";
+  "Open-source in-app purchase monitoring. Self-host Salebell or use optional managed cloud for verified Apple events, alerts and a live revenue dashboard. No SDK. Google Play RTDN setup in preview.";
 
 export const metadata: Metadata = {
   metadataBase: new URL(SITE_URL),

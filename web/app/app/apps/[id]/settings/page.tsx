@@ -7,23 +7,27 @@ import { Alert, Button, Card, Field, Input } from "@/components/ui";
 import type { AppRow } from "@/lib/database.types";
 import { friendlyError } from "@/lib/errors";
 import { supabaseBrowser } from "@/lib/supabase/client";
+import { appDetailsError } from "@/lib/app-form";
 
 function DetailsForm({ app }: { app: AppRow }) {
   const { patchApp, canManage } = useCurrentApp();
   const [name, setName] = useState(app.name);
-  const [bundleId, setBundleId] = useState(app.bundle_id);
+  const [bundleId, setBundleId] = useState(app.store === "play_store" ? app.package_name ?? app.bundle_id : app.bundle_id);
   const [appleId, setAppleId] = useState(app.apple_app_id?.toString() ?? "");
   const [busy, setBusy] = useState(false);
   const [message, setMessage] = useState<{ tone: "accent" | "danger"; text: string } | null>(null);
+  const google = app.store === "play_store";
+  const validation = appDetailsError(google ? "play_store" : "app_store", bundleId, appleId);
 
   async function save(e: FormEvent) {
     e.preventDefault();
+    if (!canManage || busy || validation) return;
     setBusy(true);
     setMessage(null);
-    const patch = { name: name.trim(), bundle_id: bundleId.trim(), apple_app_id: appleId.trim() ? Number(appleId) : null };
+    const patch = google ? { name: name.trim(), bundle_id: app.package_name ?? app.bundle_id, package_name: app.package_name ?? app.bundle_id, apple_app_id: null } : { name: name.trim(), bundle_id: bundleId.trim(), apple_app_id: appleId.trim() ? Number(appleId) : null };
     const { error } = await supabaseBrowser().from("apps").update(patch).eq("id", app.id);
     setBusy(false);
-    if (error) return setMessage({ tone: "danger", text: error.code === "23505" ? "Another app in this workspace already uses that bundle ID." : friendlyError(error) });
+    if (error) return setMessage({ tone: "danger", text: error.code === "23505" ? `Another app in this workspace already uses that ${google ? "package name" : "bundle ID"}.` : friendlyError(error) });
     patchApp(app.id, patch);
     setMessage({ tone: "accent", text: "Saved." });
   }
@@ -33,15 +37,15 @@ function DetailsForm({ app }: { app: AppRow }) {
       <Field label="App name" htmlFor="s-name">
         <Input id="s-name" required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} disabled={!canManage} />
       </Field>
-      <Field label="Bundle ID" htmlFor="s-bundle" hint="Notifications for any other bundle ID are rejected.">
-        <Input id="s-bundle" required value={bundleId} onChange={(e) => setBundleId(e.target.value)} className="font-mono" spellCheck={false} disabled={!canManage} />
+      <Field label={google ? "Package name" : "Bundle ID"} htmlFor="s-bundle" error={validation} hint={google ? "The package name must match Google Play and is fixed for this app. Add a new app to monitor a different package." : "Notifications for any other bundle ID are rejected."}>
+        <Input id="s-bundle" required value={bundleId} onChange={(e) => setBundleId(e.target.value)} className="font-mono" spellCheck={false} disabled={!canManage} readOnly={google} />
       </Field>
-      <Field label="Apple ID (optional)" htmlFor="s-apple" hint="When set, production notifications must carry this Apple ID.">
+      {!google ? <Field label="Apple ID (optional)" htmlFor="s-apple" hint="When set, production notifications must carry this Apple ID.">
         <Input id="s-apple" inputMode="numeric" value={appleId} onChange={(e) => setAppleId(e.target.value.replace(/\D/g, ""))} className="tnum font-mono" disabled={!canManage} />
-      </Field>
+      </Field> : null}
       {message && <Alert tone={message.tone}>{message.text}</Alert>}
       {canManage && (
-        <Button type="submit" loading={busy}>
+        <Button type="submit" loading={busy} disabled={!!validation || !name.trim()}>
           Save changes
         </Button>
       )}
@@ -86,7 +90,7 @@ export default function AppSettingsPage() {
     <div className="max-w-3xl space-y-6">
       <Card className="p-5 sm:p-6">
         <h2 className="mb-4 font-semibold">Details</h2>
-        <DetailsForm app={app} />
+        <DetailsForm key={app.id} app={app} />
       </Card>
 
       {canManage && (
@@ -96,7 +100,7 @@ export default function AppSettingsPage() {
               <h2 className="font-semibold">{app.enabled ? "Disable this app" : "Enable this app"}</h2>
               <p className="mt-1 text-sm text-muted">
                 {app.enabled
-                  ? "Stops recording, alerts and forwarding. Apple will see errors and retry production notifications for a few days."
+                  ? app.store === "play_store" ? "Stops recording and alerts. Pub/Sub will retry rejected messages according to your subscription's retry and retention settings." : "Stops recording, alerts and forwarding. Apple will see errors and retry production notifications for a few days."
                   : "Start accepting notifications again."}
               </p>
             </div>
@@ -119,8 +123,7 @@ export default function AppSettingsPage() {
           <Card className="border-danger/35 p-5 sm:p-6">
             <h2 className="font-semibold text-danger">Delete this app</h2>
             <p className="mt-1 text-sm text-muted">
-              Permanently deletes {app.name}, its events, integrations and webhook URLs. Remove the Salebell URLs from App Store Connect
-              first, or Apple will keep sending to an address that no longer exists.
+              Permanently deletes {app.name}, its events, integrations and saved credentials. {app.store === "play_store" ? "Remove Salebell's push subscription in Google Cloud first. Keep any topic or subscriptions used by another backend." : "Remove the Salebell URLs from App Store Connect first, or Apple will keep sending to an address that no longer exists."}
             </p>
             <form onSubmit={remove} className="mt-4 space-y-3">
               <Field label={`Type “${app.name}” to confirm`} htmlFor="confirm-delete">

@@ -1,5 +1,5 @@
-// Store-neutral event model. Every store adapter (App Store now, Google Play
-// later) normalises its native notifications into StoreEvent, and everything
+// Store-neutral event model. Every store adapter (App Store and Google Play)
+// normalises its native notifications into StoreEvent, and everything
 // downstream (ledger, alerts, analytics, outbound webhooks) consumes only this.
 
 export type Store = "app_store" | "play_store";

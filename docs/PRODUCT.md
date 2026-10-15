@@ -63,7 +63,7 @@ Each integration shows its last delivery status (from `alert_deliveries`), so us
 6. Choose Slack/Discord/etc., or the iPhone app when its distribution link is available. Selecting iPhone reveals its install/sign-in/test task. Alerts can be skipped for the dashboard; a **Send test alert** button checks a configured destination.
 7. Dashboard: today / 7d / 30d gross sales (USD est.), purchases, trials, renewals, refunds, a daily chart, and a live event feed. Setup hides completed forms and collapses technical connection details.
 
-Google Play **RTDN** is a disabled **Coming soon** choice. It creates no app, consumes no slot and requests no credentials. The planned architecture uses authenticated Cloud Pub/Sub plus Google Play Developer API purchase enrichment; RTDN is a change signal, not a complete purchase record. [Roadmap and official references](GOOGLE_PLAY_RTDN.md). The dashboard stays at `/app` on the configured instance host.
+Google Play **RTDN** is available in preview. Android apps use the usual app slot and package name, with service-account JSON upload, encrypted per-app credentials, automatic Pub/Sub setup or an existing-subscription option, and receipt verification. The final topic setting and test are completed in Play Console. Live validation and order-based revenue accounting remain pending; RTDN is a change signal, not a complete purchase record. [Roadmap and official references](GOOGLE_PLAY_RTDN.md). The dashboard stays at `/app` on the configured instance host.
 
 In scope: optional team App Store Connect key import and encrypted saved connections with update/delete controls
 for app discovery and notification URL setup,
@@ -71,7 +71,7 @@ plus separate optional In-App Purchase connections for Apple TEST notifications 
 require manual migration; V2 forwarding is preserved only after review. See [Apple automation](APPLE_AUTOMATION.md)
 for the key types, supported API operations and security contract. Customer APNs keys are never needed for Salebell push.
 
-Out of scope for v1 (don't build): team invites, Google Play, historical purchase backfill, a general-purpose
+Out of scope for the original v1: team invites, historical purchase backfill, a general-purpose
 credential vault for unrelated systems, proceeds/tax math, email alerts, custom domains per tenant, widgets other than the one listed in iOS stretch.
 
 ## 4. Architecture

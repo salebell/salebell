@@ -12,7 +12,7 @@ The companion's backend is configured at build time. The cloud-configured binary
 
 `Local.xcconfig` contains public backend/signing settings; retain it when updating the repository. Each installation's app, widget App Group and backend APNs topic must match. An App Store Connect import key or In-App Purchase testing key does not replace the APNs signing key.
 
-Google Play RTDN for Android purchases is coming soon on the backend. No Android companion application is included. [RTDN roadmap](../docs/GOOGLE_PLAY_RTDN.md).
+The backend includes preview Google Play RTDN monitoring for Android purchases. No Android companion application is included. [RTDN roadmap](../docs/GOOGLE_PLAY_RTDN.md).
 
 The free companion app: configure your backend in the ignored `Config/Local.xcconfig`, sign in with the same email as the website, see revenue across your apps,
 get a cha-ching push for every in-app purchase and renewal, and follow a live event feed. Subscriptions are sold only on the website,

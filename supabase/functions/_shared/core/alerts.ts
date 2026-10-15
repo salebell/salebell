@@ -92,9 +92,10 @@ export function formatMoney(amount: number, currency: string): string {
 }
 
 export function formatAlert(app: AppInfo, e: StoreEvent): { title: string; body: string; priority: "high" | "default" | "low" } {
-  const [emoji, appleLabel] = LABEL[e.type];
-  // Apple's own TEST notification vs the synthetic one sent by the test-alert function.
-  const label = e.type === "test" && e.rawType !== "TEST" ? "Salebell test alert" : appleLabel;
+  const [emoji, storeLabel] = LABEL[e.type];
+  // Provider delivery tests are distinct from our synthetic test-alert function.
+  const label = e.type !== "test" ? storeLabel : e.rawType !== "TEST" ? "Salebell test alert"
+    : e.store === "play_store" ? "Google Play test notification" : storeLabel;
   const sandbox = e.environment === "Sandbox" ? " [Sandbox]" : "";
   const amount = e.revenue != null && e.currency ? ` · ${formatMoney(e.revenue, e.currency)}` : "";
   const product = e.productId ? e.productId.split(".").slice(-2).join(".") : null;

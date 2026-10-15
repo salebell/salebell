@@ -6,7 +6,7 @@ import { IS_SELF_HOSTED, webhookUrl } from "@/lib/env";
 export const metadata: Metadata = {
   title: "Setup guide",
   description:
-    "Import your iOS app with App Store Connect or use manual setup, preserve an existing server, confirm Apple notification receipt, and choose optional alerts. Google Play RTDN coming soon.",
+    "Import your iOS app with App Store Connect or use manual setup, preserve an existing server, confirm Apple notification receipt, and choose optional alerts. Google Play RTDN setup in preview.",
   alternates: { canonical: "/docs" },
 };
 
@@ -42,7 +42,7 @@ export default function DocsPage() {
           Salebell receives Apple&apos;s App Store Server Notifications (version 2) for your app. There is no SDK and nothing changes in
           your app. Import from App Store Connect and let Salebell configure the URLs, or enter your app and paste the URLs manually.
         </p>
-        <p>Self-host Salebell or use optional managed cloud. <Link href="/self-host">Install your own instance</Link> before connecting an app. Android / Google Play RTDN: <strong>Coming soon</strong>.</p>
+        <p>Self-host Salebell or use optional managed cloud. <Link href="/self-host">Install your own instance</Link> before connecting an app. Android / Google Play RTDN: <strong>Preview</strong>. For Android, upload a service-account JSON key, select an app, configure Pub/Sub and send a test from Play Console. App discovery requires the Google Play Developer Reporting API and app access in Play Console; manual entry is also available. Google revenue is currently unknown.</p>
 
         <p>
           <strong>What&apos;s covered:</strong> in-app purchases and subscriptions, meaning purchases, free trials, renewals, refunds,
@@ -71,7 +71,7 @@ export default function DocsPage() {
           <li>
             <Link href="/login">Sign in</Link>. {IS_SELF_HOSTED ? "Use the email and password created by your instance administrator." : "Cloud sends a 6-digit email code. Self-hosted instances use an administrator-created account and password."}
           </li>
-          <li>Click <strong>Add app</strong>. Apple App Store is selected; Google Play RTDN is marked Coming soon.</li>
+          <li>Click <strong>Add app</strong>. Apple App Store is selected by default; Android opens the Google Play setup flow.</li>
           <li>Save or select an App Store Connect team key, choose the app, and review the connection. Choose <strong>Enter app details manually</strong> if you prefer to enter the name, bundle ID and optional Apple ID without a key.</li>
           <li>
             Salebell shows two URLs, one per environment. Each contains a random key that identifies your app:

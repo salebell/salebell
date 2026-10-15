@@ -1,10 +1,17 @@
 import type { ReactNode } from "react";
 
-const nodes = [
-  { label: "Import iOS apps", detail: "App Store Connect", icon: "key" },
-  { label: "Select your app", detail: "Choose the app to monitor", icon: "app" },
-  { label: "Track purchases", detail: "Enable Apple notifications", icon: "play" },
-] as const;
+const platformNodes = {
+  apple: [
+    { label: "Import iOS apps", detail: "App Store Connect", icon: "key" },
+    { label: "Select your app", detail: "Choose the app to monitor", icon: "app" },
+    { label: "Track purchases", detail: "Enable Apple notifications", icon: "play" },
+  ],
+  google: [
+    { label: "Import Android apps", detail: "Google Play", icon: "key" },
+    { label: "Select your app", detail: "Choose the app to monitor", icon: "app" },
+    { label: "Track purchases", detail: "Enable Google notifications", icon: "play" },
+  ],
+} as const;
 
 export function ConnectionIcon({ kind, className = "size-5" }: { kind: "key" | "app" | "play" | "check" | "upload"; className?: string }) {
   const paths: Record<typeof kind, ReactNode> = {
@@ -17,7 +24,8 @@ export function ConnectionIcon({ kind, className = "size-5" }: { kind: "key" | "
   return <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1.6" strokeLinecap="round" strokeLinejoin="round" className={className} aria-hidden="true">{paths[kind]}</svg>;
 }
 
-export function ConnectionFlow({ current }: { current: number }) {
+export function ConnectionFlow({ current, platform = "apple" }: { current: number; platform?: "apple" | "google" }) {
+  const nodes = platformNodes[platform];
   return (
     <ol className="grid grid-cols-3 gap-2 sm:gap-4" aria-label="Connection progress">
       {nodes.map((node, index) => (

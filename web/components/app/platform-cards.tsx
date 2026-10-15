@@ -1,4 +1,5 @@
 import { Badge } from "@/components/ui";
+import type { AppStore } from "@/lib/app-form";
 
 export function StoreIcon({ store, className = "size-6" }: { store: "apple" | "google"; className?: string }) {
   return store === "apple" ? (
@@ -14,24 +15,20 @@ export function StoreIcon({ store, className = "size-6" }: { store: "apple" | "g
   );
 }
 
-/** Apple is selected by default; future platforms add no step to today's setup. */
-export function PlatformCards() {
+export function StoreBadge({ store }: { store: string }) {
+  return <Badge>{store === "play_store" ? "Google Play" : "App Store"}</Badge>;
+}
+
+export function PlatformCards({ value = "app_store", onChange }: { value?: AppStore; onChange?: (store: AppStore) => void }) {
   return (
     <section aria-label="App platform" className="grid grid-cols-2 gap-3">
-      <div className="min-w-0 rounded-xl border border-accent/50 bg-accent-soft/40 p-3 sm:p-4">
+      {(["app_store", "play_store"] as const).map((store) => <button key={store} type="button" aria-pressed={value === store} onClick={() => onChange?.(store)} className={`min-w-0 rounded-xl border p-3 text-left transition-colors sm:p-4 ${value === store ? "border-accent/50 bg-accent-soft/40" : "border-border bg-surface-2 hover:border-border-strong"}`}>
         <div className="flex items-center gap-2.5">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent text-accent-fg"><StoreIcon store="apple" className="size-5" /></span>
-          <div className="min-w-0"><p className="text-sm font-semibold">iOS</p><p className="text-xs text-muted">App Store</p></div>
+          <span className={`grid size-9 shrink-0 place-items-center rounded-lg ${value === store ? "bg-accent text-accent-fg" : "border border-border bg-surface"}`}><StoreIcon store={store === "app_store" ? "apple" : "google"} className="size-5" /></span>
+          <div className="min-w-0"><p className="text-sm font-semibold">{store === "app_store" ? "iOS" : "Android"}</p><p className="text-xs text-muted">{store === "app_store" ? "App Store" : "Google Play"}</p></div>
         </div>
-        <div className="mt-3"><Badge tone="accent">✓ Selected</Badge></div>
-      </div>
-      <div aria-disabled="true" className="min-w-0 rounded-xl border border-border bg-surface-2 p-3 text-muted sm:p-4">
-        <div className="flex items-center gap-2.5">
-          <span className="grid size-9 shrink-0 place-items-center rounded-lg border border-border bg-surface"><StoreIcon store="google" className="size-5" /></span>
-          <div className="min-w-0"><p className="text-sm font-semibold">Android</p><p className="text-xs">Google Play RTDN</p></div>
-        </div>
-        <div className="mt-3"><Badge>Coming soon</Badge></div>
-      </div>
+        <div className="mt-3"><Badge tone={value === store ? "accent" : "neutral"}>{value === store ? "✓ Selected" : "Select"}</Badge></div>
+      </button>)}
     </section>
   );
 }

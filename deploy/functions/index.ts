@@ -3,7 +3,7 @@
 // Supabase config.toml is for the CLI and is deliberately not used in production.
 const functions = new Set([
   "apple-webhook", "apple-credentials", "apple-connect", "apple-test", "test-alert",
-  "fx-refresh", "billing", "stripe-webhook", "delete-account",
+  "fx-refresh", "billing", "stripe-webhook", "google-webhook", "google-connect", "delete-account",
 ]);
 
 Deno.serve(async (request: Request) => {

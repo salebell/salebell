@@ -34,6 +34,14 @@ verify_jwt = false
 # Stripe authenticates with the Stripe-Signature HMAC.
 verify_jwt = false
 
+[functions.google-webhook]
+# Pub/Sub authenticates with a Google-signed OIDC token verified by the handler.
+verify_jwt = false
+
+[functions.google-connect]
+# Caller authentication and workspace admin checks also run in the handler/RPCs.
+verify_jwt = true
+
 [functions.fx-refresh]
 # Called by pg_cron without credentials; idempotent and a no-op within 6 hours.
 verify_jwt = false

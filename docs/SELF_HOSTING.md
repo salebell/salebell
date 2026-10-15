@@ -2,7 +2,7 @@
 
 Salebell is MIT-licensed software. A self-hosted installation includes all existing app, integration, retained-history and CSV features. You operate its infrastructure and credentials; there is no Stripe requirement or Salebell Cloud subscription.
 
-**Available:** App Store Server Notifications V2 for in-app purchases and subscriptions. **Coming soon:** Google Play Real-time Developer Notifications (RTDN). Android setup is disabled until the receiver and purchase API enrichment exist. [RTDN roadmap](GOOGLE_PLAY_RTDN.md).
+**Available:** App Store Server Notifications V2 for in-app purchases and subscriptions. **Backend preview:** Google Play Real-time Developer Notifications (RTDN), with JSON credential upload, automatic Pub/Sub setup and guided verification. Apply the latest migrations and deploy both Google functions. Live Google validation remains pending. [RTDN roadmap](GOOGLE_PLAY_RTDN.md).
 
 ## Production prerequisites
 

@@ -56,7 +56,7 @@ export function EventFeed({
           📭
         </p>
         <p className="mt-2 font-medium">No events yet</p>
-        <p className="mx-auto mt-1 max-w-sm text-sm text-muted">New notifications appear here seconds after Apple sends them. No need to refresh.</p>
+        <p className="mx-auto mt-1 max-w-sm text-sm text-muted">New store notifications appear here as they arrive. No need to refresh.</p>
         {footer && <div className="mt-6 text-left">{footer}</div>}
       </div>
     );

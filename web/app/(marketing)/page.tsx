@@ -200,7 +200,7 @@ export default function Home() {
               </ButtonLink>
             </div>
             <p className="mt-4 text-sm text-muted">MIT licensed. Self-host without plan limits. Cloud Free covers one app.</p>
-            <p className="mt-2 text-sm text-muted">Android / Google Play RTDN: <span className="font-medium">Coming soon</span>.</p>
+            <p className="mt-2 text-sm text-muted">Android / Google Play RTDN: <span className="font-medium">Preview</span>.</p>
             <p className="mt-2 text-sm text-muted">
               <IphoneAppNote />
             </p>

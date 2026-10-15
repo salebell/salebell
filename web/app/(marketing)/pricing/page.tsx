@@ -64,7 +64,7 @@ export default function PricingPage() {
       </p>
       <PricingTable cta={IS_SELF_HOSTED ? `${CLOUD_URL}/login` : "/login"} />
       <p className="mt-6 text-center text-sm text-muted">Prices in USD. Taxes may apply depending on where you are.</p>
-      <p className="mt-3 text-center text-sm text-muted">Apple App Store is available today. Android / Google Play RTDN: Coming soon.</p>
+      <p className="mt-3 text-center text-sm text-muted">Apple App Store is available today. Android / Google Play RTDN: Preview.</p>
       <p className="mt-3 text-center text-sm text-muted"><IphoneAppNote /></p>
       <div className="mt-16">
         <h2 className="mb-6 text-xl font-semibold tracking-tight">Billing questions</h2>

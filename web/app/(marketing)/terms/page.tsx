@@ -13,7 +13,7 @@ export default function TermsPage() {
     <h2>Software license</h2>
     <p>Salebell is open-source software under the MIT license. You may use, modify and self-host it subject to the license in the <a href={SOURCE_URL}>source repository</a>. The software is provided with the warranty and liability terms stated in that license.</p>
     <h2>Using this instance</h2>
-    <p>Only register apps and configure destinations you are authorized to manage. The service receives verified Apple notifications, records events, sends configured alerts and forwards notifications to your servers. Android / Google Play RTDN support is coming soon.</p>
+    <p>Only register apps and configure destinations you are authorized to manage. The service receives verified Apple notifications, records events, sends configured alerts and forwards notifications to your servers. Google Play RTDN monitoring is available in preview; Google revenue is currently unknown.</p>
     <p>No Salebell Cloud subscription is required to use the self-hosted features. Your operator is responsible for infrastructure and delivery costs, credentials, maintenance, updates and backups.</p>
     <h2>Your data</h2>
     <p>Read this instance&apos;s <Link href="/privacy">privacy information</Link> and contact the operator for any additional terms or policies. Revenue figures are estimates from Apple events and exchange rates; use App Store Connect for payouts and accounting.</p>
@@ -22,7 +22,7 @@ export default function TermsPage() {
   </LegalPage>;
 
   return (
-    <LegalPage title="Terms of service" updated="9 October 2026">
+    <LegalPage title="Terms of service" updated="14 October 2026">
       <p>
         These terms are an agreement between you and {COMPANY_NAME} (&quot;we&quot;), the seller and operator of Salebell Cloud. By creating an
         account or using Salebell, you agree to them. If you use Salebell for a company, you confirm you can accept these terms on
@@ -32,11 +32,13 @@ export default function TermsPage() {
 
       <h2>The service</h2>
       <p>
-        Salebell receives App Store Server Notifications for apps you register, shows them in a dashboard, sends the alerts you
+        Salebell receives App Store Server Notifications and Google Play RTDN for apps you register, shows events in a dashboard, sends the alerts you
         configure and forwards notifications to URLs you provide. Revenue figures are estimates based on customer prices reported by
         Apple and daily exchange rates. They aren&apos;t a statement of your proceeds; App Store Connect is the source of truth for
         payouts.
       </p>
+
+      <p>Google Play monitoring is in preview. Setup can create Pub/Sub resources and grant their delivery permissions in your Google Cloud project. You manage that project and its costs. Google purchase amounts remain unknown; use Play Console for accounting. Disconnecting Salebell does not remove Google Cloud resources.</p>
 
       <h2>Your account</h2>
       <ul>

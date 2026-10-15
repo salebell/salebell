@@ -2,7 +2,7 @@
 
 **Open-source purchase alerts for your apps. Self-host it or use Salebell Cloud.**
 
-**Import your iOS app → select it → start receiving App Store notifications.** Use an **App Store Connect API key** to import apps and set their notification URLs. An **In-App Purchase key** is only needed for optional Apple test notifications. Alert destinations are optional; Salebell records verified notifications without them. Android / Google Play is coming soon.
+**Import your iOS app → select it → start receiving App Store notifications.** Use an **App Store Connect API key** to import apps and set their notification URLs. An **In-App Purchase key** is only needed for optional Apple test notifications. Alert destinations are optional; Salebell records verified notifications without them. Android / Google Play setup is available in preview.
 
 Salebell is MIT-licensed software for indie developers and studios. Run it on your infrastructure or use the optional managed cloud. Connect App Store Server Notifications V2 and get:
 
@@ -33,7 +33,7 @@ npm run self-host -- up
 
 The production Compose stack runs Postgres, Auth, REST, Realtime, Edge Functions, Next.js and an HTTPS gateway. It creates private instance credentials and an owner password file. Public registration is closed by default; SMTP and iPhone push are optional. [Operator guide: install, backup, update and checks](docs/SELF_HOSTING.md).
 
-**Google Play RTDN for Android apps — coming soon.** The planned connection uses Google Cloud Pub/Sub and Google Play Developer API enrichment. This release has no Android receiver, Google credential collection or Android companion app. [RTDN roadmap](docs/GOOGLE_PLAY_RTDN.md).
+**Google Play RTDN for Android apps — preview.** Choose Android when adding an app, upload a service-account JSON key, select an accessible Play app, and use automatic Pub/Sub setup or connect an existing subscription. App discovery requires the Google Play Developer Reporting API; manual entry is also available. Salebell records verified events and sends alerts. Google revenue accounting and live validation are still pending. [Implementation and operator setup](docs/GOOGLE_PLAY_RTDN.md).
 
 The optional iPhone companion must be built for your backend and Apple signing/APNs identity. Chat and webhook alerts work without it. [Self-hosted iPhone instructions](ios/README.md#self-hosted-companion).
 
@@ -41,7 +41,7 @@ The optional iPhone companion must be built for your backend and Apple signing/A
 
 Sign in with an email code, then **Add app**. Select a saved **App Store Connect API key** to load your apps, or upload its `.p8` and press **Load my iOS apps →**. Select your app and press **Start receiving notifications**. Use a team key with **Access: App Manager** (recommended) or **Admin**. Apple's filename supplies the Key ID; enter the Issuer ID once or reuse a known Apple team. If several teams are saved, choose the matching one. Your workspace is created automatically, and selecting an app uses no plan slot.
 
-Each step shows one task. Supported existing servers stay connected; URL cards are under **Connection details**, and **Your server** shows App Store → Salebell → your server. **Check your connection** keeps the optional Apple test visible after a notification arrives. Its single key selector offers saved encrypted **In-App Purchase keys**, an upload, or one-time use. Alerts are optional; go to the dashboard anytime. Signed-in homepage visits go directly to `/app`. Android / Google Play is **Coming soon**.
+Each step shows one task. Supported existing servers stay connected; URL cards are under **Connection details**, and **Your server** shows App Store → Salebell → your server. **Check your connection** keeps the optional Apple test visible after a notification arrives. Its single key selector offers saved encrypted **In-App Purchase keys**, an upload, or one-time use. Alerts are optional; go to the dashboard anytime. Signed-in homepage visits go directly to `/app`. Android setup uses an encrypted service-account JSON key and authenticated Google Cloud Pub/Sub; finish the connection in Play Console.
 
 **Enter app details manually** works without a key: enter the app name and bundle ID, save any existing server URLs under **Keep your existing server connected**, then paste Salebell's two URLs into App Store Connect with Version 2. Saved Apple keys can be replaced or deleted by workspace owners and admins. [Walkthrough](docs/SETUP.md) · [Apple permissions and automation](docs/APPLE_AUTOMATION.md).
 
@@ -96,8 +96,8 @@ Stripe ─▶ stripe-webhook ─▶ accounts.plan
 
 | Path | What |
 |---|---|
-| `supabase/functions/_shared/core/` | Zero-dependency, runtime-agnostic core: Apple JWS verifier, event normaliser, alert channels, APNs client, forwarding, Stripe helpers |
-| `supabase/functions/*` | `apple-webhook`, `test-alert`, `billing`, `stripe-webhook`, `delete-account`, `fx-refresh` |
+| `supabase/functions/_shared/core/` | Zero-dependency, runtime-agnostic core: Apple JWS and Google OIDC verification, Google Play API client, event normalisers, alert channels, APNs, forwarding, Stripe helpers |
+| `supabase/functions/*` | `apple-webhook`, `google-webhook`, `google-connect`, `test-alert`, `billing`, `stripe-webhook`, `delete-account`, `fx-refresh` |
 | `supabase/migrations/` | Tenancy, plans and limits, push devices, history gating, FX rates, `app_overview`, RLS |
 | `web/` | Next.js marketing site, docs and dashboard ([web/README.md](web/README.md)) |
 | `ios/` | SwiftUI companion app with push and a Today widget ([ios/README.md](ios/README.md)) |
@@ -127,6 +127,7 @@ Use the [setup verification steps](docs/SETUP.md) to validate your own installat
 - Webhook RPCs are `SECURITY DEFINER` and granted to `service_role` only.
 - Payloads are trusted only after Apple signature, bundle-id and environment checks. Raw JWS is never stored or logged.
 - Stripe events are trusted only after Stripe-Signature verification.
+- Google RTDN verifies Google's OIDC signature, audience and push identity, then checks the configured package/subscription. Play API keys are encrypted in Vault, and event history stores token hashes rather than purchase tokens.
 - Not yet: OCSP revocation checks, Vault-encrypted channel secrets.
 
 ## Run tests

@@ -79,7 +79,7 @@ function BillingContent() {
         <Badge tone="accent">Self-hosted</Badge>
         <h2 className="text-xl font-semibold">All features, on your infrastructure</h2>
         <p className="text-sm text-muted">Apps, integrations, full event history and CSV export are available without a Salebell subscription. Your operator manages hosting, updates, backups and delivery credentials.</p>
-        <p className="text-sm text-muted">iPhone push requires an app built for this instance and your own APNs credentials. Google Play RTDN support is coming soon.</p>
+        <p className="text-sm text-muted">iPhone push requires an app built for this instance and your own APNs credentials. Google Play RTDN setup is available in preview.</p>
         <div className="flex flex-wrap gap-3"><ButtonLink href="/self-host" variant="secondary">Self-hosting guide</ButtonLink><a href={SOURCE_URL} className="text-sm font-medium text-accent-text underline underline-offset-2">Source code ↗</a></div>
       </Card>
     </div>

@@ -7,10 +7,9 @@ import { friendlyError, planLimitOf } from "@/lib/errors";
 import { supabaseBrowser } from "@/lib/supabase/client";
 import { UpgradeCallout } from "./upgrade";
 import { useLoadedWorkspace } from "./workspace";
+import { appDetailsError, newAppPayload, type AppStore } from "@/lib/app-form";
 
-const BUNDLE_ID = /^[A-Za-z0-9][A-Za-z0-9.-]*\.[A-Za-z0-9.-]*[A-Za-z0-9]$/;
-
-export function AddAppForm() {
+export function AddAppForm({ store = "app_store" }: { store?: AppStore }) {
   const router = useRouter();
   const { ws, refresh } = useLoadedWorkspace();
   const [name, setName] = useState("");
@@ -20,8 +19,9 @@ export function AddAppForm() {
   const [error, setError] = useState<string | null>(null);
   const [limitHit, setLimitHit] = useState(false);
 
-  const bundleError = bundleId && !BUNDLE_ID.test(bundleId.trim()) ? "Use the reverse-DNS bundle ID, like com.example.myapp." : null;
-  const appleIdError = appleId && !/^\d{6,12}$/.test(appleId.trim()) ? "The Apple ID is a number, like 1234567890." : null;
+  const google = store === "play_store";
+  const bundleError = bundleId ? appDetailsError(store, bundleId) : null;
+  const appleIdError = !google && appleId && !/^\d{6,12}$/.test(appleId.trim()) ? "The Apple ID is a number, like 1234567890." : null;
 
   async function submit(e: FormEvent) {
     e.preventDefault();
@@ -31,22 +31,17 @@ export function AddAppForm() {
     setLimitHit(false);
     const { data, error } = await supabaseBrowser()
       .from("apps")
-      .insert({
-        account_id: ws.account.id,
-        name: name.trim(),
-        bundle_id: bundleId.trim(),
-        apple_app_id: appleId.trim() ? Number(appleId.trim()) : null,
-      })
+      .insert(newAppPayload(ws.account.id, store, name, bundleId, appleId))
       .select("id")
       .single();
     if (error || !data) {
       setBusy(false);
       if (planLimitOf(error) === "apps") setLimitHit(true);
-      else setError(error?.code === "23505" ? "You already added an app with this bundle ID." : friendlyError(error));
+      else setError(error?.code === "23505" ? `You already added an app with this ${google ? "package name" : "bundle ID"}.` : friendlyError(error));
       return;
     }
     await refresh();
-    router.push(`/app/apps/${data.id}/setup?method=manual`);
+    router.push(`/app/apps/${data.id}/setup${google ? "" : "?method=manual"}`);
   }
 
   return (
@@ -55,17 +50,17 @@ export function AddAppForm() {
         <Input id="app-name" required maxLength={100} value={name} onChange={(e) => setName(e.target.value)} placeholder="My App" autoComplete="off" autoFocus />
       </Field>
       <Field
-        label="Bundle ID"
+        label={google ? "Package name" : "Bundle ID"}
         htmlFor="bundle-id"
         error={bundleError}
-        hint="Find this in App Store Connect → your app → App Information. Copy it exactly."
+        hint={google ? "Copy the package name from Google Play Console, such as com.example.app. It must match purchase notifications exactly." : "Find this in App Store Connect → your app → App Information. Copy it exactly."}
       >
         <Input
           id="bundle-id"
           required
           value={bundleId}
           onChange={(e) => setBundleId(e.target.value)}
-          placeholder="com.example.myapp"
+          placeholder="com.example.app"
           autoCapitalize="none"
           autoCorrect="off"
           spellCheck={false}
@@ -74,7 +69,7 @@ export function AddAppForm() {
           aria-describedby={bundleError ? "bundle-id-error" : "bundle-id-hint"}
         />
       </Field>
-      <details className="rounded-lg border border-border px-4 py-3">
+      {!google ? <details className="rounded-lg border border-border px-4 py-3">
         <summary className="cursor-pointer text-sm text-muted">Optional: add your numeric Apple ID</summary>
         <div className="mt-3">
           <Field
@@ -95,11 +90,11 @@ export function AddAppForm() {
             />
           </Field>
         </div>
-      </details>
+      </details> : null}
       {error && <Alert>{error}</Alert>}
       {limitHit && <UpgradeCallout reason="apps" />}
       <Button type="submit" size="lg" loading={busy} disabled={!name.trim() || !bundleId.trim() || !!bundleError || !!appleIdError} className="w-full sm:w-auto">
-        Add app and get my URLs
+        {google ? "Add app and connect Google Play" : "Add app and get my URLs"}
       </Button>
     </form>
   );

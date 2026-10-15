@@ -54,7 +54,7 @@ services:
         config: { hide_credentials: false }
       - name: acl
         config: { hide_groups_header: true, allow: [admin, anon] }
-  # Webhook handlers verify Apple/Stripe signatures; browser handlers verify Auth users.
+  # Webhook handlers verify Apple/Stripe signatures or Google OIDC; browser handlers verify Auth users.
   - name: functions-v1
     url: http://functions:9000/
     read_timeout: 160000

@@ -3,7 +3,7 @@
 import { useRouter } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert, Button, Input, Spinner } from "@/components/ui";
-import type { AppleApp, AppleConnectionPreview } from "@/lib/apple-connect";
+import { findSavedAppleApp, loadSavedAppleApp, type AppleApp, type AppleConnectionPreview } from "@/lib/apple-connect";
 import type { AppRow } from "@/lib/database.types";
 import { SITE_URL, SUPABASE_URL, webhookUrl } from "@/lib/env";
 import { friendlyError, functionError, planLimitOf } from "@/lib/errors";
@@ -41,7 +41,7 @@ export function AppleConnect({ app, onConfigured, onCancel }: { app?: AppRow; on
   const choices = app ? apps?.filter((candidate) => candidate.bundle_id === app.bundle_id) : apps;
   const selected = choices?.find((candidate) => candidate.apple_app_id === selectedId);
   const visibleChoices = choices?.filter((candidate) => `${candidate.name} ${candidate.bundle_id}`.toLowerCase().includes(query.toLowerCase().trim()));
-  const knownApp = app ?? ws.apps.find((candidate) => candidate.bundle_id === selected?.bundle_id);
+  const knownApp = app ?? findSavedAppleApp(ws.apps, selected?.bundle_id);
   const serverHosts = [...new Set((preview ? Object.values(preview.forwarding) : [selected?.production_url, selected?.sandbox_url]).map(existingServerHost).filter(Boolean))];
   const heading = useRef<HTMLHeadingElement>(null);
 
@@ -104,8 +104,7 @@ export function AppleConnect({ app, onConfigured, onCancel }: { app?: AppRow; on
   // Save only after the user chooses Connect or manual setup.
   async function saveSelected(candidate: AppleApp, currentOperation: number): Promise<ImportedApp | null> {
     const client = supabaseBrowser();
-    const { data: existing, error: lookupError } = await client.from("apps").select("id,bundle_id,apple_app_id")
-      .eq("account_id", ws.account.id).eq("bundle_id", candidate.bundle_id).maybeSingle();
+    const { data: existing, error: lookupError } = await loadSavedAppleApp(client, ws.account.id, candidate.bundle_id);
     if (currentOperation !== operation.current) return null;
     if (lookupError) throw new Error(friendlyError(lookupError, "Couldn't check your saved apps."));
     const appleAppId = Number(candidate.apple_app_id);
@@ -113,7 +112,7 @@ export function AppleConnect({ app, onConfigured, onCancel }: { app?: AppRow; on
     let local: ImportedApp;
     if (!existing) {
       const { data, error } = await client.from("apps").insert({
-        account_id: ws.account.id, name: candidate.name, bundle_id: candidate.bundle_id, apple_app_id: appleAppId,
+        account_id: ws.account.id, name: candidate.name, store: "app_store", bundle_id: candidate.bundle_id, apple_app_id: appleAppId,
       }).select("id,bundle_id,apple_app_id").single();
       if (currentOperation !== operation.current) return null;
       if (error || !data) {

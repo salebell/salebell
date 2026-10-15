@@ -5,6 +5,7 @@ import { useSearchParams } from "next/navigation";
 import { Suspense, useEffect, useState } from "react";
 import { AppleTest } from "@/components/app/apple-test";
 import { AppleConnect } from "@/components/app/apple-connect";
+import { GoogleConnect } from "@/components/app/google-connect";
 import { NotificationUrls } from "@/components/app/notification-urls";
 import { ForwardingForm } from "@/components/app/forwarding-form";
 import { EnvStatus, isConnected } from "@/components/app/status";
@@ -281,6 +282,12 @@ function SetupFlow() {
   );
 }
 
+function PlatformSetup() {
+  const { app } = useCurrentApp();
+  if (!app) return null;
+  return app.store === "play_store" ? <GoogleConnect key={app.id} app={app} /> : <SetupFlow />;
+}
+
 export default function SetupPage() {
-  return <Suspense fallback={<div role="status" className="flex items-center gap-2 text-sm text-muted"><Spinner /> Loading setup…</div>}><SetupFlow /></Suspense>;
+  return <Suspense fallback={<div role="status" className="flex items-center gap-2 text-sm text-muted"><Spinner /> Loading setup…</div>}><PlatformSetup /></Suspense>;
 }
