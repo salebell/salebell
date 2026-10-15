@@ -13,6 +13,7 @@ Google Play Console → Cloud Pub/Sub topic
                     → authenticated, wrapped push subscription
                     → /functions/v1/google-webhook/<app-key>
                     → Google Play Developer API v2 purchase lookup
+                    → orders.get charged price / refund history
                     → durable event → integrations and optional iPhone push
 ```
 
@@ -36,9 +37,10 @@ RTDN supplies a change signal. Complete purchase status comes from a subsequent
   Database and API failures return 503, including permission/configuration errors
   that an operator can fix before replaying the notification.
   For a voided purchase whose token Google has permanently discarded (HTTP 410),
-  a previously verified environment for the same app/token hash permits recording
-  the refund with its explicit order ID and unknown product/amount. Without prior
-  history it stays retryable for dead-letter recovery; no environment is guessed.
+  a previously verified environment for the same app/token hash permits a refund
+  lookup by its explicit order ID, retaining the verified order price and product.
+  Without prior history it stays retryable for dead-letter recovery; no environment
+  is guessed.
 - Shared tenant isolation, retained-history rules, cloud/self-hosted plan limits,
   integration dispatch and optional APNs fan-out. Duplicate events do not alert
   again; history older than six hours does not push to phones.
@@ -49,21 +51,39 @@ RTDN supplies a change signal. Complete purchase status comes from a subsequent
   tokens, service-account keys and raw API responses are not stored in event history
   or logged.
 
-All Google event revenue and currency are **unknown (`null`)** in this first slice.
-No Google transaction ledger is written. Subscription recurring prices exclude
-discounts/taxes and product purchase responses lack a charged price. Order-based
-accounting, including deduplication of charges and partial refunds, must be added
-before displaying Google revenue.
-[Subscription price fields](https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.subscriptionsv2#AutoRenewingPlan),
-[product purchase fields](https://developers.google.com/android-publisher/api-ref/rest/v3/purchases.productsv2),
-[order accounting API](https://developers.google.com/android-publisher/api-ref/rest/v3/orders).
+Purchase and renewal prices come from the verified order's `total`: the customer
+amount paid, including discounts and tax, in its original currency. This is gross
+customer spend, not the developer payout. The same event revenue field powers the
+event feed, integrations, phone alerts and existing revenue analytics. Google Money
+values are rounded to the shared ledger's three decimal places using integer
+arithmetic. Catalog and recurring prices are never used as charged amounts.
+[Google order totals and refund history](https://developers.google.com/android-publisher/api-ref/rest/v3/orders).
+
+Persistent private order accounting, scoped to app and environment, records a
+charge once even when notifications have different message IDs. Completed refund
+history supplies cumulative refunds; only the new increment is recorded as negative
+revenue and sent in alerts. A full refund after partial refunds deducts only the
+remaining amount. Duplicate monetary notifications keep delivery history as `other`
+without repeating revenue, purchase/refund counts or alerts. Accounting claims
+survive event-history retention and are removed when the app is deleted.
+Zero-price subscription orders explicitly marked as free trials become
+`trial_started` events with a verified zero amount.
+
+Order IDs, purchase tokens and charge products are checked against the purchase
+lookup. Only allowlisted order totals are retained, never raw orders, buyer
+addresses or purchase tokens. Order API or invalid-data failures return 503 for
+Pub/Sub retry instead of acknowledging a missing price. Nonfinancial lifecycle
+events and Console delivery tests have no monetary amount.
 
 An API response is the current purchase snapshot, even for delayed RTDNs. Events
 preserve the notification timestamp; Salebell does not apply notifications as an
-entitlement state machine. The snapshot's latest subscription order is not assigned
-as the historical event's transaction ID. Multi-item subscriptions keep their
-product list in the payload and leave the singular product field unknown. Trial
-detection and replacement-token lineage are deferred. `SUBSCRIPTION_RECOVERED`
+entitlement state machine. The latest subscription order is assigned only after
+verifying its processed timestamp is no later than the notification. An older RTDN
+resolving to a newer order retains an unknown amount (`priceUnavailable: newer_order`).
+Multi-item subscriptions sharing one order use that total once and leave the
+singular product field unknown. Items pointing to different latest orders, or
+purchases without an order ID, retain unknown amounts rather than combining
+unrelated charges. Replacement-token lineage is deferred. `SUBSCRIPTION_RECOVERED`
 also covers resuming from pause, so it is recorded as `other`, without implying a
 payment. Google alpha-2 billing regions remain snapshot metadata instead of being
 put into the alpha-3 storefront field.
@@ -149,12 +169,19 @@ credentials or delivery settings requires a new notification.
 
 ## Deploying the feature
 
-Apply the migrations through `20261014170000_google_play_onboarding.sql`, and
+Apply the migrations through `20261015160000_google_play_order_revenue.sql`, and
 deploy `google-connect` and `google-webhook` alongside the web app. Both functions
 are included in the self-hosted router. `google-connect` requires user
 authentication and workspace admin access; `google-webhook` verifies Google's
 OIDC token instead of a Supabase JWT. For self-hosting, `SUPABASE_PUBLIC_URL` must
 identify the public HTTPS API; local HTTP cannot receive Google's push delivery.
+
+For an existing installation, apply the order-revenue migration before deploying
+`google-webhook`. The service account needs **View financial data, orders, and
+cancellation survey responses** in Play Console; order lookups use the same
+Android Publisher API and OAuth scope as purchase lookups. New financial
+notifications then include verified prices. Events recorded by the earlier preview
+remain unchanged; historical price backfill is not automatic.
 
 ### Operator-only provisioning
 
@@ -212,7 +239,10 @@ subscriptions. The receiver does not use Apple's raw-body forwarding settings.
 
 - Live Google delivery validation for subscriptions, products, voided and test
   notifications, and expired/inaccessible purchase tokens.
-- Verified order/line-item accounting, refund-history identity and trial handling.
+- Historical price backfill and order reconciliation for delayed notifications
+  whose purchase lookup already points to a later order.
+- Accounting across multi-item subscriptions with distinct latest orders, and
+  replacement-token lineage.
 
 Local validation: `npm test`, `npm run test:sql`, and
 `deno check --node-modules-dir=none supabase/functions/google-connect/index.ts supabase/functions/google-webhook/index.ts`.

@@ -76,6 +76,27 @@ test("Play client caches OAuth tokens, refreshes before expiry and shares concur
   assert.equal(new Headers(server.calls.at(-1)!.init?.headers).get("authorization"), "Bearer oauth-2");
 });
 
+test("Play client retrieves charged order details with escaped identifiers and shared OAuth", async () => {
+  const server = apiServer();
+  const client = createGooglePlayClient(credentials, { fetcher: server.fetcher, now: () => t0 });
+  await client.getProduct("com.example/app", "token");
+  assert.deepEqual(await client.getOrder("com.example/app", "GPA.order/+?#"), { kind: "purchase", orderId: "GPA.1234" });
+  assert.equal(server.calls.length, 3);
+  assert.equal(server.calls[2].url, "https://androidpublisher.googleapis.com/androidpublisher/v3/applications/com.example%2Fapp/orders/GPA.order%2F%2B%3F%23");
+  assert.equal(new Headers(server.calls[2].init?.headers).get("authorization"), "Bearer oauth-secret");
+});
+
+test("order failures never leak purchase tokens, customer data or upstream errors", async () => {
+  for (const status of [401, 403, 404, 410, 429, 503]) {
+    const server = apiServer(url => url === "https://oauth2.googleapis.com/token"
+      ? Response.json({ access_token: "oauth-secret", token_type: "Bearer", expires_in: 3600 })
+      : new Response("PRIVATE_CUSTOMER", { status }));
+    const client = createGooglePlayClient(credentials, { fetcher: server.fetcher, now: () => t0 });
+    await assert.rejects(client.getOrder("com.example", "GPA.PRIVATE_ORDER"), error => error instanceof Error
+      && !/PRIVATE|oauth-secret|https:/.test(String(error)));
+  }
+});
+
 test("Play client accepts service-account PEMs with escaped newlines and no key ID", async () => {
   const server = apiServer();
   const client = createGooglePlayClient({ client_email: credentials.client_email, private_key: private_key.replace(/\n/g, "\\n") },

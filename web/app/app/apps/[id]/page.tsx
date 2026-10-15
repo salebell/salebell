@@ -63,14 +63,13 @@ function Segmented<T extends string | number>({
   );
 }
 
-function Kpi({ title, stats, revenueUnavailable = false }: { title: string; stats: Stats | null; revenueUnavailable?: boolean }) {
+function Kpi({ title, stats }: { title: string; stats: Stats | null }) {
   return (
     <Card className="p-5">
       <p className="text-sm text-muted">{title}</p>
       {stats ? (
         <>
-          <p className="tnum mt-1.5 text-[1.75rem] font-semibold leading-tight tracking-tight">{revenueUnavailable ? "–" : usd(stats.usd)}</p>
-          {revenueUnavailable ? <p className="mt-1 text-xs text-muted">Revenue unavailable</p> : null}
+          <p className="tnum mt-1.5 text-[1.75rem] font-semibold leading-tight tracking-tight">{usd(stats.usd)}</p>
           <dl className="tnum mt-3 grid grid-cols-2 gap-x-4 gap-y-1 text-xs text-muted">
             <div className="flex justify-between gap-2"><dt>Purchases</dt><dd className="font-medium text-fg">{count(stats.purchases)}</dd></div>
             <div className="flex justify-between gap-2"><dt>Renewals</dt><dd className="font-medium text-fg">{count(stats.renewals)}</dd></div>
@@ -259,15 +258,15 @@ export default function AppOverviewPage() {
             { value: "Sandbox", label: "Sandbox" },
           ]}
         />
-        <p className="text-xs text-muted">{google ? "Google Play purchase amounts are unavailable. Event counts reflect received notifications." : "Gross customer price before Apple's commission, in USD (est.). Chart days are UTC."}</p>
+        <p className="text-xs text-muted">{google ? "Verified Google Play order totals, including discounts and tax, in USD (est.). Chart days are UTC." : "Gross customer price before Apple's commission, in USD (est.). Chart days are UTC."}</p>
       </div>
 
       {error && <Alert>{error}</Alert>}
 
       <section aria-label="Key numbers" className="grid gap-4 sm:grid-cols-3">
-        <Kpi title="Today" stats={kpis?.today ?? null} revenueUnavailable={google} />
-        <Kpi title="Last 7 days" stats={kpis?.week ?? null} revenueUnavailable={google} />
-        <Kpi title="Last 30 days" stats={kpis?.month ?? null} revenueUnavailable={google} />
+        <Kpi title="Today" stats={kpis?.today ?? null} />
+        <Kpi title="Last 7 days" stats={kpis?.week ?? null} />
+        <Kpi title="Last 30 days" stats={kpis?.month ?? null} />
       </section>
       {kpis?.month.missingFx && (
         <p className="-mt-4 text-xs text-muted">
@@ -275,7 +274,7 @@ export default function AppOverviewPage() {
         </p>
       )}
 
-      {google ? <Card className="p-4 sm:p-5"><h2 className="font-semibold">Revenue unavailable</h2><p className="mt-2 text-sm text-muted">Google Play notifications currently record purchase state without a verified charged amount. Revenue stays unknown; your events and alerts continue to work.</p></Card> : <Card className="p-4 sm:p-5">
+      <Card className="p-4 sm:p-5">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
           <h2 className="font-semibold">Gross revenue</h2>
           <Segmented
@@ -292,7 +291,7 @@ export default function AppOverviewPage() {
         ) : (
           <Skeleton className="h-[220px]" />
         )}
-      </Card>}
+      </Card>
 
       <Card>
         <div className="flex flex-wrap items-center justify-between gap-3 border-b border-border px-4 py-3.5 sm:px-5">

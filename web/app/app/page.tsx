@@ -74,8 +74,8 @@ export default function AppsPage() {
               </div>
               <div className="mt-6 flex items-end justify-between gap-3">
                 <div>
-                  <p className="text-xs text-muted">{app.store === "play_store" ? "Revenue" : "Today, USD est."}</p>
-                  {app.store === "play_store" ? <p className="mt-0.5 text-lg font-semibold">Unavailable</p> : today ? (
+                  <p className="text-xs text-muted">Today, USD est.</p>
+                  {today ? (
                     <p className="tnum mt-0.5 text-2xl font-semibold tracking-tight">{t ? usd(t.usd) : "–"}</p>
                   ) : (
                     <Skeleton className="mt-1.5 h-7 w-24" />

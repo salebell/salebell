@@ -39,7 +39,7 @@ export type StoreEvent = {
   productId: string | null;
   transactionId: string | null;
   originalTransactionId: string | null;
-  // Customer price in major units (Apple milliunits / 1000). Negative for refunds.
+  // Customer price in major units, at milliunit precision. Negative for refunds.
   revenue: number | null;
   currency: string | null;
   storefront: string | null; // ISO 3166-1 alpha-3

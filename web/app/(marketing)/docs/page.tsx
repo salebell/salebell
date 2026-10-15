@@ -42,7 +42,7 @@ export default function DocsPage() {
           Salebell receives Apple&apos;s App Store Server Notifications (version 2) for your app. There is no SDK and nothing changes in
           your app. Import from App Store Connect and let Salebell configure the URLs, or enter your app and paste the URLs manually.
         </p>
-        <p>Self-host Salebell or use optional managed cloud. <Link href="/self-host">Install your own instance</Link> before connecting an app. Android / Google Play RTDN: <strong>Preview</strong>. For Android, upload a service-account JSON key, select an app, configure Pub/Sub and send a test from Play Console. App discovery requires the Google Play Developer Reporting API and app access in Play Console; manual entry is also available. Google revenue is currently unknown.</p>
+        <p>Self-host Salebell or use optional managed cloud. <Link href="/self-host">Install your own instance</Link> before connecting an app. Android / Google Play RTDN: <strong>Preview</strong>. For Android, upload a service-account JSON key, select an app, configure Pub/Sub and send a test from Play Console. App discovery requires the Google Play Developer Reporting API and app access in Play Console; manual entry is also available. Purchase and renewal prices come from verified Google orders, including discounts and tax. Refunds deduct only the newly refunded amount.</p>
 
         <p>
           <strong>What&apos;s covered:</strong> in-app purchases and subscriptions, meaning purchases, free trials, renewals, refunds,

@@ -65,16 +65,17 @@ export function createGooglePlayClient(credentials: GoogleServiceAccount, option
     try { return await pending; } finally { pending = null; }
   };
 
-  const lookup = async (kind: "subscriptionsv2" | "productsv2", packageName: string, purchaseToken: string): Promise<Record<string, unknown>> => {
+  const lookup = async (kind: "subscriptionsv2" | "productsv2" | "orders", packageName: string, identifier: string): Promise<Record<string, unknown>> => {
     try {
       const token = await accessToken();
-      const response = await fetcher(`${PLAY_URL}/${encodeURIComponent(packageName)}/purchases/${kind}/tokens/${encodeURIComponent(purchaseToken)}`, {
+      const path = kind === "orders" ? `orders/${encodeURIComponent(identifier)}` : `purchases/${kind}/tokens/${encodeURIComponent(identifier)}`;
+      const response = await fetcher(`${PLAY_URL}/${encodeURIComponent(packageName)}/${path}`, {
         method: "GET", headers: { authorization: `Bearer ${token}` }, redirect: "error", signal: AbortSignal.timeout(TIMEOUT_MS),
       });
       if (!response.ok) {
         if (response.status === 401 && cached?.token === token) cached = null;
         await response.body?.cancel();
-        if (response.status === 410) throw new GooglePlayPurchaseUnavailableError();
+        if (response.status === 410 && kind !== "orders") throw new GooglePlayPurchaseUnavailableError();
         throw new Error();
       }
       const result = await response.json();
@@ -90,5 +91,6 @@ export function createGooglePlayClient(credentials: GoogleServiceAccount, option
   return {
     getSubscription: (packageName: string, purchaseToken: string) => lookup("subscriptionsv2", packageName, purchaseToken),
     getProduct: (packageName: string, purchaseToken: string) => lookup("productsv2", packageName, purchaseToken),
+    getOrder: (packageName: string, orderId: string) => lookup("orders", packageName, orderId),
   };
 }

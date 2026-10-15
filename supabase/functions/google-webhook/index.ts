@@ -25,6 +25,19 @@ type AppRow = {
 // new delivery so replacement/removal takes effect without an instance restart.
 const clients = new Map<string, { credentials: string; client: ReturnType<typeof createGooglePlayClient> }>();
 
+async function playClient(appId: string) {
+  const credentials = await db.rpc<GoogleServiceAccount | null>("load_google_play_credentials", { p_app_id: appId });
+  if (!credentials) { clients.delete(appId); throw new Error("google_credentials_missing"); }
+  const identity = JSON.stringify(credentials);
+  let cached = clients.get(appId);
+  if (!cached || cached.credentials !== identity) {
+    if (clients.size >= 100) clients.delete(clients.keys().next().value!);
+    cached = { credentials: identity, client: createGooglePlayClient(credentials) };
+    clients.set(appId, cached);
+  }
+  return cached.client;
+}
+
 Deno.serve(createGoogleWebhook({
   lookupApp: async key => {
     const [row] = await db.rpc<AppRow[]>("google_webhook_app", { p_key: key });
@@ -42,20 +55,13 @@ Deno.serve(createGoogleWebhook({
     return rows[0]?.environment ?? null;
   },
   loadPurchase: async (app, notification) => {
-    const credentials = await db.rpc<GoogleServiceAccount | null>("load_google_play_credentials", { p_app_id: app.id });
-    if (!credentials) { clients.delete(app.id); throw new Error("google_credentials_missing"); }
-    const identity = JSON.stringify(credentials);
-    let cached = clients.get(app.id);
-    if (!cached || cached.credentials !== identity) {
-      if (clients.size >= 100) clients.delete(clients.keys().next().value!);
-      cached = { credentials: identity, client: createGooglePlayClient(credentials) };
-      clients.set(app.id, cached);
-    }
+    const client = await playClient(app.id);
     if (!("purchaseToken" in notification)) throw new Error("google_purchase_token_missing");
     return notification.kind === "subscription" || (notification.kind === "voided" && notification.productType === 1)
-      ? cached.client.getSubscription(app.packageName, notification.purchaseToken)
-      : cached.client.getProduct(app.packageName, notification.purchaseToken);
+      ? client.getSubscription(app.packageName, notification.purchaseToken)
+      : client.getProduct(app.packageName, notification.purchaseToken);
   },
+  loadOrder: async (app, orderId) => (await playClient(app.id)).getOrder(app.packageName, orderId),
   record: ({ app, event, notification }) => db.rpc("record_google_play_event", { p_app_id: app.id, p_event: event, p_payload: notification,
     p_connection_version: app.connectionVersion }),
   logDeliveries: (app, event, deliveries) => db.rpc("log_alert_deliveries", { p_app_id: app.id, p_event_id: event.id, p_deliveries: deliveries }),

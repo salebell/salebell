@@ -20,7 +20,7 @@
 | iPhone push with a cha-ching sound | Estimated USD revenue, charts, live feed, CSV | Slack, Discord, Telegram, webhooks, PostHog, Pushover |
 | Purchases, trials, renewals, refunds, billing issues | Today · 7 days · 30 days | Forward original Apple notifications to your existing server |
 
-**App Store:** in-app purchases and subscriptions; paid-app downloads aren't covered. **Google Play:** [RTDN preview](docs/GOOGLE_PLAY_RTDN.md); event alerts implemented, revenue accounting and live validation pending. No Android companion is included.
+**App Store:** in-app purchases and subscriptions; paid-app downloads aren't covered. **Google Play:** [RTDN preview](docs/GOOGLE_PLAY_RTDN.md); event alerts and verified order prices, including renewal and refund accounting. Live Google validation remains pending. No Android companion is included.
 
 ## A look inside
 

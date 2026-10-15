@@ -22,6 +22,7 @@ function harness(over: Partial<Deps> = {}) {
     verifyPush: async (token, expected) => { order.push("verify"); assert.equal(token, "signed-google-token"); assert.equal(expected.audience, app.audience); assert.equal(expected.serviceAccountEmail, app.serviceAccountEmail); },
     isDuplicate: async () => { order.push("dedupe"); return false; },
     loadPreviousEnvironment: async () => null,
+    loadOrder: async () => { throw new Error("unexpected order lookup"); },
     loadPurchase: async (a, n) => { order.push("purchase"); assert.equal(a.packageName, app.packageName); assert.ok("purchaseToken" in n); return { subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", lineItems: [{ productId: "premium" }] }; },
     record: async input => { order.push("record"); recorded.push(input); return { fresh: true, active: true, channels: [{ id: "channel-1", kind: "slack", config: {}, environments: ["Production"], events: null, enabled: true }], devices: [{ token: "a".repeat(64), environment: "production" }] }; },
     logDeliveries: async () => { order.push("log"); },
@@ -41,6 +42,40 @@ test("authenticates, enriches and persists before acknowledging Google and sendi
   assert.ok(h.order.includes("log"));
   assert.equal(h.recorded[0].event.revenue, null);
   assert.ok(!JSON.stringify(h.recorded).includes("private-token"));
+});
+
+test("verified prices reach persistence, integration alerts and phone pushes", async () => {
+  const seen: (number | null)[] = [];
+  const h = harness({
+    loadPurchase: async () => ({ subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", lineItems: [{ productId: "premium", latestSuccessfulOrderId: "GPA.charge" }] }),
+    loadOrder: async (a, id) => {
+      assert.equal(a.id, app.id); assert.equal(id, "GPA.charge");
+      return { orderId: id, purchaseToken: "private-token", state: "PROCESSED", total: { currencyCode: "EUR", units: "4", nanos: 990000000 },
+        lineItems: [{ productId: "premium" }], orderHistory: { processedEvent: { eventTime: new Date(now - 1000).toISOString() } } };
+    },
+    dispatch: async (_channels, _app, event) => { seen.push(event.revenue); return []; },
+    push: async (_devices, _app, event) => { seen.push(event.revenue); return { sent: 1, failed: 0, invalidTokens: [] }; },
+  });
+  assert.equal((await h.handler(post())).status, 204);
+  assert.equal(h.recorded[0].event.revenue, 4.99);
+  assert.equal(h.recorded[0].event.currency, "EUR");
+  assert.deepEqual(seen, [4.99, 4.99]);
+});
+
+test("alerts use the atomically accounted refund delta returned by the database", async () => {
+  let sent: number | null = null;
+  const h = harness({ record: async ({ event }) => ({ fresh: true, channels: [{ id: "c", kind: "webhook", config: {}, environments: ["Production"], events: null, enabled: true }],
+    event: { ...event, type: "refund", revenue: -2, currency: "USD" } }),
+    dispatch: async (_channels, _app, event) => { sent = event.revenue; return []; } });
+  assert.equal((await h.handler(post())).status, 204);
+  assert.equal(sent, -2);
+});
+
+test("order API failures stay retryable and never acknowledge a missing financial record", async () => {
+  const h = harness({ loadPurchase: async () => ({ subscriptionState: "SUBSCRIPTION_STATE_ACTIVE", lineItems: [{ productId: "premium", latestSuccessfulOrderId: "GPA.charge" }] }) });
+  assert.equal((await h.handler(post())).status, 503);
+  assert.equal(h.recorded.length, 0);
+  assert.deepEqual(h.dispatched, []);
 });
 
 test("invalid Google authentication never decodes, looks up purchases or records events", async () => {
@@ -101,13 +136,16 @@ test("delivery tests skip purchase lookup and remain separate from purchases", a
 test("late voided purchases can use a previously verified environment when Google returns 410", async () => {
   const data = { version: "1.0", packageName: app.packageName, eventTimeMillis: String(now), voidedPurchaseNotification: { purchaseToken: "private-token", orderId: "GPA.old", productType: 1, refundType: 1 } };
   const h = harness({ loadPurchase: async () => { throw new GooglePlayPurchaseUnavailableError(); },
+    loadOrder: async () => ({ orderId: "GPA.old", purchaseToken: "private-token", state: "REFUNDED", total: { currencyCode: "USD", units: "5" },
+      lineItems: [{ productId: "premium" }], orderHistory: { processedEvent: { eventTime: new Date(now - 1000).toISOString() },
+        refundEvent: { eventTime: new Date(now).toISOString(), refundDetails: { total: { currencyCode: "USD", units: "5" } } } } }),
     loadPreviousEnvironment: async (a, tokenHash) => { assert.equal(a.id, app.id); assert.match(tokenHash, /^[0-9a-f]{64}$/); return "Sandbox"; } });
   assert.equal((await h.handler(post(envelope(data)))).status, 204);
   assert.equal(h.recorded[0].event.type, "refund");
   assert.equal(h.recorded[0].event.environment, "Sandbox");
-  assert.equal(h.recorded[0].event.productId, null);
+  assert.equal(h.recorded[0].event.productId, "premium");
   assert.equal(h.recorded[0].event.transactionId, "GPA.old");
-  assert.equal(h.recorded[0].event.revenue, null);
+  assert.equal(h.recorded[0].event.revenue, -5);
   assert.deepEqual(h.recorded[0].notification.purchase, { lookupUnavailable: true });
   const unknown = harness({ loadPurchase: async () => { throw new GooglePlayPurchaseUnavailableError(); } });
   assert.equal((await unknown.handler(post(envelope(data)))).status, 503, "unknown environments must not be guessed");

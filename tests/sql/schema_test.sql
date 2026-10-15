@@ -99,4 +99,5 @@ reset role;
 \ir instance_settings_test.sql
 \ir google_play_test.sql
 \ir google_onboarding_test.sql
+\ir google_revenue_test.sql
 \echo ALL SQL TESTS PASSED

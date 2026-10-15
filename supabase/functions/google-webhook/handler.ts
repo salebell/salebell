@@ -6,6 +6,7 @@ import { bearer } from "../_shared/core/http.ts";
 import { GooglePushVerificationError } from "../_shared/core/google_auth.ts";
 import { googleDeliveryId, googlePurchaseTokenHash, GooglePayloadError, normalizeGooglePlayNotification, parseGooglePush, type GoogleNotification } from "../_shared/core/google_play.ts";
 import { GooglePlayPurchaseUnavailableError } from "../_shared/core/google_play_api.ts";
+import { enrichGoogleOrder } from "../_shared/core/google_orders.ts";
 import type { StoreEnvironment, StoreEvent } from "../_shared/core/events.ts";
 import type { RecordResult } from "../apple-webhook/handler.ts";
 
@@ -20,7 +21,8 @@ export type Deps = {
   isDuplicate: (app: GoogleApp, eventId: string) => Promise<boolean>;
   loadPreviousEnvironment: (app: GoogleApp, tokenHash: string) => Promise<StoreEnvironment | null>;
   loadPurchase: (app: GoogleApp, notification: GoogleNotification) => Promise<Record<string, unknown>>;
-  record: (input: { app: GoogleApp; event: StoreEvent; notification: Record<string, unknown> }) => Promise<RecordResult>;
+  loadOrder: (app: GoogleApp, orderId: string) => Promise<Record<string, unknown>>;
+  record: (input: { app: GoogleApp; event: StoreEvent; notification: Record<string, unknown> }) => Promise<RecordResult & { event?: StoreEvent }>;
   logDeliveries: (app: GoogleApp, event: StoreEvent, deliveries: Delivery[]) => Promise<void>;
   dispatch?: typeof defaultDispatch;
   push?: (devices: PushDevice[], app: GoogleApp, event: StoreEvent) => Promise<PushResult>;
@@ -84,7 +86,7 @@ export function createGoogleWebhook(deps: Deps) {
     const n = message.notification;
     if (message.subscription !== app.subscription || n.packageName !== app.packageName) return reply(403, "Connection mismatch");
     if (n.eventTimeMillis > now() + 5 * 60_000) return reply(400, "Invalid event time");
-    let event: StoreEvent, notification: Record<string, unknown>, result: RecordResult;
+    let event: StoreEvent, notification: Record<string, unknown>, result: RecordResult & { event?: StoreEvent };
     try {
       const id = await googleDeliveryId(message.subscription, message.messageId);
       // This read is only an optimization: record() atomically resolves races.
@@ -101,7 +103,11 @@ export function createGoogleWebhook(deps: Deps) {
         }
       }
       ({ event, notification } = await normalizeGooglePlayNotification(message, purchase, previousEnvironment));
+      await enrichGoogleOrder(message, purchase, { event, notification }, id => deps.loadOrder(app!, id));
       result = await deps.record({ app, event, notification });
+      // The database serializes order accounting and returns only the new refund
+      // delta (or suppresses an already-accounted charge) for all alert surfaces.
+      event = result.event ?? event;
     } catch {
       // Fetch errors can contain a purchase-token URL. Never log raw errors.
       log.error("google purchase processing unavailable", context);
