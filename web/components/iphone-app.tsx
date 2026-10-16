@@ -3,7 +3,7 @@ import { IOS_APP_URL, IS_SELF_HOSTED } from "@/lib/env";
 
 export const IPHONE_SOON = "iPhone app coming soon (TestFlight). Slack, Discord, Telegram, Pushover and webhooks work today.";
 
-/** One honest line about the iPhone app: a link when NEXT_PUBLIC_IOS_APP_URL is set, "coming soon" otherwise. */
+/** Cloud links to Salebell; self-hosted instances link to their own companion when configured. */
 export function IphoneAppNote({ className = "" }: { className?: string }) {
   if (IOS_APP_URL) {
     return (

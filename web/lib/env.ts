@@ -10,7 +10,10 @@ export const SOURCE_URL = process.env.NEXT_PUBLIC_SOURCE_URL || "https://github.
 export const CLOUD_URL = (process.env.NEXT_PUBLIC_CLOUD_URL || "https://salebell.vercel.app").replace(/\/$/, "");
 export const ANALYTICS_ENABLED = !IS_SELF_HOSTED && process.env.NEXT_PUBLIC_ENABLE_ANALYTICS !== "false";
 export const SUPPORT_EMAIL = process.env.NEXT_PUBLIC_SUPPORT_EMAIL || null;
-export const IOS_APP_URL = process.env.NEXT_PUBLIC_IOS_APP_URL || null;
+// Cloud always installs Salebell; self-hosted operators distribute their own companion.
+export const IOS_APP_URL = IS_SELF_HOSTED
+  ? process.env.NEXT_PUBLIC_IOS_APP_URL || null
+  : "https://apps.apple.com/app/id6822787827";
 export const COMPANY_NUMBER = process.env.NEXT_PUBLIC_COMPANY_NUMBER || null;
 export const COMPANY_ADDRESS = process.env.NEXT_PUBLIC_COMPANY_ADDRESS || null;
 export const COMPANY_NAME = process.env.NEXT_PUBLIC_COMPANY_NAME || (IS_SELF_HOSTED ? "Instance operator" : "Salebell");

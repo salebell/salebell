@@ -36,7 +36,7 @@ The browser receives only public configuration. Provider secrets live in Supabas
 | `NEXT_PUBLIC_DEPLOYMENT_MODE` | no | `cloud` (default) or `self_hosted`; selects public-page content and the default login method. Compose sets it automatically |
 | `SUPABASE_INTERNAL_URL` | no | Server-only API URL for webhook proxying; Compose sets this to its private gateway |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | launch | Support contact on /privacy, /terms and the footer; hidden (with a build warning) when unset |
-| `NEXT_PUBLIC_IOS_APP_URL` | no | App Store or TestFlight link for the iPhone app; until set, the UI says it's coming soon |
+| `NEXT_PUBLIC_IOS_APP_URL` | no | Self-hosted companion's App Store or TestFlight link; cloud always links to [Salebell](https://apps.apple.com/app/id6822787827) |
 | `NEXT_PUBLIC_COMPANY_NUMBER` | launch | Company number shown on /privacy, /terms and the footer; `npm run build` warns while unset |
 | `NEXT_PUBLIC_COMPANY_ADDRESS` | launch | Registered office, shown with the company number |
 

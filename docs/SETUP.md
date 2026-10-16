@@ -116,7 +116,7 @@ The script stores the four `APNS_*` secrets. Set `DEVELOPMENT_TEAM` in `ios/Conf
 
 ### Public launch details
 
-Set `NEXT_PUBLIC_SUPPORT_EMAIL`, `NEXT_PUBLIC_COMPANY_NUMBER` and `NEXT_PUBLIC_COMPANY_ADDRESS` on Vercel and redeploy. When the iPhone app has a working App Store or TestFlight link, set `NEXT_PUBLIC_IOS_APP_URL` and redeploy so customers can install it from the dashboard.
+Set `NEXT_PUBLIC_SUPPORT_EMAIL`, `NEXT_PUBLIC_COMPANY_NUMBER` and `NEXT_PUBLIC_COMPANY_ADDRESS` on Vercel and redeploy. Cloud download links always use [Salebell on the App Store](https://apps.apple.com/app/id6822787827). Self-hosted operators can set `NEXT_PUBLIC_IOS_APP_URL` to their own companion's App Store or TestFlight link and redeploy.
 
 ### Deploy saved Apple connections
 
