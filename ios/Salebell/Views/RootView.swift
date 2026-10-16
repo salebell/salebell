@@ -21,6 +21,7 @@ struct RootView: View {
                     }
             }
         }
+        .id("\(model.backendGeneration):\(model.authGeneration)")
         .animation(.default, value: model.authState)
     }
 }

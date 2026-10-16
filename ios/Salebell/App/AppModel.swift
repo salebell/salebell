@@ -2,6 +2,7 @@ import OSLog
 import Observation
 import SwiftUI
 import UserNotifications
+import WidgetKit
 
 enum AppTab: Hashable {
     case overview, feed, settings
@@ -14,7 +15,11 @@ enum NotificationPermission: Equatable {
 @MainActor
 @Observable
 final class AppModel {
-    let backend: any Backend
+    private(set) var backend: any Backend
+    private(set) var configuration: ServerConfiguration
+    private(set) var backendGeneration = UUID()
+    private let configurationStore: ServerConfigurationStore
+    private let backendFactory: @Sendable (ServerConfiguration) -> any Backend
     let isDemo: Bool
 
     private(set) var authState: AuthState = .loading
@@ -31,8 +36,9 @@ final class AppModel {
     private(set) var isEndingSession = false
     private var registrationTask: Task<Void, Never>?
     private var authUpdateTask: Task<Void, Never>?
-    private var isObservingAuth = false
-    private var authGeneration = 0
+    private var observingGeneration: UUID?
+    private var authCleanupTask: Task<Bool, Never>?
+    private(set) var authGeneration = 0
     private var deviceIDs: Set<UUID> = []
     private static let logger = Logger(subsystem: "com.salebell", category: "Push")
     private let defaults: UserDefaults
@@ -41,6 +47,11 @@ final class AppModel {
 
     init() {
         defaults = .standard
+        let store = ServerConfigurationStore()
+        configurationStore = store
+        let initialConfiguration = store.selection.configuration
+        configuration = initialConfiguration
+        backendFactory = { SupabaseBackend(configuration: $0) }
         #if DEBUG
         if let demo = DemoBackend.fromLaunchArguments() {
             backend = demo
@@ -48,14 +59,19 @@ final class AppModel {
             return
         }
         #endif
-        backend = SupabaseBackend()
+        backend = SupabaseBackend(configuration: initialConfiguration)
         isDemo = false
     }
 
     /// Seed the model for previews and tests without contacting Auth or iOS permissions.
     init(backend: any Backend, defaults: UserDefaults, authState: AuthState,
-         notificationPermission: NotificationPermission) {
+         notificationPermission: NotificationPermission, configuration: ServerConfiguration = .cloud,
+         configurationStore: ServerConfigurationStore? = nil,
+         backendFactory: @escaping @Sendable (ServerConfiguration) -> any Backend = { SupabaseBackend(configuration: $0) }) {
         self.backend = backend
+        self.configuration = configuration
+        self.configurationStore = configurationStore ?? ServerConfigurationStore(defaults: defaults)
+        self.backendFactory = backendFactory
         self.defaults = defaults
         self.authState = authState
         self.notificationPermission = notificationPermission
@@ -68,26 +84,48 @@ final class AppModel {
     }
 
     func start() async {
-        guard !isObservingAuth else { return }
-        isObservingAuth = true
+        let generation = backendGeneration
+        guard observingGeneration != generation else { return }
+        observingGeneration = generation
+        let observedBackend = backend
         defer {
-            isObservingAuth = false
-            authUpdateTask?.cancel()
+            if observingGeneration == generation { observingGeneration = nil }
         }
-        for await state in backend.authStates() {
-            guard !Task.isCancelled else { break }
-            let changedAccount = authState.accountID != state.accountID
+        for await state in observedBackend.authStates() {
+            guard !Task.isCancelled, generation == backendGeneration else { break }
+            let previousOwner = authState.accountID
+            let changedAccount = previousOwner != state.accountID
+            let initialSignedOut = authState == .loading && state == .signedOut
             authState = state
-            if changedAccount {
+            if changedAccount || initialSignedOut {
                 authGeneration += 1
                 hasApps = false
                 showPushExplainer = false
                 restoreDevices()
                 authUpdateTask?.cancel()
+                // A -> B is still signed in, but an old widget fetch must become invalid.
+                configurationStore.save(configuration: configuration, signedIn: state.accountID != nil)
+                WidgetCenter.shared.reloadAllTimelines()
+                if previousOwner != nil || initialSignedOut {
+                    UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+                    UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+                    // Clear the extension's decryption key synchronously, then drain
+                    // any route write before central revocation. Registration awaits it.
+                    if observedBackend is SupabaseBackend { PushRelayClient.suspendDelivery() }
+                    let pendingRegistration = registrationTask
+                    let priorCleanup = authCleanupTask
+                    authCleanupTask = Task {
+                        _ = await priorCleanup?.value
+                        await pendingRegistration?.value
+                        do { try await observedBackend.stopPushDelivery(); return true }
+                        catch { return false }
+                    }
+                }
                 if state.accountID != nil {
-                    // Do not suspend the auth stream while registration uses the network.
                     authUpdateTask = Task { await updateNotificationPermission() }
                 }
+            } else if case .signedIn = state {
+                configurationStore.setSignedIn(true)
             }
         }
     }
@@ -102,35 +140,17 @@ final class AppModel {
         guard !isEndingSession, let owner = authState.accountID else { return }
         isEndingSession = true
         defer { isEndingSession = false }
-        // Cancellation cannot undo a server write. Drain it before removing devices.
         await registrationTask?.value
+        _ = await authCleanupTask?.value
         guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
-        do {
-            // Resolve an ambiguous upload failure (the server may have committed it).
-            if let deviceToken {
-                let id = try await backend.registerPushDevice(
-                    token: deviceToken, environment: AppConfig.apnsEnvironment, appVersion: AppConfig.appVersion)
-                guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
-                deviceIDs.insert(id)
-                pushDeviceID = id
-                persistDevices()
-            }
-            for id in deviceIDs {
-                try await backend.unregisterPushDevice(id: id)
-                guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
-            }
-        } catch {
-            Self.logger.error("Device removal failed: \(String(describing: error), privacy: .private)")
-            throw PushLifecycleError.removalFailed
-        }
-        forgetDevice()
+        do { try await backend.stopPushDelivery() }
+        catch { throw PushLifecycleError.removalFailed }
+        await removeOldDevices()
         try await backend.signOut()
-        guard authState.accountID == owner || authState.accountID == nil else { return }
-        authGeneration += 1
-        authState = .signedOut
-        selectedTab = .overview
-        hasApps = false
-        showPushExplainer = false
+        _ = await authCleanupTask?.value
+        defaults.removeObject(forKey: deviceStorageKey(owner))
+        forgetDevice()
+        resetSession()
     }
 
     func deleteAccount() async throws {
@@ -139,25 +159,74 @@ final class AppModel {
         defer { isEndingSession = false }
         let owner = authState.accountID
         await registrationTask?.value
+        _ = await authCleanupTask?.value
         guard authState.accountID == owner else { throw PushLifecycleError.accountChanged }
+        do { try await backend.stopPushDelivery() }
+        catch { throw PushLifecycleError.removalFailed }
         try await backend.deleteAccount()
-        // Server account deletion cascades to push_devices.
+        _ = await authCleanupTask?.value
         defaults.removeObject(forKey: deviceStorageKey(owner))
-        guard authState.accountID == owner || authState.accountID == nil else { return }
-        deviceIDs = []
-        pushDeviceID = nil
+        forgetDevice()
+        resetSession()
+    }
+
+    /// Compatibility is checked before ending the current session. Tests can supply
+    /// a checked configuration directly through the internal switch method.
+    func selectServer(_ configuration: ServerConfiguration) async throws {
+        try await configuration.checkCompatibility()
+        try await switchServer(to: configuration)
+    }
+
+    func switchServer(to selected: ServerConfiguration) async throws {
+        guard !isEndingSession else { throw PushLifecycleError.accountChanged }
+        guard selected != configuration else { return }
+        isEndingSession = true
+        defer { isEndingSession = false }
+        await registrationTask?.value
+        _ = await authCleanupTask?.value
+        do { try await backend.stopPushDelivery() }
+        catch { throw PushLifecycleError.removalFailed }
+        await removeOldDevices()
+        let owner = authState.accountID
+        try await backend.signOut()
+        _ = await authCleanupTask?.value
+        defaults.removeObject(forKey: deviceStorageKey(owner))
+        forgetDevice()
+        authUpdateTask?.cancel()
+        authCleanupTask = nil
+        resetSession()
+        configuration = selected
+        configurationStore.save(configuration: selected, signedIn: false)
+        backend = backendFactory(selected)
+        backendGeneration = UUID()
+        authState = .loading
+        WidgetCenter.shared.reloadAllTimelines()
+    }
+
+    private func removeOldDevices() async {
+        // The relay is already revoked, so an offline customer server cannot
+        // prevent switching or signing out safely.
+        for id in deviceIDs { try? await backend.unregisterPushDevice(id: id) }
+    }
+
+    private func resetSession() {
         authGeneration += 1
         authState = .signedOut
         selectedTab = .overview
         hasApps = false
         showPushExplainer = false
+        configurationStore.setSignedIn(false)
+        UNUserNotificationCenter.current().removeAllDeliveredNotifications()
+        UNUserNotificationCenter.current().removeAllPendingNotificationRequests()
+        WidgetCenter.shared.reloadAllTimelines()
     }
 
     // MARK: Push
 
     func updateNotificationPermission() async {
+        let generation = backendGeneration
         let settings = await UNUserNotificationCenter.current().notificationSettings()
-        guard !Task.isCancelled else { return }
+        guard !Task.isCancelled, generation == backendGeneration else { return }
         notificationPermission = switch settings.authorizationStatus {
         case .notDetermined: .notDetermined
         case .denied: .denied
@@ -218,7 +287,21 @@ final class AppModel {
             await registrationTask.value
             return
         }
-        guard deviceToken != nil, authState.accountID != nil else { return }
+        let generation = authGeneration
+        if let authCleanupTask {
+            if !(await authCleanupTask.value) {
+                do { try await backend.stopPushDelivery() }
+                catch { return }
+            }
+            guard generation == authGeneration, !isEndingSession else { return }
+            self.authCleanupTask = nil
+        }
+        guard !isEndingSession, deviceToken != nil, authState.accountID != nil else { return }
+        // Other callers can have started registration while cleanup suspended.
+        if let registrationTask {
+            await registrationTask.value
+            return
+        }
         let task = Task {
             await uploadCurrentToken()
             registrationTask = nil
@@ -234,9 +317,8 @@ final class AppModel {
                 let id = try await backend.registerPushDevice(
                     token: token, environment: AppConfig.apnsEnvironment, appVersion: AppConfig.appVersion)
                 guard generation == authGeneration, owner == authState.accountID else {
-                    // The next iteration transfers the token to the new account.
-                    if isEndingSession { return }
-                    continue
+                    // Auth cleanup drains this write and revokes before any new route.
+                    return
                 }
                 deviceIDs.insert(id)
                 pushDeviceID = id
@@ -257,13 +339,13 @@ final class AppModel {
     }
 
     private func deviceStorageKey(_ owner: String?) -> String {
-        "pushDevices.\(owner ?? "signedOut")"
+        "pushDevices.\(configuration.identity).\(owner ?? "signedOut")"
     }
 
     private func restoreDevices() {
         let ids = defaults.stringArray(forKey: deviceStorageKey(authState.accountID)) ?? []
         deviceIDs = Set(ids.compactMap(UUID.init(uuidString:)))
-        if authState.accountID != nil,
+        if configuration.identity == ServerConfiguration.cloud.identity, authState.accountID != nil,
            let legacyID = defaults.string(forKey: Self.deviceIDKey).flatMap(UUID.init(uuidString:)) {
             // Retain the old unscoped ID for cleanup only. Server RLS permits
             // deletion only if it belongs to the authenticated account.
@@ -297,7 +379,7 @@ private enum PushLifecycleError: LocalizedError {
     var errorDescription: String? {
         switch self {
         case .removalFailed:
-            "Couldn't stop alerts for this iPhone. You are still signed in. Check your connection and try again."
+            "Couldn't stop alerts for this iPhone. Check your connection and try again."
         case .accountChanged:
             "Your account changed. Please try again."
         }

@@ -4,7 +4,7 @@
 
 Use [the self-hosting guide](SELF_HOSTING.md) for a production installation on your own infrastructure. It requires no Stripe or Salebell Cloud subscription and uses a separate Docker Compose stack. The sections below cover development, app connection and optional managed-cloud administration.
 
-To run your own unrestricted instance on Vercel and hosted Supabase, follow [Vercel and Supabase deployment](VERCEL_SUPABASE_DEPLOYMENT.md), including backend migrations, functions and owner creation. Importing the web app alone does not install the backend.
+To run your own unrestricted instance on Vercel and hosted Supabase, use **`npm run deploy`** from the repository root. The [guided hosted installer](VERCEL_SUPABASE_DEPLOYMENT.md) uses your own provider CLI logins and configures migrations, functions, authentication, the website and your owner account. It requires no Marketplace integration or OAuth app registration. Importing the web app alone does not install the backend.
 
 ## Develop locally
 
@@ -47,13 +47,13 @@ Manual setup remains available:
 2. Choose **Enter app details manually**, then add your app's bundle ID and name. If you already have server URLs in App Store Connect, expand **Keep your existing server connected**, enter its URLs and save them before changing Apple. Copy Salebell's Production and Sandbox URLs to **App Store Connect → your app → App Information → App Store Server Notifications**, choosing **Version 2** for both. Press **I've saved both URLs →**.
 3. **Check your connection**, then set up optional alerts or continue to the dashboard while Apple connects. Status updates when a verified notification arrives. Make a sandbox in-app purchase or use the visible Apple test with an In-App Purchase key. An accepted test request can still be pending or fail delivery. Return to Setup any time to check progress.
 
-Keys are optional for manual setup. An App Store Connect team key enables automatic configuration; a separate In-App Purchase key enables requesting an Apple test. Purchase-testing keys can also be saved encrypted, or used for one request. Alert integrations can be added later. The iPhone app is optional. Cloud users can install its configured distribution link; self-hosted operators build a companion for their backend and APNs identity. [iPhone setup](../ios/README.md#self-hosted-companion).
+Keys are optional for manual setup. An App Store Connect team key enables automatic configuration; a separate In-App Purchase key enables requesting an Apple test. Purchase-testing keys can also be saved encrypted, or used for one request. Alert integrations can be added later. The iPhone app is optional. When a compatible distribution is available, install the shared app, open **Settings → Server**, enter the instance website/API URLs and public key, then sign in. Customer operators need neither APNs keys nor another app publication. The implementation is in this repository; live distribution and relay operation still require operator verification. [iPhone setup](../ios/README.md#self-hosted-companion).
 
 For Android, choose **Add app → Android**, enter the package name, upload a service-account JSON key and configure Pub/Sub. Finish by saving the topic in Play Console and sending a test. Keys are encrypted; connection status confirms actual receipt. [Google setup and required permissions](GOOGLE_PLAY_RTDN.md).
 
 ## Configure a hosted deployment as the owner
 
-The hosted project must already have its migrations, functions and web deployment. This script configures Auth and provider credentials; it does not deploy code. Public web values belong in Vercel; provider secrets belong in Supabase Edge Function secrets. Never put a service-role key in `NEXT_PUBLIC_*` values.
+For a fresh self-hosted Vercel/Supabase installation, prefer [`npm run deploy`](VERCEL_SUPABASE_DEPLOYMENT.md). The optional owner script below is for an existing hosted project that already has its migrations, functions and web deployment. It configures Auth and provider credentials; it does not deploy code. Public web values belong in Vercel; provider secrets belong in Supabase Edge Function secrets. Never put a service-role key in `NEXT_PUBLIC_*` values.
 
 First configure the web environment from [`web/.env.example`](../web/.env.example). Use your own project reference and site URL:
 
@@ -106,17 +106,19 @@ Start with a Stripe **test-mode** secret key. The script creates or reuses Saleb
 
 Open https://dashboard.stripe.com/settings/billing/portal in the matching Stripe mode and save the Customer Portal configuration. On a test deployment using test-mode keys, complete checkout with `4242 4242 4242 4242`, confirm the workspace becomes Pro, and open **Manage billing**. Configure live-mode credentials separately for launch.
 
-### iPhone push (`--steps push`)
+### iPhone push operator setup (`--steps push`)
+
+Shared-app customers use **Settings → Server** and their instance login. They do not run this step or receive APNs secrets. The managed app operator applies the normal migrations plus the separate relay schema, deploys `push-relay`, and enables the private relay flag on managed Supabase and web: see [PUSH_RELAY.md](PUSH_RELAY.md). Enabling that flag blocks all managed legacy direct APNs sends; old companion versions must update and re-enroll. The steps below configure operator keys only, or an advanced independent private build.
 
 Create an APNs signing key at https://developer.apple.com/account/resources/authkeys/add using an Apple Developer team role with permission to manage keys. Download the `.p8`, note its key ID and copy the 10-character Team ID from Membership. The key file is only downloadable once.
 
 ![Apple Developer: create an APNs key, download the .p8, copy the Team ID](setup/apple.svg)
 
-The script stores the four `APNS_*` secrets. Set `DEVELOPMENT_TEAM` in `ios/Config/Base.xcconfig` to the same team before device builds. See [`ios/README.md`](../ios/README.md) for signing and distribution. Test on a physical iPhone: sign in with the same account, allow notifications, then use **Send a test cha-ching**.
+The script stores the four `APNS_*` secrets; it does not install or enable the relay. Set `DEVELOPMENT_TEAM` in `ios/Config/Base.xcconfig` to the same team before device builds. See [`ios/README.md`](../ios/README.md) for signing and distribution. Test on a physical iPhone: sign in with the same account, allow notifications, then use **Send a test cha-ching**.
 
 ### Public launch details
 
-Set `NEXT_PUBLIC_SUPPORT_EMAIL`, `NEXT_PUBLIC_COMPANY_NUMBER` and `NEXT_PUBLIC_COMPANY_ADDRESS` on Vercel and redeploy. Cloud download links always use [Salebell on the App Store](https://apps.apple.com/app/id6822787827). Self-hosted operators can set `NEXT_PUBLIC_IOS_APP_URL` to their own companion's App Store or TestFlight link and redeploy.
+Set `NEXT_PUBLIC_SUPPORT_EMAIL`, `NEXT_PUBLIC_COMPANY_NUMBER` and `NEXT_PUBLIC_COMPANY_ADDRESS` on Vercel and redeploy. Set `NEXT_PUBLIC_IOS_APP_URL` to a qualified compatible App Store or TestFlight distribution and redeploy. Leave it empty while distribution is unavailable. This repository does not establish that the shared app is published or its managed relay is enabled.
 
 ### Deploy saved Apple connections
 

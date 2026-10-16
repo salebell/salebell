@@ -1,9 +1,9 @@
 import Link from "next/link";
-import { IOS_APP_URL, IS_SELF_HOSTED } from "@/lib/env";
+import { IOS_APP_URL } from "@/lib/env";
 
-export const IPHONE_SOON = "iPhone app coming soon (TestFlight). Slack, Discord, Telegram, Pushover and webhooks work today.";
+export const IPHONE_SOON = "An iPhone app download is not configured here yet. Slack, Discord, Telegram, Pushover and webhooks work independently.";
 
-/** Cloud links to Salebell; self-hosted instances link to their own companion when configured. */
+/** Distribution is offered only when the operator configures a compatible build. */
 export function IphoneAppNote({ className = "" }: { className?: string }) {
   if (IOS_APP_URL) {
     return (
@@ -12,6 +12,5 @@ export function IphoneAppNote({ className = "" }: { className?: string }) {
       </a>
     );
   }
-  if (IS_SELF_HOSTED) return <span className={className}>iPhone push needs an app built for this instance and your APNs credentials. <Link href="/self-host#iphone" className="text-accent-text underline underline-offset-2">Build your iPhone app</Link>.</span>;
-  return <span className={className}>{IPHONE_SOON}</span>;
+  return <span className={className}>{IPHONE_SOON} <Link href="/self-host#iphone" className="text-accent-text underline underline-offset-2">iPhone connection guide</Link>.</span>;
 }

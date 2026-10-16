@@ -28,6 +28,8 @@
 	<string>$(SP_APNS_ENVIRONMENT)</string>
 	<key>SPAppGroup</key>
 	<string>$(APP_GROUP_ID)</string>
+	<key>SPPushRelayURL</key>
+	<string>$(PUSH_RELAY_URL)</string>
 	<key>SPSiteURL</key>
 	<string>$(SITE_URL)</string>
 	<key>SPSupabaseKey</key>

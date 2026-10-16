@@ -40,7 +40,7 @@ struct OverviewView: View {
                             .frame(maxWidth: .infinity, alignment: .leading)
                             .padding(.top, 8)
                             .accessibilityAddTraits(.isHeader)
-                        ForEach(apps) { AppCard(app: $0) }
+                        ForEach(apps) { AppCard(app: $0, docsURL: model.configuration.docsURL) }
                         Text("Gross sales are estimated in USD from customer prices before Apple's commission and taxes.")
                             .font(.footnote)
                             .foregroundStyle(.secondary)
@@ -54,14 +54,20 @@ struct OverviewView: View {
     }
 
     private func load() async {
+        let generation = model.backendGeneration
+        let accountGeneration = model.authGeneration
+        let backend = model.backend
         if apps.isEmpty { phase = .loading }
         do {
-            apps = try await model.backend.overview()
+            let loaded = try await backend.overview()
+            guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
+            apps = loaded
             phase = .loaded
             model.didLoadApps(hasApps: !apps.isEmpty)
             if !model.isDemo { WidgetCenter.shared.reloadAllTimelines() }
         } catch is CancellationError {
         } catch {
+            guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
             phase = .failed(UserFacingError.message(for: error))
         }
     }
@@ -134,6 +140,7 @@ private struct Counter: View {
 
 private struct AppCard: View {
     let app: AppOverview
+    let docsURL: URL
 
     var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -172,7 +179,7 @@ private struct AppCard: View {
                 Text("In App Store Connect, check that both notification URLs are saved and Version 2 is selected. New in-app purchases and subscriptions appear after Apple sends them.")
                     .font(.footnote)
                     .foregroundStyle(.secondary)
-                Link("Review the setup guide", destination: AppConfig.docsURL)
+                Link("Review the setup guide", destination: docsURL)
                     .font(.footnote.weight(.semibold))
             }
         }

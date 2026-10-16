@@ -7,12 +7,15 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		002309889C5CD25E138011D5 /* ServerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5A0C05844223F688D11580 /* ServerConfiguration.swift */; };
 		08180BC1D0ECBA2DC1001F4E /* EventKind.swift in Sources */ = {isa = PBXBuildFile; fileRef = 31219B085AE9D873468BE9D6 /* EventKind.swift */; };
 		09598575FC85841381C5B9E1 /* TodayWidget.swift in Sources */ = {isa = PBXBuildFile; fileRef = 156E1E612C58DDCE4B116B77 /* TodayWidget.swift */; };
 		0BC88BCD7B36FE9CC08F4D3E /* DecodingTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */; };
 		0D7755A30EE03A99A013D8D4 /* EventLabelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */; };
 		0FE7B5655A7AE143EA39308C /* PushExplainerView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 35EE7065A47EE5093C261725 /* PushExplainerView.swift */; };
 		1248CE931B9A74E860957BA4 /* UserFacingError.swift in Sources */ = {isa = PBXBuildFile; fileRef = 48EF1D1C680E6EE174CA93AE /* UserFacingError.swift */; };
+		1681FB41308E1E0AD6265192 /* PushRelayClient.swift in Sources */ = {isa = PBXBuildFile; fileRef = 59DCF8E9A5998C945B73346D /* PushRelayClient.swift */; };
+		186CB45F4397C71B2A536B16 /* SalebellNotificationService.appex in Embed Foundation Extensions */ = {isa = PBXBuildFile; fileRef = 5B74E03E505E011E16C9384F /* SalebellNotificationService.appex */; settings = {ATTRIBUTES = (RemoveHeadersOnCopy, ); }; };
 		273094CBB1976573AB3724AE /* SessionStorageTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */; };
 		2E6D6540CBF33927B93FA730 /* Backend.swift in Sources */ = {isa = PBXBuildFile; fileRef = CDB1AB658E747F341FDC894B /* Backend.swift */; };
 		313F4D655B4E2C91EEE00AC3 /* FeedView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 96A3B1E1D90C6D9549F444AD /* FeedView.swift */; };
@@ -20,11 +23,15 @@
 		3717A9291C9F1068DFFBC344 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = D05789124B5A90D54C54CADF /* Supabase */; };
 		3996519137E23EF4B7CA017A /* AppOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C16D0F7E750C9C517A919E /* AppOverview.swift */; };
 		3A8225EC375BFF547C660E68 /* chaching.caf in Resources */ = {isa = PBXBuildFile; fileRef = 7EF8E563F572F3255E089769 /* chaching.caf */; };
+		3DBDF369F9DC62CF4BB551AF /* NotificationPrivacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F4E205495E66A49B069F49 /* NotificationPrivacy.swift */; };
+		41A7E1C1432E77ECD96B3B86 /* PushRelayClientTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = B63AB214BABDDD4733202CA5 /* PushRelayClientTests.swift */; };
+		41FD3F15258B7EE0C033BCF7 /* ServerConfiguration.swift in Sources */ = {isa = PBXBuildFile; fileRef = DC5A0C05844223F688D11580 /* ServerConfiguration.swift */; };
 		4BC2F274F557715B1A7021DA /* PrivacyInfo.xcprivacy in Resources */ = {isa = PBXBuildFile; fileRef = 79D45BA73082A3A87B6C14E8 /* PrivacyInfo.xcprivacy */; };
 		4D71D0F908CE8225F258AAF1 /* Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */; };
 		517AAC58CA3EC955CC22F26E /* StoreEventRow.swift in Sources */ = {isa = PBXBuildFile; fileRef = 49E3A22A4A74BFA0D5016ADA /* StoreEventRow.swift */; };
 		560636DB00A5357615D432E4 /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672556DC703741BED885C1A4 /* Money.swift */; };
 		57E7A144ED7B4B00A2B19B3A /* EmptyAppsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9B2328CED49DE3613D257FC7 /* EmptyAppsView.swift */; };
+		5ABBF331ABE7D9A30CFFB1C1 /* NotificationPrivacy.swift in Sources */ = {isa = PBXBuildFile; fileRef = A4F4E205495E66A49B069F49 /* NotificationPrivacy.swift */; };
 		62593C85BFE097F46F8BC073 /* Decoding.swift in Sources */ = {isa = PBXBuildFile; fileRef = 4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */; };
 		6659E107841EFB775AC77307 /* SalebellApp.swift in Sources */ = {isa = PBXBuildFile; fileRef = 0CE0E78AA758A600398D026A /* SalebellApp.swift */; };
 		6E0C031001667E5D726277C6 /* RootView.swift in Sources */ = {isa = PBXBuildFile; fileRef = EF2718B6C627C2B517B26374 /* RootView.swift */; };
@@ -39,15 +46,20 @@
 		B1F9D9C631A4B83DA7C9311F /* NotificationDelegateTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 55ABD7BB3A4BAFB59FA9C1BA /* NotificationDelegateTests.swift */; };
 		B5DE3404F332F7788F4D055D /* SwiftUI.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = FABCDC0B10F305AA2EA1725C /* SwiftUI.framework */; };
 		B7A07FEF4B2B1AE972D0AB4E /* SignInView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 75799B74AE76F3E962F15165 /* SignInView.swift */; };
+		B9E444DDEC027A534F819024 /* ServerConfigurationTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = 2D4969E88D76E508A95B11FF /* ServerConfigurationTests.swift */; };
 		BA6597CDB01E58F672663396 /* TestPushTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = A569D608E07D49710538E048 /* TestPushTests.swift */; };
+		C5B07FA9BF15F0FF5B5F87FC /* NotificationService.swift in Sources */ = {isa = PBXBuildFile; fileRef = 3E3D57CC6E51C07B5F4F6ADB /* NotificationService.swift */; };
 		C9B714EEF51BD5863C75C107 /* Money.swift in Sources */ = {isa = PBXBuildFile; fileRef = 672556DC703741BED885C1A4 /* Money.swift */; };
 		CDB8AA068A139FDC51DC3AB1 /* Supabase in Frameworks */ = {isa = PBXBuildFile; productRef = 2076870643AC83B2823A4BCB /* Supabase */; };
+		CE5CEA774614F533F4B6D068 /* ServerSettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = 339399F028F6D6DB0CA69F50 /* ServerSettingsView.swift */; };
 		D7CF2284A58BD584C0585623 /* AppModelTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = BA2AFF700053CB9C882FF178 /* AppModelTests.swift */; };
 		D8C3FA173A855B8638CA21F8 /* SettingsView.swift in Sources */ = {isa = PBXBuildFile; fileRef = AD7197D36BE4F30B7C9D4BEF /* SettingsView.swift */; };
 		E887FDFD4E61506C371364EF /* AppOverview.swift in Sources */ = {isa = PBXBuildFile; fileRef = D4C16D0F7E750C9C517A919E /* AppOverview.swift */; };
+		F083537EE4DCF4BC5F74BD46 /* NotificationPrivacyTests.swift in Sources */ = {isa = PBXBuildFile; fileRef = F31AC1476E32F5BBCFD6C20F /* NotificationPrivacyTests.swift */; };
 		F71D99A9A2BB19A8819727A6 /* SupabaseBackend.swift in Sources */ = {isa = PBXBuildFile; fileRef = E27461E022FB198188E26DF8 /* SupabaseBackend.swift */; };
 		F7F9C2D2D7B9439F833CA7E6 /* WidgetKit.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 74BDC2CB00F5EBB58B0D2D30 /* WidgetKit.framework */; };
 		FAB3D626F94D9EE5D23542F6 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E6AD60C329B68A473F98F5 /* AppConfig.swift */; };
+		FE6E638C9B62E3658D860F16 /* AppConfig.swift in Sources */ = {isa = PBXBuildFile; fileRef = 38E6AD60C329B68A473F98F5 /* AppConfig.swift */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -57,6 +69,13 @@
 			proxyType = 1;
 			remoteGlobalIDString = 90A1D9BBD541904F2B6A6A84;
 			remoteInfo = SalebellWidget;
+		};
+		3B755FF96ADAD0D2A7E4B40F /* PBXContainerItemProxy */ = {
+			isa = PBXContainerItemProxy;
+			containerPortal = 8C6DB6AB4DF6331ADB4F9070 /* Project object */;
+			proxyType = 1;
+			remoteGlobalIDString = DAF35E6D31957C311159149D;
+			remoteInfo = SalebellNotificationService;
 		};
 		7C695308CAEAB10BDF512552 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -75,6 +94,7 @@
 			dstSubfolderSpec = 13;
 			files = (
 				833619BA52B3F1546D75D106 /* SalebellWidget.appex in Embed Foundation Extensions */,
+				186CB45F4397C71B2A536B16 /* SalebellNotificationService.appex in Embed Foundation Extensions */,
 			);
 			name = "Embed Foundation Extensions";
 			runOnlyForDeploymentPostprocessing = 0;
@@ -83,19 +103,25 @@
 
 /* Begin PBXFileReference section */
 		0CE0E78AA758A600398D026A /* SalebellApp.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SalebellApp.swift; sourceTree = "<group>"; };
+		11EB363586A1890FD8D9D1D9 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		156E1E612C58DDCE4B116B77 /* TodayWidget.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TodayWidget.swift; sourceTree = "<group>"; };
 		158B24D54D2904FB2AE50F83 /* SalebellWidget.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SalebellWidget.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		16F1CBBAFA04A027CB125794 /* AppModel.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModel.swift; sourceTree = "<group>"; };
 		2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SessionStorageTests.swift; sourceTree = "<group>"; };
+		2D4969E88D76E508A95B11FF /* ServerConfigurationTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConfigurationTests.swift; sourceTree = "<group>"; };
 		31219B085AE9D873468BE9D6 /* EventKind.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventKind.swift; sourceTree = "<group>"; };
+		339399F028F6D6DB0CA69F50 /* ServerSettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerSettingsView.swift; sourceTree = "<group>"; };
 		35EE7065A47EE5093C261725 /* PushExplainerView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushExplainerView.swift; sourceTree = "<group>"; };
 		38E6AD60C329B68A473F98F5 /* AppConfig.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppConfig.swift; sourceTree = "<group>"; };
+		3E3D57CC6E51C07B5F4F6ADB /* NotificationService.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationService.swift; sourceTree = "<group>"; };
 		48EF1D1C680E6EE174CA93AE /* UserFacingError.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = UserFacingError.swift; sourceTree = "<group>"; };
 		49E3A22A4A74BFA0D5016ADA /* StoreEventRow.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = StoreEventRow.swift; sourceTree = "<group>"; };
 		4F95B5DDAE6E431E5D20DF37 /* Decoding.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Decoding.swift; sourceTree = "<group>"; };
 		5299FA3673C8BCDAFE8AD33C /* Salebell.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = Salebell.entitlements; sourceTree = "<group>"; };
 		55ABD7BB3A4BAFB59FA9C1BA /* NotificationDelegateTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationDelegateTests.swift; sourceTree = "<group>"; };
 		577C772598FA5F2EBB2C9E09 /* SharedClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SharedClient.swift; sourceTree = "<group>"; };
+		59DCF8E9A5998C945B73346D /* PushRelayClient.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushRelayClient.swift; sourceTree = "<group>"; };
+		5B74E03E505E011E16C9384F /* SalebellNotificationService.appex */ = {isa = PBXFileReference; explicitFileType = "wrapper.app-extension"; includeInIndex = 0; path = SalebellNotificationService.appex; sourceTree = BUILT_PRODUCTS_DIR; };
 		672556DC703741BED885C1A4 /* Money.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Money.swift; sourceTree = "<group>"; };
 		73CC24EC7990D2C0DD666895 /* Release.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Release.xcconfig; sourceTree = "<group>"; };
 		74BDC2CB00F5EBB58B0D2D30 /* WidgetKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = WidgetKit.framework; path = System/Library/Frameworks/WidgetKit.framework; sourceTree = SDKROOT; };
@@ -107,19 +133,24 @@
 		96A3B1E1D90C6D9549F444AD /* FeedView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = FeedView.swift; sourceTree = "<group>"; };
 		9B2328CED49DE3613D257FC7 /* EmptyAppsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EmptyAppsView.swift; sourceTree = "<group>"; };
 		9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DecodingTests.swift; sourceTree = "<group>"; };
+		A4F4E205495E66A49B069F49 /* NotificationPrivacy.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrivacy.swift; sourceTree = "<group>"; };
 		A569D608E07D49710538E048 /* TestPushTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = TestPushTests.swift; sourceTree = "<group>"; };
 		A76DEE756755776C7E1571C4 /* Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist; path = Info.plist; sourceTree = "<group>"; };
 		AD7197D36BE4F30B7C9D4BEF /* SettingsView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SettingsView.swift; sourceTree = "<group>"; };
+		B63AB214BABDDD4733202CA5 /* PushRelayClientTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = PushRelayClientTests.swift; sourceTree = "<group>"; };
 		BA2AFF700053CB9C882FF178 /* AppModelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppModelTests.swift; sourceTree = "<group>"; };
 		CDB1AB658E747F341FDC894B /* Backend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = Backend.swift; sourceTree = "<group>"; };
 		D4C16D0F7E750C9C517A919E /* AppOverview.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppOverview.swift; sourceTree = "<group>"; };
 		D4DE316DB9E61677FF0A2A36 /* DemoBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = DemoBackend.swift; sourceTree = "<group>"; };
 		D828FD5B85C54F5D6ABF43CB /* SalebellWidget.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SalebellWidget.entitlements; sourceTree = "<group>"; };
 		DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = EventLabelTests.swift; sourceTree = "<group>"; };
+		DC5A0C05844223F688D11580 /* ServerConfiguration.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = ServerConfiguration.swift; sourceTree = "<group>"; };
 		E222ECD4A830B267161F948A /* OverviewView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = OverviewView.swift; sourceTree = "<group>"; };
 		E27461E022FB198188E26DF8 /* SupabaseBackend.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = SupabaseBackend.swift; sourceTree = "<group>"; };
+		EC39CE23F4354A4C76DCC23E /* SalebellNotificationService.entitlements */ = {isa = PBXFileReference; lastKnownFileType = text.plist.entitlements; path = SalebellNotificationService.entitlements; sourceTree = "<group>"; };
 		EEC8730BF24ABFDE1BA1DBF7 /* Salebell.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = Salebell.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		EF2718B6C627C2B517B26374 /* RootView.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = RootView.swift; sourceTree = "<group>"; };
+		F31AC1476E32F5BBCFD6C20F /* NotificationPrivacyTests.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = NotificationPrivacyTests.swift; sourceTree = "<group>"; };
 		F6128F674B32D269B308E00A /* SalebellTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = SalebellTests.xctest; sourceTree = BUILT_PRODUCTS_DIR; };
 		F61739589F6333F98F9CF1C0 /* Debug.xcconfig */ = {isa = PBXFileReference; lastKnownFileType = text.xcconfig; path = Debug.xcconfig; sourceTree = "<group>"; };
 		F7281AAD42ACB5C9265EA216 /* AppDelegate.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = AppDelegate.swift; sourceTree = "<group>"; };
@@ -190,6 +221,7 @@
 				E222ECD4A830B267161F948A /* OverviewView.swift */,
 				35EE7065A47EE5093C261725 /* PushExplainerView.swift */,
 				EF2718B6C627C2B517B26374 /* RootView.swift */,
+				339399F028F6D6DB0CA69F50 /* ServerSettingsView.swift */,
 				AD7197D36BE4F30B7C9D4BEF /* SettingsView.swift */,
 				75799B74AE76F3E962F15165 /* SignInView.swift */,
 				48EF1D1C680E6EE174CA93AE /* UserFacingError.swift */,
@@ -231,6 +263,9 @@
 				38E6AD60C329B68A473F98F5 /* AppConfig.swift */,
 				CDB1AB658E747F341FDC894B /* Backend.swift */,
 				D4DE316DB9E61677FF0A2A36 /* DemoBackend.swift */,
+				A4F4E205495E66A49B069F49 /* NotificationPrivacy.swift */,
+				59DCF8E9A5998C945B73346D /* PushRelayClient.swift */,
+				DC5A0C05844223F688D11580 /* ServerConfiguration.swift */,
 				577C772598FA5F2EBB2C9E09 /* SharedClient.swift */,
 				E27461E022FB198188E26DF8 /* SupabaseBackend.swift */,
 			);
@@ -241,6 +276,7 @@
 			isa = PBXGroup;
 			children = (
 				EEC8730BF24ABFDE1BA1DBF7 /* Salebell.app */,
+				5B74E03E505E011E16C9384F /* SalebellNotificationService.appex */,
 				F6128F674B32D269B308E00A /* SalebellTests.xctest */,
 				158B24D54D2904FB2AE50F83 /* SalebellWidget.appex */,
 			);
@@ -254,6 +290,9 @@
 				9B937C442E736FB3F1B6AB45 /* DecodingTests.swift */,
 				DA2CA371CEE6C1DC1622EE88 /* EventLabelTests.swift */,
 				55ABD7BB3A4BAFB59FA9C1BA /* NotificationDelegateTests.swift */,
+				F31AC1476E32F5BBCFD6C20F /* NotificationPrivacyTests.swift */,
+				B63AB214BABDDD4733202CA5 /* PushRelayClientTests.swift */,
+				2D4969E88D76E508A95B11FF /* ServerConfigurationTests.swift */,
 				2465C6D73BE30DE1043BB38D /* SessionStorageTests.swift */,
 				A569D608E07D49710538E048 /* TestPushTests.swift */,
 			);
@@ -265,6 +304,7 @@
 			children = (
 				5175ED8064790B243A602E8C /* Config */,
 				377EF36FB01CD281330A9C1F /* Salebell */,
+				DEB9DB87D2940A9E97C4675D /* SalebellNotificationService */,
 				B769EB21B3E0B989DB5DAD3C /* SalebellTests */,
 				803730E900C5E31011DFB7CE /* SalebellWidget */,
 				6261660A1B363E49A6E870AC /* Frameworks */,
@@ -284,6 +324,16 @@
 			path = Models;
 			sourceTree = "<group>";
 		};
+		DEB9DB87D2940A9E97C4675D /* SalebellNotificationService */ = {
+			isa = PBXGroup;
+			children = (
+				11EB363586A1890FD8D9D1D9 /* Info.plist */,
+				3E3D57CC6E51C07B5F4F6ADB /* NotificationService.swift */,
+				EC39CE23F4354A4C76DCC23E /* SalebellNotificationService.entitlements */,
+			);
+			path = SalebellNotificationService;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -300,6 +350,7 @@
 			);
 			dependencies = (
 				BACD15FC9F3DF5CE2701A7F3 /* PBXTargetDependency */,
+				01433338F53DB178860E5961 /* PBXTargetDependency */,
 			);
 			name = Salebell;
 			packageProductDependencies = (
@@ -346,6 +397,23 @@
 			productReference = F6128F674B32D269B308E00A /* SalebellTests.xctest */;
 			productType = "com.apple.product-type.bundle.unit-test";
 		};
+		DAF35E6D31957C311159149D /* SalebellNotificationService */ = {
+			isa = PBXNativeTarget;
+			buildConfigurationList = 383024A79AAEA221EF162F13 /* Build configuration list for PBXNativeTarget "SalebellNotificationService" */;
+			buildPhases = (
+				D0F9120B79AFC092399FA422 /* Sources */,
+			);
+			buildRules = (
+			);
+			dependencies = (
+			);
+			name = SalebellNotificationService;
+			packageProductDependencies = (
+			);
+			productName = SalebellNotificationService;
+			productReference = 5B74E03E505E011E16C9384F /* SalebellNotificationService.appex */;
+			productType = "com.apple.product-type.app-extension";
+		};
 /* End PBXNativeTarget section */
 
 /* Begin PBXProject section */
@@ -356,12 +424,18 @@
 				LastUpgradeCheck = 1430;
 				TargetAttributes = {
 					4EE8A585A491DAC5E2950C98 = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					90A1D9BBD541904F2B6A6A84 = {
+						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
 					CA333945D24F0300C6922092 = {
+						DevelopmentTeam = "";
+						ProvisioningStyle = Automatic;
+					};
+					DAF35E6D31957C311159149D = {
 						DevelopmentTeam = "";
 						ProvisioningStyle = Automatic;
 					};
@@ -386,6 +460,7 @@
 			targets = (
 				4EE8A585A491DAC5E2950C98 /* Salebell */,
 				90A1D9BBD541904F2B6A6A84 /* SalebellWidget */,
+				DAF35E6D31957C311159149D /* SalebellNotificationService */,
 				CA333945D24F0300C6922092 /* SalebellTests */,
 			);
 		};
@@ -413,8 +488,21 @@
 				0BC88BCD7B36FE9CC08F4D3E /* DecodingTests.swift in Sources */,
 				0D7755A30EE03A99A013D8D4 /* EventLabelTests.swift in Sources */,
 				B1F9D9C631A4B83DA7C9311F /* NotificationDelegateTests.swift in Sources */,
+				F083537EE4DCF4BC5F74BD46 /* NotificationPrivacyTests.swift in Sources */,
+				41A7E1C1432E77ECD96B3B86 /* PushRelayClientTests.swift in Sources */,
+				B9E444DDEC027A534F819024 /* ServerConfigurationTests.swift in Sources */,
 				273094CBB1976573AB3724AE /* SessionStorageTests.swift in Sources */,
 				BA6597CDB01E58F672663396 /* TestPushTests.swift in Sources */,
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+		};
+		D0F9120B79AFC092399FA422 /* Sources */ = {
+			isa = PBXSourcesBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+				FE6E638C9B62E3658D860F16 /* AppConfig.swift in Sources */,
+				5ABBF331ABE7D9A30CFFB1C1 /* NotificationPrivacy.swift in Sources */,
+				C5B07FA9BF15F0FF5B5F87FC /* NotificationService.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -426,6 +514,7 @@
 				E887FDFD4E61506C371364EF /* AppOverview.swift in Sources */,
 				62593C85BFE097F46F8BC073 /* Decoding.swift in Sources */,
 				560636DB00A5357615D432E4 /* Money.swift in Sources */,
+				41FD3F15258B7EE0C033BCF7 /* ServerConfiguration.swift in Sources */,
 				A16E20765581730182444DF0 /* SharedClient.swift in Sources */,
 				09598575FC85841381C5B9E1 /* TodayWidget.swift in Sources */,
 			);
@@ -446,10 +535,14 @@
 				08180BC1D0ECBA2DC1001F4E /* EventKind.swift in Sources */,
 				313F4D655B4E2C91EEE00AC3 /* FeedView.swift in Sources */,
 				C9B714EEF51BD5863C75C107 /* Money.swift in Sources */,
+				3DBDF369F9DC62CF4BB551AF /* NotificationPrivacy.swift in Sources */,
 				7132848F88AF3B0D69F82E9F /* OverviewView.swift in Sources */,
 				0FE7B5655A7AE143EA39308C /* PushExplainerView.swift in Sources */,
+				1681FB41308E1E0AD6265192 /* PushRelayClient.swift in Sources */,
 				6E0C031001667E5D726277C6 /* RootView.swift in Sources */,
 				6659E107841EFB775AC77307 /* SalebellApp.swift in Sources */,
+				002309889C5CD25E138011D5 /* ServerConfiguration.swift in Sources */,
+				CE5CEA774614F533F4B6D068 /* ServerSettingsView.swift in Sources */,
 				D8C3FA173A855B8638CA21F8 /* SettingsView.swift in Sources */,
 				3428D73F462D9192C4F01EAE /* SharedClient.swift in Sources */,
 				B7A07FEF4B2B1AE972D0AB4E /* SignInView.swift in Sources */,
@@ -462,6 +555,11 @@
 /* End PBXSourcesBuildPhase section */
 
 /* Begin PBXTargetDependency section */
+		01433338F53DB178860E5961 /* PBXTargetDependency */ = {
+			isa = PBXTargetDependency;
+			target = DAF35E6D31957C311159149D /* SalebellNotificationService */;
+			targetProxy = 3B755FF96ADAD0D2A7E4B40F /* PBXContainerItemProxy */;
+		};
 		788DF4C5F2BD04694864D860 /* PBXTargetDependency */ = {
 			isa = PBXTargetDependency;
 			target = 4EE8A585A491DAC5E2950C98 /* Salebell */;
@@ -486,6 +584,23 @@
 					"@executable_path/../../Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).widget";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Debug;
+		};
+		3E8E44BF41DB41A108072295 /* Debug */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SalebellNotificationService/SalebellNotificationService.entitlements;
+				INFOPLIST_FILE = SalebellNotificationService/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).notifications";
 				SDKROOT = iphoneos;
 				SKIP_INSTALL = YES;
 				TARGETED_DEVICE_FAMILY = "1,2";
@@ -542,7 +657,6 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 17.0;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_COMPILATION_MODE = wholemodule;
@@ -578,15 +692,32 @@
 				CODE_SIGN_ENTITLEMENTS = Salebell/Salebell.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Salebell/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
 			name = Debug;
+		};
+		674CFD80AC03E9C420F0E362 /* Release */ = {
+			isa = XCBuildConfiguration;
+			buildSettings = {
+				CODE_SIGN_ENTITLEMENTS = SalebellNotificationService/SalebellNotificationService.entitlements;
+				INFOPLIST_FILE = SalebellNotificationService/Info.plist;
+				LD_RUNPATH_SEARCH_PATHS = (
+					"$(inherited)",
+					"@executable_path/Frameworks",
+					"@executable_path/../../Frameworks",
+				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).notifications";
+				SDKROOT = iphoneos;
+				SKIP_INSTALL = YES;
+				TARGETED_DEVICE_FAMILY = "1,2";
+			};
+			name = Release;
 		};
 		AC957C5E350C8C46D319BA30 /* Debug */ = {
 			isa = XCBuildConfiguration;
@@ -599,8 +730,6 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).tests";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = "$(APP_BUNDLE_ID).tests";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = "$(APP_BUNDLE_ID).tests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salebell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salebell";
@@ -664,7 +793,6 @@
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
 				ONLY_ACTIVE_ARCH = YES;
-				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SDKROOT = iphoneos;
 				SWIFT_ACTIVE_COMPILATION_CONDITIONS = DEBUG;
@@ -686,8 +814,6 @@
 					"@loader_path/Frameworks",
 				);
 				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID).tests";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=iphoneos*]" = "$(APP_BUNDLE_ID).tests";
-				"PRODUCT_BUNDLE_IDENTIFIER[sdk=macosx*]" = "$(APP_BUNDLE_ID).tests";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 				TEST_HOST = "$(BUILT_PRODUCTS_DIR)/Salebell.app/$(BUNDLE_EXECUTABLE_FOLDER_PATH)/Salebell";
@@ -702,11 +828,11 @@
 				CODE_SIGN_ENTITLEMENTS = Salebell/Salebell.entitlements;
 				CODE_SIGN_IDENTITY = "iPhone Developer";
 				INFOPLIST_FILE = Salebell/Info.plist;
-				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.business";
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
+				PRODUCT_BUNDLE_IDENTIFIER = "$(APP_BUNDLE_ID)";
 				SDKROOT = iphoneos;
 				TARGETED_DEVICE_FAMILY = "1,2";
 			};
@@ -729,6 +855,15 @@
 			buildConfigurations = (
 				38D7C9EDD972A1077B06BDD7 /* Debug */,
 				51F761BDE0FDDF08C8BC4F4F /* Release */,
+			);
+			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Debug;
+		};
+		383024A79AAEA221EF162F13 /* Build configuration list for PBXNativeTarget "SalebellNotificationService" */ = {
+			isa = XCConfigurationList;
+			buildConfigurations = (
+				3E8E44BF41DB41A108072295 /* Debug */,
+				674CFD80AC03E9C420F0E362 /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Debug;
@@ -761,8 +896,6 @@
 				kind = upToNextMajorVersion;
 				minimumVersion = 2.55.0;
 			};
-			traits = (
-			);
 		};
 /* End XCRemoteSwiftPackageReference section */
 

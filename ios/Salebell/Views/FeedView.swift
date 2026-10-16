@@ -47,23 +47,35 @@ struct FeedView: View {
     }
 
     private func load() async {
+        let generation = model.backendGeneration
+        let accountGeneration = model.authGeneration
+        let backend = model.backend
         if events.isEmpty { phase = .loading }
         do {
-            async let apps = model.backend.apps()
-            async let rows = model.backend.recentEvents(limit: Self.limit)
-            appNames = Dictionary(uniqueKeysWithValues: try await apps.map { ($0.id, $0.name) })
-            events = try await rows
+            async let apps = backend.apps()
+            async let rows = backend.recentEvents(limit: Self.limit)
+            let loadedNames = Dictionary(uniqueKeysWithValues: try await apps.map { ($0.id, $0.name) })
+            let loadedRows = try await rows
+            guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
+            appNames = loadedNames
+            events = loadedRows
             phase = .loaded
         } catch is CancellationError {
         } catch {
+            guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
             phase = .failed(UserFacingError.message(for: error))
         }
     }
 
     private func listen() async {
-        for await row in model.backend.liveEvents() {
+        let generation = model.backendGeneration
+        let accountGeneration = model.authGeneration
+        let backend = model.backend
+        for await row in backend.liveEvents() {
+            guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
             guard !events.contains(where: { $0.id == row.id }) else { continue }
-            if appNames[row.appID] == nil, let apps = try? await model.backend.apps() {
+            if appNames[row.appID] == nil, let apps = try? await backend.apps() {
+                guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
                 appNames = Dictionary(uniqueKeysWithValues: apps.map { ($0.id, $0.name) })
             }
             withAnimation {

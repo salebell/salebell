@@ -10,7 +10,7 @@ struct SalebellApp: App {
         WindowGroup {
             RootView()
                 .environment(appDelegate.model)
-                .task { await appDelegate.model.start() }
+                .task(id: appDelegate.model.backendGeneration) { await appDelegate.model.start() }
         }
         .onChange(of: scenePhase) { _, phase in
             if phase == .active {

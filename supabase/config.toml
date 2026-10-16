@@ -68,3 +68,8 @@ verify_jwt = true
 [functions.delete-account]
 # The handler verifies the user with Auth.getUser before any privileged work.
 verify_jwt = false
+
+[functions.push-relay]
+# Managed operator only: installation-control credentials / APNs proof, not user JWTs.
+# Disabled unless SALEBELL_PUSH_RELAY_ENABLED=true and deploy/relay/schema.sql is installed.
+verify_jwt = false

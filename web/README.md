@@ -1,6 +1,6 @@
 # Salebell web
 
-Shared website and dashboard for Salebell Cloud and self-hosted installations. The managed service runs at https://salebell.vercel.app; self-hosted instances run the same app through Docker Compose.
+Shared website and dashboard for Salebell Cloud and self-hosted installations. The managed service runs at https://salebell.vercel.app; self-hosted instances run the same app on Vercel with hosted Supabase or through Docker Compose.
 Next.js 16 (App Router, Turbopack), TypeScript, Tailwind CSS 4, Supabase (`@supabase/ssr`).
 The product contract is [`docs/PRODUCT.md`](../docs/PRODUCT.md).
 
@@ -33,7 +33,7 @@ The browser receives only public configuration. Provider secrets live in Supabas
 | `NEXT_PUBLIC_SUPABASE_URL` | yes | Local Supabase API origin, or your hosted project's URL |
 | `NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY` | yes | Local public key or hosted publishable key (`sb_publishable_…`); never a service-role key |
 | `NEXT_PUBLIC_SITE_URL` | yes | Website origin; `http://localhost:3000` locally, your HTTPS origin in production. Used in webhook URLs, sitemap and OG tags |
-| `NEXT_PUBLIC_DEPLOYMENT_MODE` | no | `cloud` (default) or `self_hosted`; selects public-page content and the default login method. Compose sets it automatically |
+| `NEXT_PUBLIC_DEPLOYMENT_MODE` | no | `cloud` (default) or `self_hosted`; selects public-page content and the default login method. Both installers set it automatically |
 | `SUPABASE_INTERNAL_URL` | no | Server-only API URL for webhook proxying; Compose sets this to its private gateway |
 | `NEXT_PUBLIC_SUPPORT_EMAIL` | launch | Support contact on /privacy, /terms and the footer; hidden (with a build warning) when unset |
 | `NEXT_PUBLIC_IOS_APP_URL` | no | Self-hosted companion's App Store or TestFlight link; cloud always links to [Salebell](https://apps.apple.com/app/id6822787827) |
@@ -74,7 +74,17 @@ curl -i -X POST https://your-site.example/hooks/apple/notarealkey1/production -d
 
 ## Deploy
 
-For an independent instance on Vercel with hosted Supabase, use [the hosted installation guide](../docs/VERCEL_SUPABASE_DEPLOYMENT.md). The opt-in `/deploy` installer requires shared OAuth app registration on its canonical host; installing users authorize their own projects. Server-only operator settings live in `deploy/installer/.env.example`, separate from public web configuration. Regenerate `web/installer/release.json` with `npm run installer:assets` from the repository root after release source changes.
+To run only this website on a custom server with your own hosted Supabase project, use [VPS + Supabase](../docs/VPS_SUPABASE_DEPLOYMENT.md). Running the full Supabase Docker stack is optional.
+
+For an independent instance on Vercel with hosted Supabase, run from the repository root:
+
+```bash
+npm run deploy
+```
+
+The [guided hosted installer](../docs/VERCEL_SUPABASE_DEPLOYMENT.md) uses your local Vercel and Supabase CLI logins, configures the backend, deploys this dashboard and creates your owner login. The providers remain separate; their Marketplace integration and shared OAuth registration are not required. Public configuration is set on your own Vercel project, while provider secrets remain in your Supabase project.
+
+The older shared browser installer is superseded. Its `INSTALLER_*` settings, control database and OAuth app credentials are not used by the local CLI installer.
 
 For production self-hosting, use [the Compose installer](../docs/SELF_HOSTING.md). For a managed-cloud deployment, configure your own Supabase project and web host with `web/` as the project directory. If using Vercel, link the intended project explicitly before deploying:
 

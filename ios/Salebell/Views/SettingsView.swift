@@ -21,6 +21,12 @@ struct SettingsView: View {
             Form {
                 notifications
                 account
+                Section("Server") {
+                    NavigationLink { ServerSettingsView() } label: {
+                        LabeledContent("Connected to", value: model.configuration.siteURL.host() ?? "Server")
+                    }
+                    .disabled(model.isEndingSession)
+                }
                 about
                 deleteSection
             }
@@ -110,9 +116,9 @@ struct SettingsView: View {
 
     private var about: some View {
         Section {
-            Link(destination: AppConfig.docsURL) { LinkRow(title: "Setup guide", systemImage: "book") }
-            Link(destination: AppConfig.privacyURL) { LinkRow(title: "Privacy policy", systemImage: "hand.raised") }
-            Link(destination: AppConfig.termsURL) { LinkRow(title: "Terms of use", systemImage: "doc.text") }
+            Link(destination: model.configuration.docsURL) { LinkRow(title: "Setup guide", systemImage: "book") }
+            Link(destination: model.configuration.privacyURL) { LinkRow(title: "Privacy policy", systemImage: "hand.raised") }
+            Link(destination: model.configuration.termsURL) { LinkRow(title: "Terms of use", systemImage: "doc.text") }
             LabeledContent("Version", value: AppConfig.appVersion)
         } header: {
             Text("About")
@@ -185,7 +191,10 @@ struct SettingsView: View {
     }
 
     private func loadFirstApp() async {
+        let generation = model.backendGeneration
+        let accountGeneration = model.authGeneration
         if let apps = try? await model.backend.apps() {
+            guard !Task.isCancelled, generation == model.backendGeneration, accountGeneration == model.authGeneration else { return }
             testAppID = apps.first?.id
             appsLoaded = true
         }

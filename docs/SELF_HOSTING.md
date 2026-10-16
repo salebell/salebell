@@ -1,6 +1,8 @@
 # Self-host Salebell
 
-This guide installs everything on your own server with Docker Compose. For **Vercel + hosted Supabase**, use the [separate deployment guide](VERCEL_SUPABASE_DEPLOYMENT.md); that setup uses provider-supplied addresses and does not need the two DNS records below.
+**For a VPS website with your own Supabase account, use [VPS + Supabase](VPS_SUPABASE_DEPLOYMENT.md).** This guide is the advanced alternative that runs Supabase itself on your server. See the [shared iPhone app and push review](DEPLOYMENT_REVIEW.md) for implementation status and remaining live verification.
+
+This guide installs everything on your own server with Docker Compose. For **Vercel + hosted Supabase**, run `npm run deploy` on your computer and follow the [guided deployment instructions](VERCEL_SUPABASE_DEPLOYMENT.md). That separate setup uses your provider CLI logins and provider-supplied addresses; no Docker, Marketplace integration, OAuth registration or DNS records are needed.
 
 Run Salebell on your own server with the web dashboard, database and notification receivers included. Apps, integrations, full event history, forwarding and CSV export are available without a Salebell subscription or Stripe configuration.
 
@@ -107,10 +109,10 @@ You can add these later. Edit `deploy/.env`, then run `npm run self-host -- up`.
 | Want to… | Instructions |
 |---|---|
 | Sign in using email codes | [Configure SMTP](SELF_HOSTING_OPERATIONS.md#optional-email-iphone-alerts-and-operator-details) |
-| Receive iPhone push alerts | [Build the companion for your instance](../ios/README.md#self-hosted-companion) and configure your own APNs credentials |
+| Receive iPhone push alerts | [Connect the shared app](../ios/README.md#self-hosted-companion) using Settings → Server when a compatible distribution and managed relay are available |
 | Set your operator name and support email | [Configure operator details](SELF_HOSTING_OPERATIONS.md#optional-email-iphone-alerts-and-operator-details) |
 
-The Salebell Cloud iPhone app connects to the cloud service. Self-hosted iPhone alerts require your own compatible build. Chat and webhook alerts work without an iPhone app.
+The shared app implementation accepts this instance's website URL, API URL and public key in **Settings → Server**, then signs in to this backend. No customer APNs keys or app publication are needed. Availability depends on a compatible distribution and the managed relay; [operator rollout and privacy details](PUSH_RELAY.md). Privately built direct-APNs companions remain an advanced option. Chat and webhook alerts work independently.
 
 ## If something goes wrong
 

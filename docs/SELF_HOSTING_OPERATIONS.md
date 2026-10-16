@@ -8,7 +8,7 @@ The generated private `.env` contains your public site/API origins, database pas
 
 - **Public API:** `SUPABASE_PUBLIC_URL` is the API hostname reachable from browsers and the iPhone companion.
 - **Website and Apple receiver:** `SITE_URL` is your website origin. Apple receives URLs under `https://salebell.example.com/hooks/apple/...`.
-- **Internal services:** backend functions and Next.js rewrites use private Docker service URLs. Never paste these into App Store Connect or an iPhone build.
+- **Internal services:** backend functions and Next.js rewrites use private Docker service URLs. Never paste these into App Store Connect or the iPhone Server settings.
 - **Deployment mode:** migrations default to cloud for existing cloud deployments. The self-hosting installer explicitly selects `self_hosted` in the database. The safe `instance_settings` RPC exposes capabilities; browser flags cannot grant entitlements.
 - **Web build values:** public URLs, deployment mode, operator details and the optional iPhone link are supplied at build time. Run `up` after changing them; restarting an existing image alone does not rebuild the browser bundle.
 - **Telemetry:** self-hosted builds disable Vercel analytics and Next.js build telemetry. They still contact the providers you configure and the public exchange-rate source used for estimated USD revenue.
@@ -22,9 +22,13 @@ Edit the private `deploy/.env`, then run `npm run self-host -- up`.
 
 **SMTP:** configure `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_ADMIN_EMAIL` and `SMTP_SENDER_NAME` to use email-code login. The stack serves the six-digit, 15-minute OTP template to Auth internally. Confirm actual delivery before relying on email sign-in. Setting `DISABLE_SIGNUP=false` opens registration; each new user receives an isolated workspace with self-hosted capabilities, so leave it closed for a private installation.
 
-**iPhone push:** build [the companion source](../ios/README.md#self-hosted-companion) for your backend and Apple signing identity. Configure `APNS_KEY_ID`, `APNS_TEAM_ID`, `APNS_TOPIC` and `APNS_KEY_P8` on the backend. `APNS_KEY_P8` can be a multiline quoted PEM value. Never place it in `NEXT_PUBLIC_*`, an app bundle or a public issue. The cloud-configured iPhone binary is not a universal self-hosted client; chat/webhook alerts work independently.
+**iPhone push:** when your operator supplies a compatible shared-app distribution, open **Settings → Server**, enter this instance's public website/API URLs and public key, then sign in. Do not configure customer APNs secrets or install the operator-only relay schema. The shared app depends on the managed relay for push; its implementation is in the repository, but publication and live operation require qualification. See [connection, privacy and relay operations](PUSH_RELAY.md).
 
-**Public identity:** set `NEXT_PUBLIC_COMPANY_NAME`, optional company address/number, and `NEXT_PUBLIC_SUPPORT_EMAIL` to your operator's details. `NEXT_PUBLIC_SOURCE_URL` can point to your fork. Set `NEXT_PUBLIC_IOS_APP_URL` only to a compatible companion build you distribute. Self-hosted privacy and terms pages describe the instance operator rather than presenting Salebell Cloud's infrastructure as yours.
+**Revocation outages:** sign-out and switching wait for central revocation. If the relay is unreachable, keep the pending operation and retry after connectivity returns. Automatic Auth loss clears the phone's active route immediately and blocks activating a replacement until revocation succeeds. An offline old customer backend cannot prevent central revocation. Do not delete Keychain control state as a workaround.
+
+**Advanced private companion:** a separately built direct-APNs app can use your own Apple identity and backend `APNS_*` secrets through `register_push_device`. Leave `SALEBELL_PUSH_RELAY_ENABLED` unset on that independent backend. The managed shared-app backend blocks all legacy direct sends when this flag is true, so older managed companion versions must update and enroll again. APNs private keys never belong in `NEXT_PUBLIC_*`, an app bundle or a public issue.
+
+**Public identity:** set `NEXT_PUBLIC_COMPANY_NAME`, optional company address/number, and `NEXT_PUBLIC_SUPPORT_EMAIL` to your operator's details. `NEXT_PUBLIC_SOURCE_URL` can point to your fork. Set `NEXT_PUBLIC_IOS_APP_URL` only to a qualified compatible App Store/TestFlight distribution; leave it empty when unavailable. Self-hosted privacy and terms pages describe the instance operator rather than presenting Salebell Cloud's infrastructure as yours.
 
 
 ## Installation checks and logs

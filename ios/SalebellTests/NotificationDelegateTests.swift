@@ -6,7 +6,7 @@ import UserNotifications
 @MainActor
 struct NotificationDelegateTests {
     @Test func notificationTapCompletesOnMainThreadAndOpensFeed() async throws {
-        let delegate = AppDelegate()
+        let delegate = AppDelegate(acceptsNotification: { $0["relay_route_id"] as? String == "current-route" })
         let before = delegate.model.refreshTick
 
         let completedOnMainThread = try await Task.detached {
@@ -31,7 +31,7 @@ struct NotificationDelegateTests {
     }
 
     @Test func foregroundNotificationCompletesOnMainThreadAndRefreshes() async throws {
-        let delegate = AppDelegate()
+        let delegate = AppDelegate(acceptsNotification: { $0["relay_route_id"] as? String == "current-route" })
         let before = delegate.model.refreshTick
 
         let (completedOnMainThread, options) = try await Task.detached {
@@ -50,9 +50,21 @@ struct NotificationDelegateTests {
         #expect(delegate.model.refreshTick == before + 1)
     }
 
-    nonisolated private static func makeNotification() throws -> UNNotification {
+    @Test func obsoleteRouteIsSuppressedWithoutRefreshingCurrentAccount() async throws {
+        let delegate = AppDelegate(acceptsNotification: { $0["relay_route_id"] as? String == "current-route" })
+        let before = delegate.model.refreshTick
+        let notification = try Self.makeNotification(route: "old-route")
+        let options: UNNotificationPresentationOptions = await withCheckedContinuation { continuation in
+            delegate.userNotificationCenter(.current(), willPresent: notification) { continuation.resume(returning: $0) }
+        }
+        #expect(options.isEmpty)
+        #expect(delegate.model.refreshTick == before)
+    }
+
+    nonisolated private static func makeNotification(route: String = "current-route") throws -> UNNotification {
         let content = UNMutableNotificationContent()
         content.title = "New sale"
+        content.userInfo = ["relay_route_id": route]
         let request = UNNotificationRequest(identifier: "sale", content: content, trigger: nil)
         return try #require(UNNotification(coder: NotificationFixtureCoder([
             "date": Date(timeIntervalSince1970: 1_700_000_000),

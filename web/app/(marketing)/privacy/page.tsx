@@ -20,17 +20,29 @@ const processors = [
   ["Google", "Google Play purchase lookup and the Google Cloud Pub/Sub setup and notification delivery you configure", "Your Google Cloud project settings and Google's infrastructure"],
 ];
 
+function PushRelayPrivacy() {
+  return <>
+    <h2>Shared iPhone app and push relay</h2>
+    <p>When you use a compatible shared Salebell app with an independent instance, your database, account and event history stay with that instance&apos;s operator. The app signs in directly to the backend you select. iPhone push depends on the Salebell-operated relay; dashboard access and other alert channels work independently. This source implementation does not establish that a distribution or live relay is available.</p>
+    <p>The relay receives the notification title and body for delivery. It stores the APNs device token, backend origin, user and route identifiers, and a route content key in private, access-restricted storage. Installation control secrets and delivery capabilities are stored as hashes; the content key itself is stored so the relay can encrypt messages. Its hosting providers process the relay requests and retain their operational logs and backups.</p>
+    <p>Route expiry or revocation stops future authorization; it does not itself erase the stored routing records or delivery identifiers. Ask the relay operator about record removal and backup retention, separately from deleting an account on your chosen backend.</p>
+    <p>Sale text is encrypted by the relay before delivery through Apple APNs. APNs receives a generic visible message plus encrypted sale content. This is not end-to-end encryption from your backend to your phone: the relay can see the title and body. The phone&apos;s notification extension decrypts only its active route. Unknown or obsolete routes retain generic content without the sale sound or badge; an Apple-accepted push cannot be recalled and late generic alerts remain possible.</p>
+    <p>The app keeps one active backend and user per installation. Signing out or switching requires central route revocation; a relay outage may delay that action until you retry. Automatic session loss clears the phone&apos;s active route and blocks a replacement until revocation succeeds. A customer backend stores only its users&apos; delivery capabilities for this flow. Privately maintained direct-APNs apps use their own operator&apos;s Apple credentials and device registrations instead.</p>
+  </>;
+}
+
 export default function PrivacyPage() {
-  if (IS_SELF_HOSTED) return <LegalPage title="Self-hosted instance privacy" updated="14 October 2026">
+  if (IS_SELF_HOSTED) return <LegalPage title="Self-hosted instance privacy" updated="16 October 2026">
     <p>This is an independently operated Salebell instance, provided by {companyLine()}. Its operator controls the infrastructure, account access, backups and retention. Using this instance does not create a Salebell Cloud account.</p>
     <SupportContact prefix="Contact this instance's operator about privacy at" />
     <h2>Data held by this instance</h2>
     <p>Salebell stores account email addresses, workspace and app settings, verified Apple and Google event data, alert destinations and delivery records. Saved Apple signing keys and Google service-account keys are encrypted in the instance&apos;s Supabase Vault. The operator controls the database and its backups.</p>
-    <p>Apple events may include transaction IDs, prices, currencies and an appAccountToken supplied by your app. Device push tokens are stored when an iPhone app built for this instance registers for alerts. Integration credentials and forwarding URLs are used to send the notifications you configure.</p>
+    <p>Apple events may include transaction IDs, prices, currencies and an appAccountToken supplied by your app. The shared iPhone app stores its delivery capability in this instance; separately maintained direct-APNs clients can register device push tokens. Integration credentials and forwarding URLs are used to send the notifications you configure.</p>
     <h2>External services</h2>
-    <p>Connecting Apple sends the API requests you initiate to Apple. Configured alert channels and forwarding servers receive the event data needed for delivery. iPhone push uses Apple APNs when the operator configures it. Email delivery is optional and uses the operator&apos;s chosen provider.</p>
+    <p>Connecting Apple sends the API requests you initiate to Apple. Configured alert channels and forwarding servers receive the event data needed for delivery. Shared-app push uses the managed relay and Apple APNs when available. Email delivery is optional and uses the operator&apos;s chosen provider.</p>
     <p>Connecting Google uses your service-account key for the Google Cloud setup you request and Google Play purchase lookups. Raw purchase tokens are used for lookup and retained as hashes in event history. Disconnecting deletes the saved key from Salebell; Google Cloud resources remain in your project.</p>
     <p>Self-hosted builds do not load Vercel Web Analytics. Salebell uses authentication cookies to keep you signed in. The operator&apos;s infrastructure may keep request logs; ask them about the providers, storage locations and retention they have configured.</p>
+    <PushRelayPrivacy />
     <h2>Access and deletion</h2>
     <p>All event history and CSV export are available without a cloud subscription. Account settings let you delete your sign-in and workspaces you solely own. Ask the operator about backups, any additional policies, or help exercising your data rights.</p>
     <h2>Inspect the software</h2>
@@ -38,7 +50,7 @@ export default function PrivacyPage() {
   </LegalPage>;
 
   return (
-    <LegalPage title="Privacy policy" updated="14 October 2026">
+    <LegalPage title="Privacy policy" updated="16 October 2026">
       <p>
         This policy explains what Salebell collects when you use the website, the dashboard and the iPhone app, why, and the rights you
         have. We collect only what we need to run the service. We don&apos;t sell data or use it for advertising.
@@ -67,8 +79,7 @@ export default function PrivacyPage() {
           You can also use an In-App Purchase key for a one-time test without saving it.
         </li>
         <li>
-          If you use the iPhone app: the device&apos;s push notification token, its app version and your alert preferences, so we can
-          send you notifications.
+          If you use the shared iPhone app: its delivery capability, app version and alert preferences in your backend, plus the relay routing data described below, so we can send you notifications. Legacy/private direct clients may store a device push token in their backend instead.
         </li>
         <li>If you connect Google Play: the service-account JSON key, project identity, topic, subscription, audience and push account. The key is encrypted in Vault and cannot be downloaded from the dashboard. Workspace owners and admins can replace it or disconnect the app.</li>
         <li>
@@ -91,6 +102,8 @@ export default function PrivacyPage() {
         only the cookies needed to keep you signed in. There are no analytics or advertising cookies.{" "}
         {ANALYTICS_ENABLED ? "We count page views with Vercel Web Analytics, which uses no cookies and doesn't identify you or track you across sites." : "Website analytics are disabled on this deployment."}
       </p>
+
+      <PushRelayPrivacy />
 
       <h2>Why we use it, and our lawful basis</h2>
       <div className="my-4 overflow-x-auto rounded-lg border border-border">

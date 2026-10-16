@@ -10,8 +10,17 @@ struct DeleteAccountError: LocalizedError {
 final class SupabaseBackend: Backend {
     let client: SupabaseClient
 
-    init() {
-        client = .salebell()
+    let configuration: ServerConfiguration
+    private let relay: Task<PushRelayClient, Never>
+
+    init(configuration: ServerConfiguration = .cloud) {
+        self.configuration = configuration
+        client = .salebell(configuration: configuration)
+        relay = Task { @MainActor in PushRelayClient(configuration: configuration) }
+    }
+
+    func stopPushDelivery() async throws {
+        try await relay.value.revoke()
     }
 
     // MARK: Auth
@@ -52,7 +61,14 @@ final class SupabaseBackend: Backend {
 
     func signOut() async throws {
         // Local scope: other devices of the same user stay signed in.
-        try await client.auth.signOut(scope: .local)
+        do { try await client.auth.signOut(scope: .local) }
+        catch {
+            // Supabase clears its in-memory session before the logout request. Also
+            // remove durable credentials explicitly if the old server is offline.
+            let storage = KeychainLocalStorage(service: configuration.authStorageService, accessGroup: AppConfig.appGroup)
+            try storage.remove(key: configuration.authStorageKey)
+            try? storage.remove(key: configuration.authStorageKey + "-code-verifier")
+        }
     }
 
     func deleteAccount() async throws {
@@ -62,7 +78,7 @@ final class SupabaseBackend: Backend {
             // The function deletes nothing unless every step (including cancelling billing) succeeds.
             throw DeleteAccountError()
         }
-        try? await client.auth.signOut(scope: .local)
+        try await signOut()
     }
 
     // MARK: Data
@@ -109,15 +125,17 @@ final class SupabaseBackend: Backend {
     // MARK: Push devices
 
     private struct RegisterParams: Encodable, Sendable {
-        let p_token: String
+        let p_capability: String
         let p_apns_environment: String
         let p_app_version: String
     }
 
     func registerPushDevice(token: String, environment: String, appVersion: String) async throws -> UUID {
-        try await client.rpc(
-            "register_push_device",
-            params: RegisterParams(p_token: token, p_apns_environment: environment, p_app_version: appVersion)
+        let user = try await client.auth.session.user
+        let capability = try await relay.value.register(token: token, environment: environment, userID: user.id)
+        return try await client.rpc(
+            "register_relay_device",
+            params: RegisterParams(p_capability: capability, p_apns_environment: environment, p_app_version: appVersion)
         ).execute().value
     }
 

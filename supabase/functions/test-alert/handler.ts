@@ -53,8 +53,9 @@ export function createTestAlert(deps: Deps) {
 
     const retryAfter = await deps.rateLimit(user.id).catch((e) => {
       deps.log?.error("rate limit check failed", { error: String(e) });
-      return 0;
+      return null;
     });
+    if (retryAfter === null || !Number.isFinite(retryAfter) || retryAfter < 0) return json(503, { error: "rate_limit_unavailable" });
     if (retryAfter > 0) {
       return json(429, { error: "rate_limited", retry_after: retryAfter }, { "retry-after": String(retryAfter) });
     }

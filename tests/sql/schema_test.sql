@@ -93,6 +93,8 @@ select pg_temp.check((select count(*) from public.daily_revenue) = 0, 'other ten
 select pg_temp.check((select count(*) from public.store_transactions) = 0, 'other tenant sees no transactions');
 reset role;
 \ir saas_test.sql
+\ir push_isolation_test.sql
+\ir relay_devices_test.sql
 \ir review_test.sql
 \ir apple_credentials_test.sql
 \ir apple_connection_test.sql

@@ -6,7 +6,7 @@ import type { StoreEvent } from "./events.ts";
 import { ALERT_MAX_AGE_MS, type AppInfo, formatAlert, PHONE_DEFAULT } from "./alerts.ts";
 
 export type ApnsEnvironment = "production" | "sandbox";
-export type PushDevice = { token: string; environment: ApnsEnvironment };
+export type PushDevice = { token: string; environment: ApnsEnvironment; transport?: "apns" | "relay" };
 export type PushResult = { sent: number; failed: number; invalidTokens: string[] };
 export type ApnsConfig = { keyP8: string; keyId: string; teamId: string; topic: string };
 

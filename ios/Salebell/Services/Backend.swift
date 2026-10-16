@@ -26,6 +26,7 @@ protocol Backend: Sendable {
     func verify(email: String, code: String) async throws
     /// Email + password sign-in, used by the App Review demo account.
     func signIn(email: String, password: String) async throws
+    func stopPushDelivery() async throws
     func signOut() async throws
     func deleteAccount() async throws
 
@@ -84,4 +85,9 @@ enum TestPushError: LocalizedError, Equatable {
         }
         return .failed
     }
+}
+
+// Preview and test backends have no central delivery route.
+extension Backend {
+    func stopPushDelivery() async throws {}
 }

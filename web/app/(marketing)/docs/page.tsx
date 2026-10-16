@@ -180,8 +180,7 @@ export default function DocsPage() {
         </p>
         <ul>
           <li>
-            <strong>iPhone:</strong> {IS_SELF_HOSTED ? "use an iPhone app built for your instance, configure its APNs credentials, then sign in and allow notifications." : "install the Salebell iPhone app, sign in with the same email and allow notifications."} Every
-            enabled device of every workspace member gets a push. Sandbox alerts are off by default and can be turned on per device.{" "}
+            <strong>iPhone:</strong> when a compatible shared-app distribution is available, install it, open <strong>Settings → Server</strong>, choose Salebell or enter your instance&apos;s HTTPS website/API URLs and public key, then sign in and allow notifications. Customer operators do not need APNs keys or another app publication. Push uses the managed relay and reaches enabled devices of current workspace members. Sandbox alerts are off by default and can be turned on per device.{" "}
             <IphoneAppNote />
           </li>
           <li>
@@ -193,6 +192,8 @@ export default function DocsPage() {
             Phone-style channels (Telegram, Pushover) get money and churn events by default. Webhooks and PostHog get every event.
           </li>
         </ul>
+
+        <p>The shared app and relay are implemented in the repository; publication and live relay verification remain operator tasks. One backend/user is active per phone. Sign-out and switching wait for central revocation; if the relay is unavailable, retry after connectivity returns. Dashboard access and other alert channels continue independently. <Link href="/self-host#iphone">iPhone connection details</Link>.</p>
 
         <h2 id="webhook-format">Webhook format</h2>
         <p>

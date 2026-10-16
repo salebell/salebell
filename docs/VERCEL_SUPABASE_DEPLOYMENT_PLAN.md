@@ -1,8 +1,6 @@
 # Browser Deployment Implementation Plan
 
-> Historical plan: Vercel OAuth and the second web deployment were removed on 16 October 2026. The current [deployment guide](VERCEL_SUPABASE_DEPLOYMENT.md) documents the Supabase-only authorization flow and remaining live qualification checks.
-
-> For agentic workers: use superpowers:executing-plans for native execution, task by task. The user authorized implementation and pushing to main on 2026-10-15.
+> Archived (16 October 2026): this browser-installer plan is superseded by the local `npm run deploy` installer. Follow the current [deployment guide](VERCEL_SUPABASE_DEPLOYMENT.md), which uses deploying users' provider CLI logins without shared OAuth registration or Marketplace integration. The tasks below are historical and must not be treated as current implementation instructions.
 
 **Goal:** Implement the reviewed browser-only Vercel/Supabase deployment flow and push verified code to main, keeping public launch gated on operator registration and live qualification.
 

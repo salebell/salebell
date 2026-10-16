@@ -30,14 +30,19 @@ struct TodayProvider: TimelineProvider {
     }
 
     private static func load() async -> TodayEntry {
-        let client = SupabaseClient.salebell()
+        let store = ServerConfigurationStore()
+        let selection = store.selection
+        guard selection.signedIn else { return TodayEntry(date: .now, state: .signedOut) }
+        let client = SupabaseClient.salebell(configuration: selection.configuration)
         guard (try? await client.auth.session) != nil else {
             return TodayEntry(date: .now, state: .signedOut)
         }
         do {
             let apps = try await client.appOverview()
+            guard store.selection == selection else { return TodayEntry(date: .now, state: .signedOut) }
             return TodayEntry(date: .now, state: .sales(apps.total(.today), week: apps.total(.week).grossUSD))
         } catch {
+            guard store.selection == selection else { return TodayEntry(date: .now, state: .signedOut) }
             return TodayEntry(date: .now, state: .unavailable)
         }
     }

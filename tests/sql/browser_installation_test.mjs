@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import { readFileSync } from "node:fs";
 import { spawnSync } from "node:child_process";
 import { migrationSQL, reservationSQL, settingsSQL } from "../../web/lib/installer-sql.ts";
+import { hostedMigrationSQL } from "../../scripts/deploy-hosted.mjs";
 
 const binary = process.env.BROWSER_PSQL_BIN;
 const args = ["-X", "-q", "-t", "-A", "-v", "ON_ERROR_STOP=1", "-h", process.env.BROWSER_PGHOST, "-p", process.env.BROWSER_PGPORT, "-U", "postgres", "-d", "salebell_browser_install_test"];
@@ -17,13 +18,22 @@ const release = JSON.parse(readFileSync(new URL("../../web/installer/release.jso
 const id = "72b256b8-1426-4ac3-8d3a-9a77d85fae1f";
 run(`begin; create table public.unrelated(id int);\n${reservationSQL(id, release.id).replace(/^begin;/, "")}`, "project_not_empty");
 run(reservationSQL(id, release.id));
-for (const migration of release.migrations) run(migrationSQL(migration));
-for (const migration of release.migrations) run(migrationSQL(migration));
+for (const migration of release.migrations) run(hostedMigrationSQL(migration));
+for (const migration of release.migrations) run(hostedMigrationSQL(migration));
 assert.equal(run("select count(*) from private.browser_migrations;"), String(release.migrations.length));
+assert.equal(run("select count(*) from supabase_migrations.schema_migrations;"), String(release.migrations.length));
+const migrationHistory = JSON.parse(run(`select json_agg(row_to_json(history) order by version) from (
+  select version, name, cardinality(statements) > 0 as has_statements
+  from supabase_migrations.schema_migrations
+) history;`));
+assert.deepEqual(migrationHistory, release.migrations.map((migration) => {
+  const [, version, name] = /^(\d{14})_(.+)\.sql$/.exec(migration.name);
+  return { version, name, has_statements: true };
+}).sort((left, right) => left.version.localeCompare(right.version)));
 run(settingsSQL("abcdefghijklmnopqrst"));
 run(settingsSQL("abcdefghijklmnopqrst"));
 assert.equal(run("select public.instance_settings()->>'deployment_mode';"), "self_hosted");
 assert.equal(run("select count(*) from vault.secrets where name = 'project_url';"), "1");
 run(migrationSQL({ ...release.migrations[0], sha256: "0".repeat(64) }), "migration_conflict");
 run(reservationSQL("72b256b8-1426-4ac3-8d3a-9a77d85fae20", release.id), "installation_conflict");
-console.log("Browser installation SQL: all migrations applied, replayed and conflict-checked.");
+console.log("Hosted installation SQL: all migrations applied, replayed, recorded in CLI history and conflict-checked.");

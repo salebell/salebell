@@ -59,17 +59,37 @@ struct AppModelTests {
 
 @MainActor
 struct PushLifecycleTests {
-    @Test func failedUnregisterKeepsAccountAndDeviceForRetry() async {
+    @Test func switchingUsersOnSameServerInvalidatesWidgetSnapshot() async {
+        let backend = PushBackend()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let store = ServerConfigurationStore(defaults: defaults)
+        store.save(configuration: .cloud, signedIn: true)
+        let before = store.selection.generation
+        let first = UUID()
+        let second = UUID()
+        let model = AppModel(backend: backend, defaults: defaults,
+                             authState: .signedIn(email: "first@example.com", userID: first), notificationPermission: .unknown,
+                             configurationStore: store)
+        let observer = Task { await model.start() }
+        backend.states.continuation.yield(.signedIn(email: "second@example.com", userID: second))
+        while model.authState.accountID != second.uuidString { await Task.yield() }
+        #expect(store.selection.signedIn)
+        #expect(store.selection.generation != before)
+        observer.cancel()
+        await observer.value
+    }
+
+    @Test func failedCustomerBackendRemovalDoesNotBlockSignOutAfterCentralRevocation() async {
         let backend = PushBackend()
         let defaults = UserDefaults(suiteName: UUID().uuidString)!
         let model = AppModel(backend: backend, defaults: defaults,
                              authState: .signedIn(email: "a@example.com", userID: UUID(uuidString: "11111111-1111-4111-8111-111111111111")!), notificationPermission: .allowed)
         await model.didReceiveDeviceToken(Data(repeating: 1, count: 32))
-        let registeredID = model.pushDeviceID
         await backend.failRemoval()
         do { try await model.signOut() } catch {}
-        #expect(model.email == "a@example.com")
-        #expect(model.pushDeviceID == registeredID)
+        #expect(model.email == nil)
+        #expect(model.pushDeviceID == nil)
+        #expect(await backend.deliveryStopped)
     }
 
     @Test func legacyDeviceIsRemovedWhenSigningOutBeforeTokenArrives() async throws {
@@ -88,14 +108,16 @@ struct PushLifecycleTests {
         #expect(await backend.activeDevices.isEmpty)
     }
 
-    @Test func failedRemovalCanBeRetried() async throws {
+    @Test func failedCentralRevocationCanBeRetried() async throws {
         let backend = PushBackend()
         let model = AppModel(backend: backend, defaults: UserDefaults(suiteName: UUID().uuidString)!,
                              authState: .signedIn(email: "a@example.com", userID: UUID(uuidString: "11111111-1111-4111-8111-111111111111")!), notificationPermission: .allowed)
         await model.didReceiveDeviceToken(Data(repeating: 1, count: 32))
-        await backend.failRemoval()
+        await backend.failRevocation()
         do { try await model.signOut() } catch {}
-        await backend.allowRemoval()
+        #expect(model.email == "a@example.com")
+        #expect(model.pushDeviceID != nil)
+        await backend.allowRevocation()
         try await model.signOut()
         #expect(model.email == nil)
         #expect(model.pushDeviceID == nil)
@@ -147,6 +169,87 @@ struct PushLifecycleTests {
         #expect(model.pushDeviceID == nil)
         #expect(await backend.activeDevices.isEmpty)
     }
+    @Test func switchingServersClearsSessionEvenWhenOldDeviceRemovalIsOffline() async throws {
+        let backend = PushBackend()
+        let next = PushBackend()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let store = ServerConfigurationStore(defaults: defaults)
+        let owner = AuthState.signedIn(email: "a@example.com", userID: UUID())
+        let original = try ServerConfiguration(siteURL: URL(string: "https://first.example.com")!, supabaseURL: URL(string: "https://api-first.example.com")!, supabaseKey: "sb_publishable_first")
+        let selected = try ServerConfiguration(siteURL: URL(string: "https://second.example.com")!, supabaseURL: URL(string: "https://api-second.example.com")!, supabaseKey: "sb_publishable_second")
+        store.save(configuration: original, signedIn: true)
+        let model = AppModel(backend: backend, defaults: defaults, authState: owner, notificationPermission: .allowed,
+                             configuration: original, configurationStore: store, backendFactory: { _ in next })
+        await model.didReceiveDeviceToken(Data(repeating: 1, count: 32))
+        let oldObserver = Task { await model.start() }
+        let generation = model.backendGeneration
+        await backend.failRemoval()
+        try await model.switchServer(to: selected)
+        #expect(await backend.deliveryStopped)
+        #expect(model.configuration == selected)
+        #expect(model.backendGeneration != generation)
+        #expect(model.authState == .loading)
+        #expect(!store.selection.signedIn)
+        #expect(model.pushDeviceID == nil)
+
+        // The old stream cannot sign the new backend into the same UUID.
+        let observer = Task { await model.start() }
+        backend.states.continuation.yield(owner)
+        next.states.continuation.yield(.signedOut)
+        while model.authState == .loading { await Task.yield() }
+        #expect(model.email == nil)
+        observer.cancel()
+        oldObserver.cancel()
+        await observer.value
+        await oldObserver.value
+    }
+
+    @Test func failedCentralRevocationKeepsSelectedServerAndSession() async throws {
+        let backend = PushBackend()
+        let model = AppModel(backend: backend, defaults: UserDefaults(suiteName: UUID().uuidString)!,
+                             authState: .signedIn(email: "a@example.com", userID: UUID()), notificationPermission: .allowed)
+        let original = model.configuration
+        let generation = model.backendGeneration
+        let selected = try ServerConfiguration(siteURL: URL(string: "https://other.example.com")!, supabaseURL: URL(string: "https://api-other.example.com")!, supabaseKey: "sb_publishable_other")
+        await backend.failRevocation()
+        do { try await model.switchServer(to: selected); Issue.record("Switch should fail") } catch {}
+        #expect(model.configuration == original)
+        #expect(model.backendGeneration == generation)
+        #expect(model.email == "a@example.com")
+    }
+
+    @Test func expiredSessionAtLaunchRevokesDeliveryAndHidesWidgetData() async {
+        let backend = PushBackend()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let store = ServerConfigurationStore(defaults: defaults)
+        store.save(configuration: .cloud, signedIn: true)
+        let previous = store.selection
+        let model = AppModel(backend: backend, defaults: defaults, authState: .loading, notificationPermission: .allowed,
+                             configurationStore: store)
+        let observer = Task { await model.start() }
+        backend.states.continuation.yield(.signedOut)
+        while !(await backend.deliveryStopped) { await Task.yield() }
+        #expect(model.authState == .signedOut)
+        #expect(!store.selection.signedIn)
+        #expect(store.selection.generation != previous.generation)
+        observer.cancel()
+        await observer.value
+    }
+
+    @Test func sameUserOnDifferentOriginsDoesNotRestoreOtherServerDevices() async throws {
+        let backend = PushBackend()
+        let defaults = UserDefaults(suiteName: UUID().uuidString)!
+        let owner = AuthState.signedIn(email: "a@example.com", userID: UUID())
+        let first = try ServerConfiguration(siteURL: URL(string: "https://first.example.com")!, supabaseURL: URL(string: "https://api-first.example.com")!, supabaseKey: "sb_publishable_first")
+        let second = try ServerConfiguration(siteURL: URL(string: "https://second.example.com")!, supabaseURL: URL(string: "https://api-second.example.com")!, supabaseKey: "sb_publishable_second")
+        let original = AppModel(backend: backend, defaults: defaults, authState: owner, notificationPermission: .allowed, configuration: first)
+        await original.didReceiveDeviceToken(Data(repeating: 1, count: 32))
+        let originalID = try #require(original.pushDeviceID)
+        let other = AppModel(backend: backend, defaults: defaults, authState: owner, notificationPermission: .allowed, configuration: second)
+        try await other.signOut()
+        #expect(await backend.activeDevices.contains(originalID))
+    }
+
 }
 
 private actor PushBackend: Backend {
@@ -155,6 +258,14 @@ private actor PushBackend: Backend {
     private var ids: [String: UUID] = [:]
     var activeDevices: Set<UUID> = []
     private var removalFails = false
+    private var revocationFails = false
+    var deliveryStopped = false
+    func failRevocation() { revocationFails = true }
+    func allowRevocation() { revocationFails = false }
+    func stopPushDelivery() async throws {
+        if revocationFails { throw Failure.offline }
+        deliveryStopped = true
+    }
     private var paused = false
     private var gate: CheckedContinuation<Void, Never>?
     private var started = false

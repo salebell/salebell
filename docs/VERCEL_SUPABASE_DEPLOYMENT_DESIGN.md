@@ -1,9 +1,9 @@
 # Browser deployment to Vercel and Supabase
 
-> Updated architecture (16 October 2026): the current implementation uses the standard Vercel Deploy Button, Vercel's existing Supabase native integration, and **Supabase-only OAuth**. The original Vercel OAuth design below is historical. See [the current operator and installation guide](VERCEL_SUPABASE_DEPLOYMENT.md) for configuration. No `INSTALLER_VERCEL_*` settings are required, and no Vercel API token is stored or used. Deployment binding now checks public setup metadata against the OAuth-authorized Supabase project; the existing web build becomes ready as the backend is installed.
+> Archived (16 October 2026): the browser installer and its shared OAuth/native integration architecture are superseded by the local `npm run deploy` installer. The current [deployment guide](VERCEL_SUPABASE_DEPLOYMENT.md) uses each deploying user's Vercel CLI and Supabase CLI logins. No shared app registration or Marketplace integration is required. The remaining content records the earlier design and is not setup guidance.
 
 Date: 2026-10-15
-Status: Approved design; implementation added, public release awaits provider qualification
+Status: Archived; superseded by the local guided CLI installer
 
 ## Intended outcome
 

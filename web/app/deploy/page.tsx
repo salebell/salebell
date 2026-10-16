@@ -21,9 +21,12 @@ export default async function DeployPage({ searchParams }: { searchParams: Promi
       {!config.publicEnabled && <p className="mt-5 rounded-lg border border-border bg-surface p-3 text-sm text-muted">Preview installer. Public availability depends on completing provider integration checks.</p>}
       <DeployForm initialIssue={issue ?? null} initialSite={initialSite} />
     </> : <div className="mt-8 rounded-xl border border-border bg-surface p-6">
-      <h2 className="font-semibold">Browser deployment is being prepared</h2>
-      <p className="mt-2 text-sm leading-relaxed text-muted">The provider connections aren&apos;t enabled on this host yet. You can use the server installer or follow the Vercel and Supabase setup guide.</p>
-      <p className="mt-4 text-sm"><Link href="/self-host" className="text-accent-text underline">Server installation</Link><span className="px-2 text-muted">·</span><a href="https://github.com/salebell/salebell/blob/main/docs/VERCEL_SUPABASE_DEPLOYMENT.md" className="text-accent-text underline">Vercel and Supabase guide</a></p>
+      <h2 className="font-semibold">Deploy from your computer</h2>
+      <p className="mt-2 text-sm leading-relaxed text-muted">Use the guided installer with your own Vercel and Supabase accounts. It uses the providers&apos; CLI sign-ins; no Marketplace integration or shared OAuth app is required.</p>
+      <pre className="mt-4 overflow-x-auto rounded-lg bg-background p-4 text-sm"><code>{`git clone https://github.com/salebell/salebell.git salebell
+cd salebell
+npm run deploy`}</code></pre>
+      <p className="mt-4 text-sm"><a href="https://github.com/salebell/salebell/blob/main/docs/VERCEL_SUPABASE_DEPLOYMENT.md" className="text-accent-text underline">Vercel and Supabase guide</a><span className="px-2 text-muted">·</span><a href="https://github.com/salebell/salebell/blob/main/docs/VPS_SUPABASE_DEPLOYMENT.md" className="text-accent-text underline">Custom server and Supabase</a><span className="px-2 text-muted">·</span><Link href="/self-host" className="text-accent-text underline">Hosting options</Link></p>
     </div>}
   </main>;
 }

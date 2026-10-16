@@ -7,6 +7,7 @@ struct SignInView: View {
     private enum Field { case email, code, password }
     static let resendCooldown: TimeInterval = 60
 
+    @State private var showServerSettings = false
     @State private var step = Step.password
     @State private var email = ""
     @State private var code = ""
@@ -25,6 +26,10 @@ struct SignInView: View {
         ScrollView {
             VStack(spacing: 28) {
                 header
+                Button { showServerSettings = true } label: {
+                    Label(model.configuration.siteURL.host() ?? "Server", systemImage: "server.rack")
+                        .font(.footnote)
+                }
                 switch step {
                 case .email: emailStep
                 case .code: codeStep
@@ -45,6 +50,12 @@ struct SignInView: View {
         }
         .scrollDismissesKeyboard(.interactively)
         .background(Color(.systemGroupedBackground))
+        .sheet(isPresented: $showServerSettings) {
+            NavigationStack {
+                ServerSettingsView()
+                    .toolbar { ToolbarItem(placement: .cancellationAction) { Button("Done") { showServerSettings = false } } }
+            }
+        }
         .onAppear { focus = .email }
     }
 

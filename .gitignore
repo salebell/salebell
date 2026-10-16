@@ -60,3 +60,6 @@ deploy/.env
 deploy/owner-password
 deploy/backups/
 ios/Config/Local.xcconfig
+
+# Local hosted deployment checkpoint; no credentials are stored here.
+.salebell-deploy/

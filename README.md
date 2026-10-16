@@ -37,10 +37,13 @@
 | :--- | :--- | :--- |
 | **Use Cloud** | An email address and your app | [Open Salebell](https://salebell.vercel.app) → [connect an app](#connect-your-first-app) |
 | **Develop locally** | Node.js 22.6+, Supabase CLI 2.90+, Docker | [One-command setup ↓](#develop-locally) |
-| **Self-host** | Node.js 22.6+, Docker Compose v2, a server and two hostnames | [Production setup ↓](#self-host-in-production) |
-| **Host on Vercel + Supabase** | Your own provider accounts | [Hosted installation guide](docs/VERCEL_SUPABASE_DEPLOYMENT.md), including the preview browser installer |
+| **Host on your server + Supabase** | A Node.js/Docker server, HTTPS hostname and your own Supabase project | [VPS + Supabase guide](docs/VPS_SUPABASE_DEPLOYMENT.md) |
+| **Host the full stack** | Node.js 22.6+, Docker Compose v2, a server and two hostnames | [Advanced production setup ↓](#self-host-in-production) |
+| **Host on Vercel + Supabase** | Git, Node.js 22.6+, your own provider accounts | [`npm run deploy` ↓](#host-on-vercel-and-supabase) |
 
 **Self-hosted:** all existing features, no subscription or Stripe. You operate the infrastructure. [Cloud plans](docs/PRODUCT.md#2-cloud-pricing-and-self-hosted-access) apply only to the managed service.
+
+**Deployment model:** host the website on your own server or Vercel and connect your own Supabase project. Running Supabase itself is an optional advanced alternative. The shared iPhone app implementation accepts your website URL, API URL and public key in **Settings → Server**, then signs in to your own backend. Users do not publish an app or supply APNs keys. Distribution and the managed push relay still require operator rollout and physical-device verification; a configured download link does not establish availability. [Connection and relay setup](docs/PUSH_RELAY.md) · [Implementation review](docs/DEPLOYMENT_REVIEW.md).
 
 ## Develop locally
 
@@ -78,6 +81,20 @@ Automatically installs web dependencies, starts Supabase, applies migrations, ge
 Use the production installer below for public instances. [More troubleshooting](docs/SETUP.md#common-first-run-problems).
 
 </details>
+
+## Host on Vercel and Supabase
+
+Run the guided installer on your computer with **Git** and **Node.js 22.6+**:
+
+```sh
+git clone https://github.com/salebell/salebell.git salebell
+cd salebell
+npm run deploy
+```
+
+Sign in with your own Vercel and Supabase CLI accounts when prompted, choose your projects and create your owner login. The installer configures and deploys the website, database and backend functions. It reuses existing CLI logins and offers pinned CLI downloads if needed. **No Marketplace integration, OAuth app registration, Docker or custom domain is required.**
+
+Vercel hosts the website; Supabase provides its API, database and authentication. Both projects belong to you. [Guided installation and manual fallback →](docs/VERCEL_SUPABASE_DEPLOYMENT.md)
 
 ## Self-host in production
 
@@ -162,7 +179,7 @@ flowchart LR
 | Need | Guide |
 | :--- | :--- |
 | **Operate your instance** | [Install and sign in](docs/SELF_HOSTING.md) · [SMTP, backups, updates and recovery](docs/SELF_HOSTING_OPERATIONS.md) |
-| **Build the iPhone companion** | [Configure backend, signing, APNs & widget](ios/README.md#self-hosted-companion). Self-hosted builds must match your backend and Apple identity. |
+| **Connect the iPhone app** | [Settings → Server](ios/README.md#self-hosted-companion): website/API URLs and public key, then sign in. Shared-app distribution and relay rollout remain operator tasks; private direct-APNs builds are an advanced alternative. |
 | **Deploy your own Cloud service** | [Web environment & deployment](web/README.md) + [owner setup & verification](docs/SETUP.md#configure-a-hosted-deployment-as-the-owner) |
 | **Configure optional providers** | [Email, Stripe and APNs setup](docs/SETUP.md#launch-priorities) · [.env.setup.example](.env.setup.example) |
 | **Understand product scope** | [Features, Cloud plans and constraints](docs/PRODUCT.md) |
@@ -179,7 +196,7 @@ flowchart LR
 | [`supabase/functions/`](supabase/functions/) | Apple/Google receivers and setup, billing, alerts, account deletion, FX |
 | [`supabase/migrations/`](supabase/migrations/) | Schema, tenancy, RLS, ledger and credentials |
 | [`deploy/`](deploy/) | Production Compose stack and HTTPS gateway |
-| [`scripts/`](scripts/) | Local bootstrap, self-host installer and hosted owner setup |
+| [`scripts/`](scripts/) | Local bootstrap, Vercel/Supabase and Compose installers, hosted owner setup |
 | [`tests/`](tests/) | Core, handler, installer and SQL checks |
 
 </details>

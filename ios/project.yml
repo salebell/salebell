@@ -29,6 +29,7 @@ targets:
       - package: Supabase
         product: Supabase
       - target: SalebellWidget
+      - target: SalebellNotificationService
     settings:
       base:
         PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID)
@@ -55,6 +56,7 @@ targets:
         SPSupabaseKey: $(SUPABASE_PUBLISHABLE_KEY)
         SPSiteURL: $(SITE_URL)
         SPApnsEnvironment: $(SP_APNS_ENVIRONMENT)
+        SPPushRelayURL: $(PUSH_RELAY_URL)
         SPAppGroup: $(APP_GROUP_ID)
     entitlements:
       path: Salebell/Salebell.entitlements
@@ -72,6 +74,7 @@ targets:
       - path: Salebell/Models/Money.swift
       - path: Salebell/Services/AppConfig.swift
       - path: Salebell/Services/SharedClient.swift
+      - path: Salebell/Services/ServerConfiguration.swift
     dependencies:
       - package: Supabase
         product: Supabase
@@ -96,6 +99,32 @@ targets:
         SPAppGroup: $(APP_GROUP_ID)
     entitlements:
       path: SalebellWidget/SalebellWidget.entitlements
+      properties:
+        com.apple.security.application-groups:
+          - $(APP_GROUP_ID)
+  SalebellNotificationService:
+    type: app-extension
+    platform: iOS
+    sources:
+      - path: SalebellNotificationService
+      - path: Salebell/Services/NotificationPrivacy.swift
+      - path: Salebell/Services/AppConfig.swift
+    settings:
+      base:
+        PRODUCT_BUNDLE_IDENTIFIER: $(APP_BUNDLE_ID).notifications
+        SKIP_INSTALL: YES
+    info:
+      path: SalebellNotificationService/Info.plist
+      properties:
+        CFBundleDisplayName: Salebell Notifications
+        CFBundleShortVersionString: $(MARKETING_VERSION)
+        CFBundleVersion: $(CURRENT_PROJECT_VERSION)
+        SPAppGroup: $(APP_GROUP_ID)
+        NSExtension:
+          NSExtensionPointIdentifier: com.apple.usernotifications.service
+          NSExtensionPrincipalClass: $(PRODUCT_MODULE_NAME).NotificationService
+    entitlements:
+      path: SalebellNotificationService/SalebellNotificationService.entitlements
       properties:
         com.apple.security.application-groups:
           - $(APP_GROUP_ID)

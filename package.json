@@ -4,7 +4,9 @@
   "license": "MIT",
   "type": "module",
   "description": "Real-time in-app purchase monitoring: verified App Store notifications, revenue ledger, phone alerts and integrations.",
-  "engines": { "node": ">=22.6" },
+  "engines": {
+    "node": ">=22.6"
+  },
   "scripts": {
     "installer:assets": "node web/scripts/build-installer-assets.mjs",
     "installer:assets:check": "node web/scripts/build-installer-assets.mjs --check",
@@ -15,6 +17,7 @@
     "test": "node --experimental-strip-types --no-warnings --test tests/*.test.ts",
     "test:sql": "bash tests/sql/run.sh",
     "deploy:functions": "supabase functions deploy --use-api",
-    "deploy:db": "supabase db push --linked"
+    "deploy:db": "supabase db push --linked",
+    "deploy": "node --experimental-strip-types --no-warnings scripts/deploy-hosted.mjs"
   }
 }

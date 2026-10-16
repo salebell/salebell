@@ -18,6 +18,18 @@ enum AppConfig {
     /// "sandbox" for Debug builds (development aps-environment), "production" for Release.
     static let apnsEnvironment = value("SPApnsEnvironment")
 
+    /// Operator-controlled build setting. Customer server settings cannot redirect credentials.
+    static let pushRelayURL: URL = {
+        let configured = Bundle.main.object(forInfoDictionaryKey: "SPPushRelayURL") as? String
+        let raw = configured.flatMap { $0.isEmpty || $0.contains("$(") ? nil : $0 }
+            ?? "https://salebell.vercel.app/api/push-relay"
+        guard let url = URL(string: raw), url.scheme == "https", url.host != nil,
+              url.user == nil, url.password == nil, url.query == nil, url.fragment == nil else {
+            fatalError("PUSH_RELAY_URL must be a trusted HTTPS endpoint.")
+        }
+        return url
+    }()
+
     static var docsURL: URL { siteURL.appending(path: "docs") }
     static var privacyURL: URL { siteURL.appending(path: "privacy") }
     static var termsURL: URL { siteURL.appending(path: "terms") }

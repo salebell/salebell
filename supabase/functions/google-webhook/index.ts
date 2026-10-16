@@ -2,7 +2,7 @@
 // https://<api-host>/functions/v1/google-webhook/<app-key>
 // Pub/Sub must use wrapped delivery with the configured OIDC audience/account.
 import "jsr:@supabase/functions-js/edge-runtime.d.ts";
-import { apnsConfigFromEnv, createApnsClient } from "../_shared/core/apns.ts";
+import { createPushDelivery } from "../_shared/core/push-delivery.ts";
 import { createGooglePushVerifier } from "../_shared/core/google_auth.ts";
 import { createGooglePlayClient, type GoogleServiceAccount } from "../_shared/core/google_play_api.ts";
 import type { StoreEnvironment } from "../_shared/core/events.ts";
@@ -12,8 +12,6 @@ import { createGoogleWebhook } from "./handler.ts";
 
 const env = (name: string) => Deno.env.get(name);
 const db = serviceClientFromEnv(env);
-const apnsConfig = apnsConfigFromEnv(env);
-const apns = apnsConfig ? createApnsClient(apnsConfig) : null;
 declare const EdgeRuntime: { waitUntil(p: Promise<unknown>): void } | undefined;
 
 type AppRow = {
@@ -65,11 +63,7 @@ Deno.serve(createGoogleWebhook({
   record: ({ app, event, notification }) => db.rpc("record_google_play_event", { p_app_id: app.id, p_event: event, p_payload: notification,
     p_connection_version: app.connectionVersion }),
   logDeliveries: (app, event, deliveries) => db.rpc("log_alert_deliveries", { p_app_id: app.id, p_event_id: event.id, p_deliveries: deliveries }),
-  push: apns ? async (devices, app, event) => {
-    const result = await apns.send(devices, app, event);
-    if (result.invalidTokens.length) await db.rpc("disable_push_devices", { p_tokens: result.invalidTokens });
-    return result;
-  } : undefined,
+  push: createPushDelivery(env, db),
   fetcher: guardedFetch,
   waitUntil: typeof EdgeRuntime !== "undefined" ? p => EdgeRuntime.waitUntil(p) : undefined,
 }));

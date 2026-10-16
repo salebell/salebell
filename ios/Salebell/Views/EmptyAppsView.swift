@@ -17,7 +17,7 @@ struct EmptyAppsView: View {
                 Text("Return here when you're done. Your in-app purchases and subscriptions will appear as Apple sends them.")
             }
         } actions: {
-            Link(destination: AppConfig.docsURL) {
+            Link(destination: model.configuration.docsURL) {
                 Label("Open the setup guide", systemImage: "safari")
             }
             .buttonStyle(.borderedProminent)

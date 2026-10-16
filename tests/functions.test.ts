@@ -66,7 +66,7 @@ test("test-alert target push sends only to the caller's devices", async () => {
   assert.deepEqual([dispatched, pushed], [0, 1]);
 });
 
-test("test-alert is rate limited per user and fails open when the limiter errors", async () => {
+test("test-alert is rate limited per user and fails closed when the limiter errors", async () => {
   const keys: string[] = [];
   let calls = 0;
   const make = (rateLimit: (u: string) => Promise<number>) => createTestAlert({
@@ -81,7 +81,8 @@ test("test-alert is rate limited per user and fails open when the limiter errors
   assert.equal(limited.headers.get("retry-after"), "42");
   assert.deepEqual(await limited.json(), { error: "rate_limited", retry_after: 42 });
   assert.deepEqual([keys, calls], [["user-1"], 0], "keyed by user, nothing sent");
-  assert.equal((await make(async () => { throw new Error("db down"); })(req({ app_id: APP }))).status, 200);
+  assert.equal((await make(async () => { throw new Error("db down"); })(req({ app_id: APP }))).status, 503);
+  assert.equal(calls, 0, "limiter failure cannot fetch recipients or send alerts");
 });
 
 test("test-alert with channel_id tests only that channel and skips push", async () => {
