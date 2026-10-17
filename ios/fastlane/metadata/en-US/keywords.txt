@@ -1,0 +1,1 @@
+app,sales,revenue,developer,subscription,renewal,purchase,alerts,indie,widget,monitor,refund

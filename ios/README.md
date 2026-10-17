@@ -158,6 +158,8 @@ site URL. Row Level Security protects all data. No service-role key, Stripe key 
 
 ## App Store submission notes
 
+Current listing copy, native iPhone/iPad screenshots, build 4 status and remaining owner fields are in [`fastlane/README.md`](fastlane/README.md).
+
 **Business model.** Free app with no in-app purchases. It qualifies under guideline 3.1.3(f), "Free Stand-alone Apps":
 a free companion to a paid web service, as long as the app has no purchasing and no calls to action to buy outside the app.
 Keep it that way:

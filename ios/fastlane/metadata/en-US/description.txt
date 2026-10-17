@@ -1,0 +1,23 @@
+Your app sells. Your phone rings.
+
+Salebell brings your connected apps’ sales activity to your iPhone. Check estimated revenue, follow a live event feed, and hear a short cha-ching when a purchase arrives.
+
+YOUR APPS, AT A GLANCE
+See gross sales estimates in USD for today, the last 7 days, and the last 30 days. Compare activity across your connected apps and pull to refresh the latest numbers.
+
+FOLLOW EVERY CHANGE
+Browse purchases, subscription renewals, trials, refunds, cancellations, and billing events. See original purchase currencies when verified prices are available. Monitor connected App Store apps and supported Google Play notifications in one feed.
+
+HEAR YOUR NEXT SALE
+Enable push notifications for sales activity and send a test cha-ching from Settings. Choose whether to include sandbox alerts on your device.
+
+TODAY’S SALES, ON YOUR HOME SCREEN
+Add a Salebell widget for a quick view of today’s estimated revenue and purchase activity. Home Screen and Lock Screen widgets show when their figures were last updated.
+
+CONNECT TO YOUR SALEBELL SERVER
+Use Salebell Cloud or choose your own compatible Salebell server from Settings, including before signing in. Sign in using the account for that server.
+
+MADE FOR EXISTING SALEBELL ACCOUNTS
+This companion app requires an account on a configured Salebell server with connected apps. App connections are managed in the Salebell web dashboard. Salebell monitors in-app purchase events; paid-app downloads are not included. Revenue figures are estimates of gross customer spend, not developer payouts. Notification delivery depends on your server configuration and iOS notification settings.
+
+No ads. No tracking. No in-app purchases.

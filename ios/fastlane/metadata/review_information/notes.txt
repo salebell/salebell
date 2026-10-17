@@ -1,0 +1,23 @@
+Salebell is a free companion for existing Salebell accounts. It shows activity from apps connected to the account’s Salebell server: purchases, renewals, trials, refunds, and related lifecycle events. Estimated gross sales are shown in USD; verified event amounts retain their original currency. It monitors in-app purchases, not paid-app downloads.
+
+The app has no in-app purchases, subscription checkout, or calls to purchase. App connections are configured in the web dashboard.
+
+SIGN IN
+Use the credentials in App Review Information. The sign-in screen supports email and password as well as email codes. Select the password option when needed; reviewers should not need access to an email inbox. Leave the default Salebell server selected unless a separate review server is explicitly provided.
+
+WHAT TO TRY
+1. Overview: switch between Today, 7 days, and 30 days; pull to refresh.
+2. Feed: inspect recent purchases, renewals, trials, and refunds.
+3. Settings: allow notifications, then use Send a test cha-ching with a connected app. Notification delivery requires the configured server and push service to be available.
+4. Settings → Server: the app supports compatible independent Salebell servers. Changing servers ends the current session.
+5. Settings → Delete account: permanently deletes the signed-in account and its data. Please use a disposable account when testing deletion.
+6. Add Today’s sales widgets on the Home Screen or Lock Screen.
+
+SCREENSHOTS
+Screenshots use the Debug-only sample backend with fictional Focus Timer and Habit Garden apps. These fixtures are not a production account or an in-app demonstration mode. Reviewers sign in to the real account supplied above.
+
+DATA AND PUSH
+The app signs in directly to the selected backend. The managed push relay processes device and route identifiers and notification title/body to deliver alerts. Sale text is encrypted for APNs using standard AES-GCM; the relay can access that text. This is not end-to-end encryption. There are no ads or tracking.
+
+REVIEW ACCOUNT DATA
+The supplied account contains one fictional app, Focus Timer (App Review Demo), with 76 sample purchases, renewals, trials, refunds and cancellations across 28 days. All events are synthetic and scoped only to this reviewer workspace. Amounts are demonstration values, not real customer revenue. Sign in with email and password; this confirmed review-only account does not require an email code. Leave the default Salebell server selected. Account deletion is permanent, so please avoid deleting the review account before completing review.

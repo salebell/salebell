@@ -1,0 +1,6 @@
+app_identifier("com.salebell.salebell")
+app_version("1.0")
+metadata_path(File.expand_path("metadata", __dir__))
+screenshots_path(File.expand_path("screenshots", __dir__))
+skip_binary_upload(true)
+submit_for_review(false)
