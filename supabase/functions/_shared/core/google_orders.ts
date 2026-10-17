@@ -59,7 +59,9 @@ export async function enrichGoogleOrder(
   const processedAt = timestamp(object(history?.processedEvent)?.eventTime);
   // A delayed RTDN can resolve to a later subscription renewal. Never assign it
   // that later charge; the later notification will record its own order.
-  if (event.type !== "refund" && processedAt > n.eventTimeMillis) {
+  // One-time purchases identify their exact order above; Google's processing
+  // timestamp can slightly follow the RTDN timestamp for that same charge.
+  if (n.kind === "subscription" && event.type !== "refund" && processedAt > n.eventTimeMillis) {
     notification.priceUnavailable = "newer_order";
     return;
   }

@@ -117,6 +117,24 @@ test("one-time products use charged quantity totals, not recurring or catalog pr
   assert.equal(normalized.event.revenue, 14.97);
 });
 
+test("EUR lifetime order keeps its price when processing follows RTDN by 46 milliseconds", async () => {
+  const message = parseGooglePush({ subscription: "projects/example/subscriptions/salebell", message: { messageId: "eur-lifetime", data: Buffer.from(JSON.stringify({
+    version: "1.0", packageName: "com.example", eventTimeMillis: String(time),
+    oneTimeProductNotification: { version: "1.0", notificationType: 1, purchaseToken: "private-token", sku: "premium_lifetime" },
+  })).toString("base64") } });
+  const p = { orderId: "GPA.1", purchaseStateContext: { purchaseState: "PURCHASED" }, productLineItem: [{ productId: "premium_lifetime" }] };
+  const normalized = await normalizeGooglePlayNotification(message, p);
+  await enrichGoogleOrder(message, p, normalized, async () => order({
+    total: money("13", 990000000, "EUR"), lineItems: [{ productId: "premium_lifetime" }],
+    orderHistory: { processedEvent: { eventTime: new Date(time + 46).toISOString() } },
+  }));
+  assert.equal(normalized.event.type, "purchase");
+  assert.equal(normalized.event.transactionId, "GPA.1");
+  assert.equal(normalized.event.currency, "EUR");
+  assert.equal(normalized.event.revenue, 13.99);
+  assert.equal(normalized.notification.priceUnavailable, undefined);
+});
+
 test("zero-price trial refunds retain an authoritative zero rather than retrying forever", async () => {
   const result = await run(4, order({ state: "REFUNDED", total: money("0", 0), orderHistory: {
     processedEvent: { eventTime: new Date(time - 1000).toISOString() },
